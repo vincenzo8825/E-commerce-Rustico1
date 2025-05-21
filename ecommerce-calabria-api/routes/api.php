@@ -1,0 +1,152 @@
+<?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\UserDashboardController;
+use App\Http\Controllers\API\CheckoutController;
+use App\Http\Controllers\API\ProductController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+
+
+// Rotta di test per verificare il collegamento
+Route::get('/ping', function () {
+    return response()->json([
+        'message' => 'Connessione al backend riuscita!',
+        'status' => 'success',
+        'timestamp' => now()->toDateTimeString()
+    ]);
+});
+
+// Rotta alternativa senza slash iniziale
+Route::get('ping', function () {
+    return response()->json([
+        'message' => 'Connessione al backend riuscita!',
+        'status' => 'success',
+        'timestamp' => now()->toDateTimeString()
+    ]);
+});
+
+// Rotte pubbliche per i prodotti
+Route::get('/products', [ProductController::class, 'index']);
+Route::get('/products/search', [ProductController::class, 'search']);
+Route::get('/products/suggestions', [ProductController::class, 'suggestions']);
+Route::get('/products/featured', [ProductController::class, 'featured']);
+Route::get('/products/new-arrivals', [ProductController::class, 'newArrivals']);
+Route::get('/products/{slug}', [ProductController::class, 'show']);
+
+// Rotte pubbliche per le categorie
+Route::get('/categories', [App\Http\Controllers\API\CategoryController::class, 'index']);
+Route::get('/categories/{slug}', [App\Http\Controllers\API\CategoryController::class, 'show']);
+
+// Rotte autenticazione
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+
+// Controllo stato autenticazione
+Route::middleware('auth:sanctum')->get('/auth/check', [AuthController::class, 'checkAuthStatus']);
+
+// Rotte protette da autenticazione
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    // Rotta per richiedere una nuova email di verifica
+    Route::post('/email/verification-notification', function (Request $request) {
+        if ($request->user()->hasVerifiedEmail()) {
+            return response()->json(['message' => 'Email già verificata.'], 200);
+        }
+        $request->user()->sendEmailVerificationNotification();
+        return response()->json(['message' => 'Email di verifica inviata.']);
+    })->middleware('throttle:6,1');
+
+    // Rotte per la dashboard utente
+    Route::prefix('user')->group(function () {
+        Route::get('/profile', [UserDashboardController::class, 'getProfile']);
+        Route::post('/profile', [UserDashboardController::class, 'updateProfile']);
+        Route::post('/password', [UserDashboardController::class, 'updatePassword']);
+
+        // Rotte per gli ordini
+        Route::get('/orders', [UserDashboardController::class, 'getOrders']);
+        Route::get('/orders/{id}', [UserDashboardController::class, 'getOrder']);
+
+        // Rotte per i preferiti
+        Route::get('/favorites', [UserDashboardController::class, 'getFavorites']);
+        Route::delete('/favorites/{id}', [UserDashboardController::class, 'removeFavorite']);
+
+        // Rotte per il supporto
+        Route::get('/support-tickets', [UserDashboardController::class, 'getSupportTickets']);
+        Route::post('/support-tickets', [UserDashboardController::class, 'createSupportTicket']);
+        Route::post('/support-tickets/{id}/messages', [UserDashboardController::class, 'addMessageToTicket']);
+
+        // Rotte per le notifiche
+        Route::get('/notifications', [App\Http\Controllers\API\NotificationController::class, 'index']);
+        Route::post('/notifications/{id}/read', [App\Http\Controllers\API\NotificationController::class, 'markAsRead']);
+        Route::post('/notifications/read-all', [App\Http\Controllers\API\NotificationController::class, 'markAllAsRead']);
+        Route::delete('/notifications/{id}', [App\Http\Controllers\API\NotificationController::class, 'destroy']);
+        Route::delete('/notifications/old', [App\Http\Controllers\API\NotificationController::class, 'deleteOldNotifications']);
+    });
+});
+
+// Rotta per verifica email (link ricevuto via email)
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+    return response()->json(['message' => 'Email verificata con successo!']);
+})->middleware(['auth:sanctum', 'signed'])->name('verification.verify');
+
+// Rotta per controllare se l'email è verificata
+Route::get('/email/verified', function (Request $request) {
+    return response()->json(['verified' => $request->user()->hasVerifiedEmail()]);
+})->middleware(['auth:sanctum']);
+
+// Rotte per il carrello e checkout
+Route::middleware('auth:sanctum')->group(function () {
+    // Checkout
+    Route::post('/checkout', [CheckoutController::class, 'process']);
+    Route::post('/checkout/payment', [CheckoutController::class, 'processPayment']);
+    Route::post('/checkout/verify-discount', [CheckoutController::class, 'verifyDiscountCode']);
+});
+
+// Rotta per controllare se l'utente è admin
+Route::middleware('auth:sanctum')->get('/admin/check-status', function (Request $request) {
+    return response()->json([
+        'isAdmin' => $request->user()->is_admin
+    ]);
+});
+
+// Rotte per l'area amministrativa, senza il middleware isAdmin
+Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
+    // Rotte per i prodotti
+    Route::apiResource('products', 'App\Http\Controllers\Admin\ProductController');
+
+    // Rotte specifiche per la gestione magazzino
+    Route::put('products/{id}/stock', [App\Http\Controllers\Admin\ProductController::class, 'updateStock']);
+    Route::post('products/bulk-update-stock', [App\Http\Controllers\Admin\ProductController::class, 'bulkUpdateStock']);
+
+    // Rotte per le categorie
+    Route::apiResource('categories', 'App\Http\Controllers\Admin\CategoryController');
+
+    // Rotte per gli ordini
+    Route::get('orders', [App\Http\Controllers\Admin\OrderController::class, 'index']);
+    Route::get('orders/{id}', [App\Http\Controllers\Admin\OrderController::class, 'show']);
+    Route::put('orders/{id}/status', [App\Http\Controllers\Admin\OrderController::class, 'updateStatus']);
+    Route::post('orders/{id}/notes', [App\Http\Controllers\Admin\OrderController::class, 'addNote']);
+    Route::get('orders/statistics', [App\Http\Controllers\Admin\OrderController::class, 'statistics']);
+
+    // Rotte per i ticket di supporto
+    Route::get('support-tickets', [App\Http\Controllers\Admin\SupportController::class, 'index']);
+    Route::get('support-tickets/{id}', [App\Http\Controllers\Admin\SupportController::class, 'show']);
+    Route::post('support-tickets/{id}/messages', [App\Http\Controllers\Admin\SupportController::class, 'addMessage']);
+    Route::put('support-tickets/{id}/status', [App\Http\Controllers\Admin\SupportController::class, 'updateStatus']);
+    Route::get('support-tickets/statistics', [App\Http\Controllers\Admin\SupportController::class, 'statistics']);
+
+    // Rotte per i codici sconto
+    Route::apiResource('discounts', 'App\Http\Controllers\Admin\DiscountController');
+    Route::put('discounts/{id}/toggle', [App\Http\Controllers\Admin\DiscountController::class, 'toggleActive']);
+
+    // Rotte per verificare lo stato admin
+    Route::get('/check-status', [App\Http\Controllers\Admin\StatisticsController::class, 'checkStatus']);
+
+    // Rotte statistiche
+    Route::get('/statistics', [App\Http\Controllers\Admin\StatisticsController::class, 'index']);
+    Route::get('/statistics/products', [App\Http\Controllers\Admin\StatisticsController::class, 'topProducts']);
+});

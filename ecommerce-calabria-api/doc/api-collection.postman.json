@@ -1,0 +1,978 @@
+{
+  "info": {
+    "name": "Sapori di Calabria API",
+    "description": "Raccolta di API per l'eCommerce Sapori di Calabria",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Pubblico",
+      "description": "Endpoint pubblici disponibili senza autenticazione",
+      "item": [
+        {
+          "name": "Ping Test",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/ping",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ping"]
+            },
+            "description": "Test di connessione all'API"
+          }
+        },
+        {
+          "name": "Elenco Prodotti",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/products?category=&price_min=&price_max=&in_stock=&sort_by=default&page=1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products"],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "",
+                  "description": "Slug della categoria"
+                },
+                {
+                  "key": "price_min",
+                  "value": "",
+                  "description": "Prezzo minimo"
+                },
+                {
+                  "key": "price_max",
+                  "value": "",
+                  "description": "Prezzo massimo"
+                },
+                {
+                  "key": "in_stock",
+                  "value": "",
+                  "description": "true per mostrare solo prodotti disponibili"
+                },
+                {
+                  "key": "sort_by",
+                  "value": "default",
+                  "description": "Ordinamento: default, price_asc, price_desc, name_asc, name_desc, newest"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Pagina da visualizzare"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Prodotto Singolo",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/products/:slug",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", ":slug"],
+              "variable": [
+                {
+                  "key": "slug",
+                  "value": "olio-extravergine-calabrese",
+                  "description": "Slug del prodotto"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Ricerca Prodotti",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/products/search?q=olio&category=&price_min=&price_max=&page=1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", "search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "olio",
+                  "description": "Termine di ricerca"
+                },
+                {
+                  "key": "category",
+                  "value": "",
+                  "description": "Filtro categoria"
+                },
+                {
+                  "key": "price_min",
+                  "value": "",
+                  "description": "Prezzo minimo"
+                },
+                {
+                  "key": "price_max",
+                  "value": "",
+                  "description": "Prezzo massimo"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Pagina da visualizzare"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Suggerimenti Ricerca",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/products/suggestions?q=ol",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", "suggestions"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "ol",
+                  "description": "Termine parziale di ricerca (minimo 2 caratteri)"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Prodotti in Evidenza",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/products/featured",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", "featured"]
+            }
+          }
+        },
+        {
+          "name": "Nuovi Arrivi",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/products/new-arrivals",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", "new-arrivals"]
+            }
+          }
+        },
+        {
+          "name": "Elenco Categorie",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/categories",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories"]
+            }
+          }
+        },
+        {
+          "name": "Dettaglio Categoria",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/categories/:slug",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories", ":slug"],
+              "variable": [
+                {
+                  "key": "slug",
+                  "value": "olio-oliva",
+                  "description": "Slug della categoria"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Autenticazione",
+      "description": "Endpoint per registrazione e login",
+      "item": [
+        {
+          "name": "Registrazione",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/api/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "register"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Mario\",\n  \"surname\": \"Rossi\",\n  \"email\": \"mario@esempio.it\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\",\n  \"address\": \"Via Roma, 123\",\n  \"city\": \"Roma\",\n  \"postal_code\": \"00100\",\n  \"phone\": \"+39123456789\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/api/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"mario@esempio.it\",\n  \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/api/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "logout"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Richiedi Email Verifica",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/api/email/verification-notification",
+              "host": ["{{base_url}}"],
+              "path": ["api", "email", "verification-notification"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Utente",
+      "description": "Endpoint per utenti autenticati",
+      "item": [
+        {
+          "name": "Profilo Utente",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/user/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "profile"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Aggiorna Profilo",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/api/user/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "profile"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Mario\",\n  \"surname\": \"Rossi Aggiornato\",\n  \"address\": \"Via Nuova, 456\",\n  \"city\": \"Milano\",\n  \"postal_code\": \"20100\",\n  \"phone\": \"+39987654321\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Aggiorna Password",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/api/user/password",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "password"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_password\": \"password123\",\n  \"password\": \"nuovapassword\",\n  \"password_confirmation\": \"nuovapassword\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Elenco Ordini",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/user/orders",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "orders"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Dettaglio Ordine",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/user/orders/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "orders", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "ID dell'ordine"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Elenco Preferiti",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/user/favorites",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "favorites"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Rimuovi Preferito",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/api/user/favorites/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "favorites", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "ID del prodotto preferito"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifiche",
+      "description": "Endpoint per le notifiche utente",
+      "item": [
+        {
+          "name": "Elenco Notifiche",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/user/notifications",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "notifications"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Segna Notifica Come Letta",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/api/user/notifications/:id/read",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "notifications", ":id", "read"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "ID della notifica"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Segna Tutte Come Lette",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/api/user/notifications/read-all",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "notifications", "read-all"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Elimina Notifica",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/api/user/notifications/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "notifications", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "ID della notifica"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Checkout",
+      "description": "Endpoint per il processo di checkout",
+      "item": [
+        {
+          "name": "Processo Checkout",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/api/checkout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "checkout"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shipping_address\": \"Via Roma, 123\",\n  \"shipping_city\": \"Roma\",\n  \"shipping_postal_code\": \"00100\",\n  \"shipping_name\": \"Mario Rossi\",\n  \"shipping_phone\": \"+39123456789\",\n  \"notes\": \"Consegnare dopo le 18:00\",\n  \"payment_method\": \"credit_card\",\n  \"discount_code\": \"WELCOME10\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Verifica Codice Sconto",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/api/checkout/verify-discount",
+              "host": ["{{base_url}}"],
+              "path": ["api", "checkout", "verify-discount"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"WELCOME10\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "description": "Endpoint per l'area amministrativa",
+      "item": [
+        {
+          "name": "Prodotti",
+          "description": "Gestione prodotti admin",
+          "item": [
+            {
+              "name": "Elenco Prodotti",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/api/admin/products",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "admin", "products"]
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Dettaglio Prodotto",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/api/admin/products/:id",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "admin", "products", ":id"],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "ID del prodotto"
+                    }
+                  ]
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Crea Prodotto",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{base_url}}/api/admin/products",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "admin", "products"]
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "name",
+                      "value": "Nuovo Olio Extra Vergine",
+                      "type": "text"
+                    },
+                    {
+                      "key": "description",
+                      "value": "Descrizione dettagliata del prodotto",
+                      "type": "text"
+                    },
+                    {
+                      "key": "category_id",
+                      "value": "1",
+                      "type": "text"
+                    },
+                    {
+                      "key": "price",
+                      "value": "12.99",
+                      "type": "text"
+                    },
+                    {
+                      "key": "stock",
+                      "value": "50",
+                      "type": "text"
+                    },
+                    {
+                      "key": "is_active",
+                      "value": "true",
+                      "type": "text"
+                    },
+                    {
+                      "key": "image",
+                      "type": "file",
+                      "src": "path/to/image.jpg"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Aggiorna Prodotto",
+              "request": {
+                "method": "PUT",
+                "url": {
+                  "raw": "{{base_url}}/api/admin/products/:id",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "admin", "products", ":id"],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "ID del prodotto"
+                    }
+                  ]
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "name",
+                      "value": "Olio Extra Vergine Aggiornato",
+                      "type": "text"
+                    },
+                    {
+                      "key": "price",
+                      "value": "14.99",
+                      "type": "text"
+                    },
+                    {
+                      "key": "stock",
+                      "value": "45",
+                      "type": "text"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Elimina Prodotto",
+              "request": {
+                "method": "DELETE",
+                "url": {
+                  "raw": "{{base_url}}/api/admin/products/:id",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "admin", "products", ":id"],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "ID del prodotto"
+                    }
+                  ]
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Categorie",
+          "description": "Gestione categorie admin",
+          "item": [
+            {
+              "name": "Elenco Categorie",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/api/admin/categories",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "admin", "categories"]
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Crea Categoria",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{base_url}}/api/admin/categories",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "admin", "categories"]
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "name",
+                      "value": "Nuova Categoria",
+                      "type": "text"
+                    },
+                    {
+                      "key": "description",
+                      "value": "Descrizione della categoria",
+                      "type": "text"
+                    },
+                    {
+                      "key": "is_active",
+                      "value": "true",
+                      "type": "text"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ordini",
+          "description": "Gestione ordini admin",
+          "item": [
+            {
+              "name": "Elenco Ordini",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/api/admin/orders",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "admin", "orders"]
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Aggiorna Stato Ordine",
+              "request": {
+                "method": "PUT",
+                "url": {
+                  "raw": "{{base_url}}/api/admin/orders/:id/status",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "admin", "orders", ":id", "status"],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "ID dell'ordine"
+                    }
+                  ]
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"shipped\",\n  \"notes\": \"Spedito con DHL, tracciamento: 123456789\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "token",
+      "value": "your-auth-token-here"
+    }
+  ]
+}

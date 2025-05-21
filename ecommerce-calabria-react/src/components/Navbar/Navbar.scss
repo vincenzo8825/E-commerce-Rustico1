@@ -1,0 +1,138 @@
+.navbar {
+  background-color: #4a7c59;
+  padding: 1rem 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  &__container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  &__logo {
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-decoration: none;
+    
+    &:hover {
+      color: #f8d568;
+    }
+  }
+
+  &__menu {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  &__menu-item {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    
+    &:hover {
+      color: #f8d568;
+    }
+  }
+  
+  &__notifications {
+    display: flex;
+    align-items: center;
+    
+    .notification-center {
+      &__toggle {
+        color: #fff;
+        
+        &:hover {
+          color: #f8d568;
+        }
+      }
+      
+      &__badge {
+        background-color: #d60000;
+      }
+      
+      &__dropdown {
+        margin-top: 0.5rem;
+        right: -50px;
+        
+        @media (max-width: 576px) {
+          right: -100px;
+        }
+      }
+    }
+  }
+
+  &__dropdown {
+    position: relative;
+    
+    &-toggle {
+      background: none;
+      border: none;
+      color: #fff;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 0.5rem;
+      
+      &:hover {
+        color: #f8d568;
+      }
+    }
+    
+    &-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background-color: #fff;
+      border-radius: 4px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      min-width: 150px;
+      z-index: 10;
+    }
+    
+    &-item {
+      display: block;
+      padding: 0.75rem 1rem;
+      color: #333;
+      text-decoration: none;
+      
+      &:hover {
+        background-color: #f5f5f5;
+      }
+      
+      &--button {
+        width: 100%;
+        text-align: left;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: inherit;
+        
+        &:hover {
+          background-color: #f5f5f5;
+        }
+      }
+      
+      &--admin {
+        background-color: #f0f7e6;
+        color: #4a7c59;
+        font-weight: 600;
+        
+        &:hover {
+          background-color: #e8f4d9;
+          color: #2a4c39;
+        }
+        
+        &:before {
+          content: "👑 ";
+          margin-right: 5px;
+        }
+      }
+    }
+  }
+}

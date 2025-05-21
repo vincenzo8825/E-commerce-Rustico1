@@ -1,0 +1,195 @@
+.review-section {
+  margin-top: 3rem;
+  border-top: 1px solid #eee;
+  padding-top: 2rem;
+  
+  &__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 1.5rem;
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -0.5rem;
+      left: 0;
+      width: 50px;
+      height: 3px;
+      background-color: #d60000;
+    }
+  }
+  
+  // Sommario recensioni
+  &__summary {
+    display: flex;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+    }
+  }
+  
+  &__average {
+    flex: 0 0 200px;
+    text-align: center;
+    padding-right: 1.5rem;
+    margin-right: 1.5rem;
+    border-right: 1px solid #ddd;
+    
+    @media (max-width: 768px) {
+      padding-right: 0;
+      margin-right: 0;
+      border-right: none;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+  }
+  
+  &__average-score {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #333;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+  
+  &__stars {
+    margin-bottom: 0.5rem;
+  }
+  
+  &__star {
+    color: #ddd;
+    font-size: 1.5rem;
+    
+    &--active {
+      color: #ffc400;
+    }
+  }
+  
+  &__total {
+    color: #666;
+    font-size: 0.9rem;
+  }
+  
+  &__stats {
+    flex: 1;
+  }
+  
+  &__stat-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  
+  &__stat-label {
+    width: 70px;
+    font-size: 0.9rem;
+    color: #666;
+  }
+  
+  &__stat-bar {
+    flex: 1;
+    height: 10px;
+    background-color: #eee;
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 0 0.75rem;
+  }
+  
+  &__stat-fill {
+    height: 100%;
+    background-color: #ffc400;
+    border-radius: 5px;
+  }
+  
+  &__stat-count {
+    width: 30px;
+    text-align: right;
+    font-size: 0.9rem;
+    color: #666;
+  }
+  
+  // Azioni
+  &__actions {
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+  
+  &__user-review-actions {
+    p {
+      margin-bottom: 1rem;
+      color: #666;
+    }
+  }
+  
+  &__login-prompt {
+    p {
+      margin-bottom: 1rem;
+      color: #666;
+    }
+  }
+  
+  &__buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+  
+  &__button {
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+    
+    &--primary {
+      background-color: #d60000;
+      color: white;
+      border: none;
+      
+      &:hover {
+        background-color: #b50000;
+      }
+    }
+    
+    &--secondary {
+      background-color: white;
+      color: #555;
+      border: 1px solid #ccc;
+      
+      &:hover {
+        background-color: #f5f5f5;
+        border-color: #bbb;
+      }
+    }
+  }
+  
+  // Form container
+  &__form-container {
+    margin-bottom: 2rem;
+  }
+  
+  // Stati di loading ed errori
+  &__loading, &__error {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+    
+    p {
+      margin-bottom: 1rem;
+    }
+  }
+} 

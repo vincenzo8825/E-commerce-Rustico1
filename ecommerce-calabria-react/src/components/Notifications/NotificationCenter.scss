@@ -1,0 +1,127 @@
+.notification-center {
+  position: relative;
+  display: inline-block;
+  
+  &__toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    padding: 8px;
+    color: #333;
+    font-size: 1.25rem;
+    transition: color 0.3s;
+    
+    &:hover {
+      color: #d60000;
+    }
+  }
+  
+  &__icon {
+    display: block;
+    font-size: 1.5rem;
+  }
+  
+  &__badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #d60000;
+    color: white;
+    border-radius: 50%;
+    min-width: 18px;
+    height: 18px;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    padding: 0 2px;
+  }
+  
+  &__dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 350px;
+    max-height: 500px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    
+    @media (max-width: 576px) {
+      width: 300px;
+      right: -100px;
+    }
+  }
+  
+  &__header {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f9f9f9;
+  }
+  
+  &__title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  &__mark-all {
+    background: none;
+    border: none;
+    color: #d60000;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+  
+  &__footer {
+    padding: 12px;
+    text-align: center;
+    border-top: 1px solid #eee;
+  }
+  
+  &__view-all {
+    color: #d60000;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+  
+  &__loading, &__error, &__empty {
+    padding: 20px;
+    text-align: center;
+    color: #666;
+    font-size: 0.9rem;
+  }
+  
+  &__retry {
+    background: none;
+    border: none;
+    color: #d60000;
+    margin-top: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+} 

@@ -1,0 +1,194 @@
+.home {
+  // Stile per il test API
+  &__api-test {
+    padding: 0.75rem;
+    text-align: center;
+    font-weight: bold;
+    
+    &--success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    
+    &--error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    
+    &-retry {
+      margin-top: 0.5rem;
+      padding: 0.25rem 0.75rem;
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      
+      &:hover {
+        background-color: #5a6268;
+      }
+    }
+  }
+  
+  &__hero {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://via.placeholder.com/1600x600?text=Calabria+Landscape');
+    background-size: cover;
+    background-position: center;
+    color: white;
+    padding: 5rem 1rem;
+    text-align: center;
+    
+    &-content {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    &-title {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    &-subtitle {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+    
+    &-button {
+      display: inline-block;
+      background-color: #f8d568;
+      color: #333;
+      padding: 0.8rem 2rem;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: background-color 0.3s;
+      
+      &:hover {
+        background-color: darken(#f8d568, 10%);
+      }
+    }
+  }
+  
+  &__section {
+    padding: 4rem 0;
+    
+    &--alt {
+      background-color: #f5f5f5;
+    }
+    
+    &-title {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      font-size: 2rem;
+      color: #333;
+      position: relative;
+      
+      &:after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 3px;
+        background-color: #4a7c59;
+      }
+    }
+  }
+  
+  &__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+  
+  &__categories {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2rem;
+  }
+  
+  &__products {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+  }
+  
+  &__more {
+    text-align: center;
+    margin-top: 3rem;
+    
+    &-link {
+      display: inline-block;
+      padding: 0.8rem 2rem;
+      background-color: transparent;
+      border: 2px solid #4a7c59;
+      color: #4a7c59;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: bold;
+      transition: all 0.3s;
+      
+      &:hover {
+        background-color: #4a7c59;
+        color: white;
+      }
+    }
+  }
+  
+  &__about {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+    
+    &-content {
+      .home__section-title {
+        text-align: left;
+        
+        &:after {
+          left: 0;
+          transform: none;
+        }
+      }
+    }
+    
+    &-text {
+      margin-bottom: 2rem;
+      line-height: 1.7;
+      color: #555;
+    }
+    
+    &-link {
+      display: inline-block;
+      color: #4a7c59;
+      font-weight: bold;
+      text-decoration: none;
+      position: relative;
+      
+      &:after {
+        content: '→';
+        margin-left: 5px;
+        transition: margin-left 0.3s;
+      }
+      
+      &:hover:after {
+        margin-left: 10px;
+      }
+    }
+    
+    &-image {
+      img {
+        width: 100%;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+    }
+  }
+}

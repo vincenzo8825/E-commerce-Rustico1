@@ -1,0 +1,44 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  
+  &__content {
+    flex: 1;
+    padding: 2rem 0;
+    
+    &--admin {
+      padding: 0;
+    }
+  }
+}
+
+// Stili globali
+body {
+  margin: 0;
+  font-family: 'Segoe UI', 'Roboto', 'Oxygen', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f9f9f9;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+// Classi di utilità
+.not-found {
+  text-align: center;
+  padding: 2rem;
+  
+  h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #e74c3c;
+  }
+  
+  p {
+    font-size: 1.2rem;
+    color: #7f8c8d;
+  }
+}
