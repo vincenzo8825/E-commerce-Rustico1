@@ -15,6 +15,7 @@ import { isAuthenticated } from './utils/auth';
 import api from './utils/api';
 import './App.scss';
 import ProductDetail from './pages/Products/ProductDetail';
+import Checkout from './pages/Checkout/Checkout';
 
 // Global auth state
 const AuthContext = React.createContext({
@@ -222,6 +223,11 @@ function App() {
               <ProtectedRoute>
                 <Cart />
               </ProtectedRoute>
+            } />
+            <Route path="/checkout" element={
+              <VerifiedRoute>
+                <Checkout />
+              </VerifiedRoute>
             } />
             <Route path="/favorites" element={
               <ProtectedRoute>
