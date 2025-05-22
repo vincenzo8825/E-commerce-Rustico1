@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './Products.scss';
 import api from '../../utils/api';
+import { isAuthenticated } from '../../utils/auth';
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -74,6 +75,61 @@ const Products = () => {
     setCurrentPage(page);
     // Scroll to top when page changes
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Funzione per aggiungere al carrello
+  const addToCart = async (productId, quantity = 1) => {
+    if (!isAuthenticated()) {
+      // Reindirizza alla pagina di login se non autenticato
+      window.location.href = `/login?redirect=/products?page=${currentPage}`;
+      return;
+    }
+
+    // Verifica se l'email è stata verificata
+    const authData = JSON.parse(localStorage.getItem('auth_data') || '{}');
+    if (!authData.emailVerified) {
+      alert('È necessario verificare l\'email prima di aggiungere prodotti al carrello. Controlla la tua casella di posta.');
+      return;
+    }
+
+    try {
+      await api.post('/cart/add', {
+        product_id: productId,
+        quantity
+      });
+      alert('Prodotto aggiunto al carrello!');
+    } catch (err) {
+      console.error('Errore nell\'aggiunta al carrello:', err);
+      // Mostra il messaggio di errore dal server se disponibile
+      const errorMessage = err.response?.data?.message || 'Impossibile aggiungere il prodotto al carrello. Riprova più tardi.';
+      alert(errorMessage);
+    }
+  };
+
+  // Funzione per aggiungere ai preferiti
+  const addToFavorites = async (productId) => {
+    if (!isAuthenticated()) {
+      // Reindirizza alla pagina di login se non autenticato
+      window.location.href = `/login?redirect=/products?page=${currentPage}`;
+      return;
+    }
+
+    // Verifica se l'email è stata verificata
+    const authData = JSON.parse(localStorage.getItem('auth_data') || '{}');
+    if (!authData.emailVerified) {
+      alert('È necessario verificare l\'email prima di aggiungere prodotti ai preferiti. Controlla la tua casella di posta.');
+      return;
+    }
+
+    try {
+      await api.post('/favorites/add', {
+        product_id: productId
+      });
+      alert('Prodotto aggiunto ai preferiti!');
+    } catch (err) {
+      console.error('Errore nell\'aggiunta ai preferiti:', err);
+      alert('Impossibile aggiungere il prodotto ai preferiti. Riprova più tardi.');
+    }
   };
 
   return (
@@ -266,10 +322,16 @@ const Products = () => {
                     </Link>
                     
                     <div className="product-card__actions">
-                      <button className="product-card__action-btn product-card__action-btn--cart">
+                      <button 
+                        className="product-card__action-btn product-card__action-btn--cart"
+                        onClick={() => addToCart(product.id)}
+                      >
                         Aggiungi al Carrello
                       </button>
-                      <button className="product-card__action-btn product-card__action-btn--favorite">
+                      <button 
+                        className="product-card__action-btn product-card__action-btn--favorite"
+                        onClick={() => addToFavorites(product.id)}
+                      >
                         ♡
                       </button>
                     </div>

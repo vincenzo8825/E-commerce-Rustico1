@@ -31,7 +31,8 @@ const SupportTickets = () => {
       params.append('sort', filters.sort);
       params.append('page', currentPage);
       
-      const response = await api.get(`/admin/support-tickets?${params.toString()}`);
+      // Usa l'endpoint corretto disponibile nelle route
+      const response = await api.get(`/admin/dashboard/support-tickets?${params.toString()}`);
       setTickets(response.data.tickets.data || []);
       setTotalPages(response.data.tickets.last_page || 1);
       setError(null);
@@ -61,7 +62,7 @@ const SupportTickets = () => {
 
   const handleStatusChange = async (ticketId, newStatus) => {
     try {
-      await api.put(`/admin/support-tickets/${ticketId}/status`, { status: newStatus });
+      await api.put(`/admin/dashboard/support-tickets/${ticketId}/status`, { status: newStatus });
       
       // Aggiorna lo stato del ticket nella lista
       setTickets(tickets.map(ticket => {

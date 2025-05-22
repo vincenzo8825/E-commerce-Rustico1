@@ -14,6 +14,7 @@ import AdminDashboard from './pages/Admin/Dashboard';
 import { isAuthenticated } from './utils/auth';
 import api from './utils/api';
 import './App.scss';
+import ProductDetail from './pages/Products/ProductDetail';
 
 // Global auth state
 const AuthContext = React.createContext({
@@ -211,6 +212,7 @@ function App() {
             {/* Rotte pubbliche */}
             <Route path="/" element={<Home />} />
             <Route path="/products" element={<Products />} />
+            <Route path="/products/:slug" element={<ProductDetail />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />

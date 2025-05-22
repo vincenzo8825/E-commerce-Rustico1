@@ -24,6 +24,18 @@ const Overview = () => {
     setError(null);
     
     try {
+      // Imposta valori di default iniziali in caso di errore
+      setStats({
+        total_revenue: 0,
+        revenue_this_month: 0,
+        orders_this_month: 0,
+        new_users: 0,
+        open_tickets: 0,
+        top_products: [],
+        sales_by_category: [],
+        sales_chart: []
+      });
+      
       // Carica tutti i dati necessari
       await Promise.all([
         fetchStatistics(),
@@ -37,6 +49,43 @@ const Overview = () => {
       console.error('Errore nel caricamento dei dati:', error);
       setError('Si è verificato un errore durante il caricamento dei dati. Riprova più tardi.');
       setDataSource('error');
+      
+      // Carica dati di esempio in caso di errore per evitare UI vuota
+      setStats({
+        total_revenue: 12580.75,
+        revenue_this_month: 2450.99,
+        orders_this_month: 42,
+        new_users: 18,
+        open_tickets: 5,
+        top_products: [
+          { id: 1, name: 'Prodotto demo 1', price: 19.99, total_sold: 25 },
+          { id: 2, name: 'Prodotto demo 2', price: 29.99, total_sold: 18 }
+        ],
+        sales_by_category: [],
+        sales_chart: []
+      });
+      
+      // Imposta anche dati di esempio per ordini e ticket
+      setRecentOrders([
+        { 
+          id: 1, 
+          order_number: 'ORD-2023-001',
+          user: { name: 'Mario', surname: 'Rossi' },
+          created_at: new Date().toISOString(),
+          total: 129.99,
+          status: 'in_elaborazione'
+        }
+      ]);
+      
+      setSupportTickets([
+        {
+          id: 1,
+          user: { name: 'Luigi', surname: 'Verdi' },
+          subject: 'Richiesta informazioni',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      ]);
     } finally {
       setLoading(false);
     }
@@ -47,12 +96,25 @@ const Overview = () => {
       // Usa il nuovo endpoint per le statistiche
       const response = await api.get('/admin/dashboard/statistics');
       const statsData = response.data;
-      setStats(statsData);
+      
+      // Verifica che i dati siano disponibili e imposta valori di default se necessario
+      const processedStats = {
+        total_revenue: statsData.total_revenue || 0,
+        revenue_this_month: statsData.revenue_this_month || 0,
+        orders_this_month: statsData.orders_this_month || 0,
+        new_users: statsData.new_users || 0,
+        open_tickets: statsData.open_tickets || 0,
+        top_products: statsData.top_products || [],
+        sales_by_category: statsData.sales_by_category || [],
+        sales_chart: statsData.sales_chart || []
+      };
+      
+      setStats(processedStats);
       
       // Imposta i prodotti più venduti
       setTopProducts(statsData.top_products || []);
       
-      return statsData;
+      return processedStats;
     } catch (error) {
       console.error('Errore nel caricamento delle statistiche:', error);
       throw error;
@@ -99,10 +161,10 @@ const Overview = () => {
   // Restituisce classe CSS in base allo stato dell'ordine
   const getOrderStatusClass = (status) => {
     switch (status) {
-      case 'delivered': return 'admin__status-badge--success';
-      case 'shipped': return 'admin__status-badge--info';
-      case 'processing': return 'admin__status-badge--warning';
-      case 'cancelled': return 'admin__status-badge--danger';
+      case 'completato': return 'admin__status-badge--success';
+      case 'spedito': return 'admin__status-badge--info';
+      case 'in_elaborazione': return 'admin__status-badge--warning';
+      case 'annullato': return 'admin__status-badge--danger';
       default: return '';
     }
   };
@@ -110,10 +172,10 @@ const Overview = () => {
   // Traduce lo stato dell'ordine in italiano
   const translateOrderStatus = (status) => {
     switch (status) {
-      case 'delivered': return 'Completato';
-      case 'shipped': return 'Spedito';
-      case 'processing': return 'In lavorazione';
-      case 'cancelled': return 'Annullato';
+      case 'completato': return 'Completato';
+      case 'spedito': return 'Spedito';
+      case 'in_elaborazione': return 'In lavorazione';
+      case 'annullato': return 'Annullato';
       default: return status;
     }
   };
@@ -228,7 +290,7 @@ const Overview = () => {
                       <td>{order.order_number || `#${order.id}`}</td>
                       <td>{order.user ? `${order.user.name} ${order.user.surname}` : 'Cliente'}</td>
                       <td>{formatDate(order.created_at)}</td>
-                      <td>€{formatPrice(order.total)}</td>
+                      <td>€{formatPrice(order.total_amount || order.total)}</td>
                       <td>
                         <span className={`admin__status-badge ${getOrderStatusClass(order.status)}`}>
                           {translateOrderStatus(order.status)}

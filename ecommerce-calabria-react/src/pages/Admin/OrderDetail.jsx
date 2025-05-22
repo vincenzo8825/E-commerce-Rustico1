@@ -125,10 +125,10 @@ const OrderDetail = () => {
   // Traduce lo stato dell'ordine in italiano
   const translateOrderStatus = (status) => {
     switch (status) {
-      case 'delivered': return 'Completato';
-      case 'shipped': return 'Spedito';
-      case 'processing': return 'In lavorazione';
-      case 'cancelled': return 'Annullato';
+      case 'completato': return 'Completato';
+      case 'spedito': return 'Spedito';
+      case 'in_elaborazione': return 'In lavorazione';
+      case 'annullato': return 'Annullato';
       default: return status;
     }
   };
@@ -136,10 +136,10 @@ const OrderDetail = () => {
   // Restituisce classe CSS in base allo stato dell'ordine
   const getOrderStatusClass = (status) => {
     switch (status) {
-      case 'delivered': return 'admin__status-badge--success';
-      case 'shipped': return 'admin__status-badge--info';
-      case 'processing': return 'admin__status-badge--warning';
-      case 'cancelled': return 'admin__status-badge--danger';
+      case 'completato': return 'admin__status-badge--success';
+      case 'spedito': return 'admin__status-badge--info';
+      case 'in_elaborazione': return 'admin__status-badge--warning';
+      case 'annullato': return 'admin__status-badge--danger';
       default: return '';
     }
   };
@@ -214,7 +214,7 @@ const OrderDetail = () => {
                 </div>
                 <div className="admin__order-info-group">
                   <label>Totale:</label>
-                  <span>€ {formatPrice(order.total)}</span>
+                  <span>€ {formatPrice(order.total_amount || order.total)}</span>
                 </div>
                 {order.discount_code && (
                   <div className="admin__order-info-group">
@@ -271,10 +271,10 @@ const OrderDetail = () => {
                     value={newStatus}
                     onChange={(e) => setNewStatus(e.target.value)}
                   >
-                    <option value="processing">In lavorazione</option>
-                    <option value="shipped">Spedito</option>
-                    <option value="delivered">Completato</option>
-                    <option value="cancelled">Annullato</option>
+                    <option value="in_elaborazione">In lavorazione</option>
+                    <option value="spedito">Spedito</option>
+                    <option value="completato">Completato</option>
+                    <option value="annullato">Annullato</option>
                   </select>
                 </div>
                 <button
@@ -352,7 +352,7 @@ const OrderDetail = () => {
               <tfoot>
                 <tr>
                   <td colSpan="3" className="admin__order-summary-label">Subtotale</td>
-                  <td>€ {formatPrice(order.subtotal)}</td>
+                  <td>€ {formatPrice(order.subtotal || order.total_amount)}</td>
                 </tr>
                 {order.discount_amount > 0 && (
                   <tr>
@@ -362,15 +362,15 @@ const OrderDetail = () => {
                 )}
                 <tr>
                   <td colSpan="3" className="admin__order-summary-label">IVA</td>
-                  <td>€ {formatPrice(order.tax)}</td>
+                  <td>€ {formatPrice(order.tax || 0)}</td>
                 </tr>
                 <tr>
                   <td colSpan="3" className="admin__order-summary-label">Spedizione</td>
-                  <td>€ {formatPrice(order.shipping_cost)}</td>
+                  <td>€ {formatPrice(order.shipping_cost || 0)}</td>
                 </tr>
                 <tr className="admin__order-total-row">
                   <td colSpan="3" className="admin__order-summary-label">Totale</td>
-                  <td className="admin__order-total-value">€ {formatPrice(order.total)}</td>
+                  <td className="admin__order-total-value">€ {formatPrice(order.total_amount || order.total)}</td>
                 </tr>
               </tfoot>
             </table>

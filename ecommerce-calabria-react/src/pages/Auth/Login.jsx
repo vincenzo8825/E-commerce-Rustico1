@@ -32,7 +32,7 @@ const Login = () => {
     try {
       // Uso api configurato invece di axios diretto
       const response = await api.post('/login', formData);
-      console.log("Risposta login:", response.data); // Log per debug
+      console.log("Risposta login completa:", response.data); // Log per debug
       
       // Store token in localStorage
       localStorage.setItem('token', response.data.access_token);
@@ -43,20 +43,29 @@ const Login = () => {
       // Log informazioni utente per debug
       console.log("Dati utente:", response.data.user);
       console.log("È admin:", response.data.user.is_admin);
+      console.log("Email verificata:", response.data.user.email_verified);
+      
+      // Verifica se l'email è verificata (controlla in tutti i possibili posti dove potrebbe essere)
+      const isEmailVerified = 
+        response.data.email_verified === true || 
+        response.data.user.email_verified === true ||
+        (response.data.user && response.data.user.email_verified_at !== null);
+      
+      console.log("Email verificata (dopo controlli):", isEmailVerified);
       
       // Aggiorna lo stato di autenticazione globale
       setAuthState({
         isLoggedIn: true,
         isAdmin: response.data.user.is_admin,
         user: response.data.user,
-        emailVerified: response.data.email_verified,
+        emailVerified: isEmailVerified,
         loading: false,
       });
       
       // Salva anche i dati in localStorage come backup
       localStorage.setItem('auth_data', JSON.stringify({
         isAdmin: response.data.user.is_admin,
-        emailVerified: response.data.email_verified
+        emailVerified: isEmailVerified
       }));
       
       // Verifica se l'utente è admin e gestisce il reindirizzamento
@@ -70,9 +79,11 @@ const Login = () => {
       }
       
       // Gestisce utenti non admin
-      if (!response.data.email_verified) {
+      if (!isEmailVerified) {
+        console.log("Email non verificata, mostra messaggio di errore");
         setVerificationError(true);
       } else {
+        console.log("Email verificata, reindirizzamento a home");
         navigate('/');
       }
     } catch (err) {

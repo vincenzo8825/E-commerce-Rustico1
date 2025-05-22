@@ -7,7 +7,7 @@ use App\Http\Controllers\API\UserDashboardController;
 use App\Http\Controllers\API\CheckoutController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\AdminDashboardController;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use App\Http\Controllers\API\EmailVerificationController;
 
 
 // Rotta di test per verificare il collegamento
@@ -86,6 +86,23 @@ Route::middleware('auth:sanctum')->group(function () {
         return response()->json(['message' => 'Email di verifica inviata.']);
     })->middleware('throttle:6,1');
 
+    // Carrello
+    Route::get('/cart', [App\Http\Controllers\API\CartController::class, 'getCart']);
+    Route::post('/cart/add', [App\Http\Controllers\API\CartController::class, 'addToCart']);
+    Route::put('/cart/update', [App\Http\Controllers\API\CartController::class, 'updateCartItem']);
+    Route::delete('/cart/item/{id}', [App\Http\Controllers\API\CartController::class, 'removeCartItem']);
+    Route::delete('/cart/clear', [App\Http\Controllers\API\CartController::class, 'clearCart']);
+
+    // Preferiti
+    Route::get('/favorites', [App\Http\Controllers\API\FavoriteController::class, 'getFavorites']);
+    Route::post('/favorites/add', [App\Http\Controllers\API\FavoriteController::class, 'addToFavorites']);
+    Route::delete('/favorites/{id}', [App\Http\Controllers\API\FavoriteController::class, 'removeFavorite']);
+
+    // Checkout
+    Route::post('/checkout', [CheckoutController::class, 'process']);
+    Route::post('/checkout/payment', [CheckoutController::class, 'processPayment']);
+    Route::post('/checkout/verify-discount', [CheckoutController::class, 'verifyDiscountCode']);
+
     // Rotte per la dashboard utente
     Route::prefix('user')->group(function () {
         Route::get('/profile', [UserDashboardController::class, 'getProfile']);
@@ -95,10 +112,6 @@ Route::middleware('auth:sanctum')->group(function () {
         // Rotte per gli ordini
         Route::get('/orders', [UserDashboardController::class, 'getOrders']);
         Route::get('/orders/{id}', [UserDashboardController::class, 'getOrder']);
-
-        // Rotte per i preferiti
-        Route::get('/favorites', [UserDashboardController::class, 'getFavorites']);
-        Route::delete('/favorites/{id}', [UserDashboardController::class, 'removeFavorite']);
 
         // Rotte per il supporto
         Route::get('/support-tickets', [UserDashboardController::class, 'getSupportTickets']);
@@ -112,26 +125,20 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/notifications/{id}', [App\Http\Controllers\API\NotificationController::class, 'destroy']);
         Route::delete('/notifications/old', [App\Http\Controllers\API\NotificationController::class, 'deleteOldNotifications']);
     });
+
+    // Rotta per le notifiche (aggiunta a livello generale, non sotto /user)
+    Route::get('/notifications', [App\Http\Controllers\API\NotificationController::class, 'index']);
 });
 
 // Rotta per verifica email (link ricevuto via email)
-Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-    $request->fulfill();
-    return response()->json(['message' => 'Email verificata con successo!']);
-})->middleware(['auth:sanctum', 'signed'])->name('verification.verify');
+Route::get('/email/verify/{id}/{hash}', [App\Http\Controllers\API\EmailVerificationController::class, 'verify'])
+    ->middleware(['signed'])
+    ->name('verification.verify');
 
 // Rotta per controllare se l'email è verificata
 Route::get('/email/verified', function (Request $request) {
     return response()->json(['verified' => $request->user()->hasVerifiedEmail()]);
 })->middleware(['auth:sanctum']);
-
-// Rotte per il carrello e checkout
-Route::middleware('auth:sanctum')->group(function () {
-    // Checkout
-    Route::post('/checkout', [CheckoutController::class, 'process']);
-    Route::post('/checkout/payment', [CheckoutController::class, 'processPayment']);
-    Route::post('/checkout/verify-discount', [CheckoutController::class, 'verifyDiscountCode']);
-});
 
 // Rotta per controllare se l'utente è admin
 Route::middleware('auth:sanctum')->get('/admin/check-status', function (Request $request) {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../../utils/api';
+import { isAuthenticated } from '../../utils/auth';
 import './ProductDetail.scss';
 
 const ProductDetail = () => {
@@ -11,6 +12,7 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
   const [relatedProducts, setRelatedProducts] = useState([]);
+  const [isInFavorites, setIsInFavorites] = useState(false);
 
   useEffect(() => {
     // Reset lo stato quando cambia lo slug
@@ -20,6 +22,7 @@ const ProductDetail = () => {
     setRelatedProducts([]);
     setQuantity(1);
     setActiveImage(0);
+    setIsInFavorites(false);
     
     fetchProductDetail();
   }, [slug]);
@@ -32,6 +35,11 @@ const ProductDetail = () => {
       // Carica prodotti correlati
       if (response.data.product && response.data.product.category_id) {
         fetchRelatedProducts(response.data.product.id, response.data.product.category_id);
+      }
+      
+      // Verifica se il prodotto è nei preferiti (solo se l'utente è autenticato)
+      if (isAuthenticated()) {
+        checkIfInFavorites(response.data.product.id);
       }
       
       setError(null);
@@ -49,6 +57,16 @@ const ProductDetail = () => {
       setRelatedProducts(response.data.products || []);
     } catch (err) {
       console.error('Errore nel caricamento dei prodotti correlati:', err);
+    }
+  };
+
+  const checkIfInFavorites = async (productId) => {
+    try {
+      const response = await api.get('/favorites');
+      const favorites = response.data.favorites || [];
+      setIsInFavorites(favorites.some(fav => fav.product.id === productId));
+    } catch (err) {
+      console.error('Errore nel controllo dei preferiti:', err);
     }
   };
 
@@ -71,14 +89,66 @@ const ProductDetail = () => {
     }
   };
 
-  const handleAddToCart = () => {
-    // Qui implementeremo la logica per aggiungere al carrello
-    console.log('Aggiunto al carrello:', product?.id, 'Quantità:', quantity);
+  const handleAddToCart = async () => {
+    if (!isAuthenticated()) {
+      // Reindirizza alla pagina di login se non autenticato
+      window.location.href = `/login?redirect=/products/${slug}`;
+      return;
+    }
+
+    // Verifica se l'email è stata verificata
+    const authData = JSON.parse(localStorage.getItem('auth_data') || '{}');
+    if (!authData.emailVerified) {
+      alert('È necessario verificare l\'email prima di aggiungere prodotti al carrello. Controlla la tua casella di posta.');
+      return;
+    }
+
+    try {
+      await api.post('/cart/add', {
+        product_id: product.id,
+        quantity: quantity
+      });
+      alert('Prodotto aggiunto al carrello!');
+    } catch (err) {
+      console.error('Errore nell\'aggiunta al carrello:', err);
+      // Mostra il messaggio di errore dal server se disponibile
+      const errorMessage = err.response?.data?.message || 'Impossibile aggiungere il prodotto al carrello. Riprova più tardi.';
+      alert(errorMessage);
+    }
   };
 
-  const handleAddToFavorites = () => {
-    // Qui implementeremo la logica per aggiungere ai preferiti
-    console.log('Aggiunto ai preferiti:', product?.id);
+  const handleAddToFavorites = async () => {
+    if (!isAuthenticated()) {
+      // Reindirizza alla pagina di login se non autenticato
+      window.location.href = `/login?redirect=/products/${slug}`;
+      return;
+    }
+
+    // Verifica se l'email è stata verificata
+    const authData = JSON.parse(localStorage.getItem('auth_data') || '{}');
+    if (!authData.emailVerified) {
+      alert('È necessario verificare l\'email prima di aggiungere prodotti ai preferiti. Controlla la tua casella di posta.');
+      return;
+    }
+
+    try {
+      if (isInFavorites) {
+        // Rimuovi dai preferiti
+        await api.delete(`/favorites/${product.id}`);
+        setIsInFavorites(false);
+        alert('Prodotto rimosso dai preferiti!');
+      } else {
+        // Aggiungi ai preferiti
+        await api.post('/favorites/add', {
+          product_id: product.id
+        });
+        setIsInFavorites(true);
+        alert('Prodotto aggiunto ai preferiti!');
+      }
+    } catch (err) {
+      console.error('Errore nella gestione dei preferiti:', err);
+      alert('Impossibile gestire i preferiti. Riprova più tardi.');
+    }
   };
 
   if (loading) {
@@ -267,7 +337,7 @@ const ProductDetail = () => {
                     className="product-detail__button product-detail__button--favorite"
                     onClick={handleAddToFavorites}
                   >
-                    ♡
+                    {isInFavorites ? '♥' : '♡'}
                   </button>
                 </div>
               </div>
@@ -349,6 +419,37 @@ const ProductDetail = () => {
                       </div>
                     </div>
                   </Link>
+                  <div className="product-card__actions">
+                    <button 
+                      className="product-card__action-btn product-card__action-btn--cart"
+                      onClick={() => {
+                        if (!isAuthenticated()) {
+                          window.location.href = `/login?redirect=/products/${slug}`;
+                          return;
+                        }
+
+                        // Verifica se l'email è stata verificata
+                        const authData = JSON.parse(localStorage.getItem('auth_data') || '{}');
+                        if (!authData.emailVerified) {
+                          alert('È necessario verificare l\'email prima di aggiungere prodotti al carrello. Controlla la tua casella di posta.');
+                          return;
+                        }
+
+                        api.post('/cart/add', {
+                          product_id: relatedProduct.id,
+                          quantity: 1
+                        })
+                        .then(() => alert('Prodotto aggiunto al carrello!'))
+                        .catch(err => {
+                          console.error('Errore nell\'aggiunta al carrello:', err);
+                          const errorMessage = err.response?.data?.message || 'Impossibile aggiungere il prodotto al carrello.';
+                          alert(errorMessage);
+                        });
+                      }}
+                    >
+                      Aggiungi al Carrello
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

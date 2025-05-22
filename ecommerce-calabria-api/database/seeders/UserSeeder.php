@@ -49,6 +49,88 @@ class UserSeeder extends Seeder
             '98100', '37100', '35100', '74100', '25100'
         ];
 
+        // Crea utente admin (se non esiste già)
+        if (!User::where('email', 'admin@calabria.it')->exists()) {
+            User::create([
+                'name' => 'Admin',
+                'surname' => 'Calabria',
+                'email' => 'admin@calabria.it',
+                'password' => Hash::make('password'),
+                'address' => 'Via Roma 123',
+                'city' => 'Cosenza',
+                'postal_code' => '87100',
+                'phone' => '3801234567',
+                'is_admin' => true,
+                'email_verified_at' => now(),
+            ]);
+        }
+
+        // Crea alcuni utenti normali
+        $users = [
+            [
+                'name' => 'Mario',
+                'surname' => 'Rossi',
+                'email' => 'mario.rossi@example.com',
+                'password' => Hash::make('password'),
+                'address' => 'Via Nazionale 45',
+                'city' => 'Reggio Calabria',
+                'postal_code' => '89100',
+                'phone' => '3331234567',
+            ],
+            [
+                'name' => 'Giuseppe',
+                'surname' => 'Verdi',
+                'email' => 'giuseppe.verdi@example.com',
+                'password' => Hash::make('password'),
+                'address' => 'Corso Mazzini 78',
+                'city' => 'Catanzaro',
+                'postal_code' => '88100',
+                'phone' => '3661234567',
+            ],
+            [
+                'name' => 'Francesca',
+                'surname' => 'Bianchi',
+                'email' => 'francesca.bianchi@example.com',
+                'password' => Hash::make('password'),
+                'address' => 'Via dei Normanni 12',
+                'city' => 'Cosenza',
+                'postal_code' => '87100',
+                'phone' => '3491234567',
+            ],
+            [
+                'name' => 'Lucia',
+                'surname' => 'Esposito',
+                'email' => 'lucia.esposito@example.com',
+                'password' => Hash::make('password'),
+                'address' => 'Viale Europa 56',
+                'city' => 'Tropea',
+                'postal_code' => '89861',
+                'phone' => '3771234567',
+            ],
+            [
+                'name' => 'Antonio',
+                'surname' => 'Ferrara',
+                'email' => 'antonio.ferrara@example.com',
+                'password' => Hash::make('password'),
+                'address' => 'Via Marina 89',
+                'city' => 'Crotone',
+                'postal_code' => '88900',
+                'phone' => '3881234567',
+            ],
+        ];
+
+        foreach ($users as $userData) {
+            // Verifica se l'utente esiste già
+            if (!User::where('email', $userData['email'])->exists()) {
+                $userData['email_verified_at'] = now();
+                $userData['is_admin'] = false;
+                User::create($userData);
+            }
+        }
+
+        // Contatore per utenti creati
+        $usersCreated = 0;
+
         // Generiamo utenti distribuiti in vari giorni degli ultimi 6 mesi
         for ($i = 0; $i < 20; $i++) {
             $cityIndex = array_rand($cities);
@@ -60,83 +142,29 @@ class UserSeeder extends Seeder
             $surname = $surnames[array_rand($surnames)];
             $emailBase = strtolower($name . '.' . $surname);
 
-            // Aggiungi un numero casuale se necessario per rendere l'email unica
-            $email = $emailBase . '@example.com';
-            if (User::where('email', $email)->exists()) {
-                $email = $emailBase . rand(1, 99) . '@example.com';
-            }
+            // Aggiungi un numero casuale per rendere l'email unica
+            $email = $emailBase . rand(1, 999) . '@example.com';
 
-            User::create([
-                'name' => $name,
-                'surname' => $surname,
-                'email' => $email,
-                'password' => Hash::make('password'), // Password standard per tutti gli utenti di test
-                'address' => 'Via ' . $faker->lastName . ' ' . rand(1, 100),
-                'city' => $cities[$cityIndex],
-                'postal_code' => $postalCodes[$cityIndex],
-                'phone' => '3' . rand(300000000, 399999999),
-                'is_admin' => false,
-                'email_verified_at' => rand(0, 5) > 0 ? $createdAt : null, // 80% degli utenti hanno l'email verificata
-                'created_at' => $createdAt,
-                'updated_at' => $createdAt,
-            ]);
+            // Verifica ancora una volta l'unicità
+            if (!User::where('email', $email)->exists()) {
+                User::create([
+                    'name' => $name,
+                    'surname' => $surname,
+                    'email' => $email,
+                    'password' => Hash::make('password'), // Password standard per tutti gli utenti di test
+                    'address' => 'Via ' . $faker->lastName . ' ' . rand(1, 100),
+                    'city' => $cities[$cityIndex],
+                    'postal_code' => $postalCodes[$cityIndex],
+                    'phone' => '3' . rand(300000000, 399999999),
+                    'is_admin' => false,
+                    'email_verified_at' => rand(0, 5) > 0 ? $createdAt : null, // 80% degli utenti hanno l'email verificata
+                    'created_at' => $createdAt,
+                    'updated_at' => $createdAt,
+                ]);
+                $usersCreated++;
+            }
         }
 
-        // Creiamo anche alcuni utenti con attributi specifici
-        $specificUsers = [
-            [
-                'name' => 'Mario',
-                'surname' => 'Rossi',
-                'email' => 'mario.rossi@example.com',
-                'address' => 'Via Roma 123',
-                'city' => 'Cosenza',
-                'postal_code' => '87100',
-                'phone' => '3341234567',
-            ],
-            [
-                'name' => 'Giulia',
-                'surname' => 'Bianchi',
-                'email' => 'giulia.bianchi@example.com',
-                'address' => 'Via Garibaldi 45',
-                'city' => 'Reggio Calabria',
-                'postal_code' => '89100',
-                'phone' => '3357654321',
-            ],
-            [
-                'name' => 'Antonio',
-                'surname' => 'Ferrara',
-                'email' => 'antonio.ferrara@example.com',
-                'address' => 'Via Mazzini 78',
-                'city' => 'Catanzaro',
-                'postal_code' => '88100',
-                'phone' => '3392223333',
-            ]
-        ];
-
-        foreach ($specificUsers as $userData) {
-            // Salta se esiste già
-            if (User::where('email', $userData['email'])->exists()) {
-                continue;
-            }
-
-            $createdAt = Carbon::now()->subDays(rand(10, 30));
-
-            User::create([
-                'name' => $userData['name'],
-                'surname' => $userData['surname'],
-                'email' => $userData['email'],
-                'password' => Hash::make('password'),
-                'address' => $userData['address'],
-                'city' => $userData['city'],
-                'postal_code' => $userData['postal_code'],
-                'phone' => $userData['phone'],
-                'is_admin' => false,
-                'email_verified_at' => $createdAt,
-                'created_at' => $createdAt,
-                'updated_at' => $createdAt,
-            ]);
-        }
-
-        $this->command->info('Creati ' . (20 + count($specificUsers)) . ' utenti normali');
+        $this->command->info("Creati $usersCreated nuovi utenti normali");
     }
 }

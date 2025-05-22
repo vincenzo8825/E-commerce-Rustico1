@@ -44,7 +44,7 @@ const Dashboard = () => {
       
       try {
         console.log("Verifica permessi admin via API...");
-        // Usa l'endpoint check-status invece di statistics (che causa errore 500)
+        // Prova prima con l'endpoint check-status
         const response = await api.get('/admin/check-status');
         console.log("Risposta admin check:", response.data);
         
@@ -58,7 +58,15 @@ const Dashboard = () => {
             setUserInfo(userResponse.data.user);
           } catch (profileError) {
             console.error('Errore nel caricamento del profilo:', profileError);
-            // Continua comunque, ci basiamo sui dati memorizzati
+            // Prova con un altro endpoint
+            try {
+              const userResponse = await api.get('/auth/user');
+              console.log("Dati utente:", userResponse.data);
+              setUserInfo(userResponse.data);
+            } catch (authError) {
+              console.error('Errore nel caricamento dei dati utente:', authError);
+              // Continua comunque, ci basiamo sui dati memorizzati
+            }
           }
         } else {
           throw new Error('Utente non ha permessi admin');
@@ -66,22 +74,38 @@ const Dashboard = () => {
       } catch (error) {
         console.error('Errore nel controllo permessi admin:', error);
         
-        // Se abbiamo già verificato che è admin tramite localStorage, continua
-        if (isAdminFromStorage) {
-          console.log("Errore API ma utente ha permessi admin in localStorage, continua...");
+        // Prova con un endpoint alternativo
+        try {
+          const statsResponse = await api.get('/admin/dashboard/statistics');
+          console.log("Risposta statistiche dashboard:", statsResponse.data);
+          // Se riceve una risposta, l'utente è admin
           setIsAdmin(true);
-          // Usa dati utente minimi per continue
+          
+          // Usa dati utente minimi
           setUserInfo({
             name: "Admin",
             surname: "Utente",
           });
-        } else {
-          // Reindirizza alla home se non è admin
-          navigate('/', { 
-            state: { 
-              message: 'Non hai i permessi necessari per accedere all\'area amministrativa.' 
-            } 
-          });
+        } catch (statsError) {
+          console.error('Errore nel controllo via statistiche:', statsError);
+          
+          // Se abbiamo già verificato che è admin tramite localStorage, continua
+          if (isAdminFromStorage) {
+            console.log("Errore API ma utente ha permessi admin in localStorage, continua...");
+            setIsAdmin(true);
+            // Usa dati utente minimi per continuare
+            setUserInfo({
+              name: "Admin",
+              surname: "Utente",
+            });
+          } else {
+            // Reindirizza alla home se non è admin
+            navigate('/', { 
+              state: { 
+                message: 'Non hai i permessi necessari per accedere all\'area amministrativa.' 
+              } 
+            });
+          }
         }
       } finally {
         setLoading(false);

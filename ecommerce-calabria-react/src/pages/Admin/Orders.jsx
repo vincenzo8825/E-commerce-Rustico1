@@ -75,10 +75,10 @@ const Orders = () => {
   // Restituisce classe CSS in base allo stato dell'ordine
   const getOrderStatusClass = (status) => {
     switch (status) {
-      case 'delivered': return 'admin__status-badge--success';
-      case 'shipped': return 'admin__status-badge--info';
-      case 'processing': return 'admin__status-badge--warning';
-      case 'cancelled': return 'admin__status-badge--danger';
+      case 'completato': return 'admin__status-badge--success';
+      case 'spedito': return 'admin__status-badge--info';
+      case 'in_elaborazione': return 'admin__status-badge--warning';
+      case 'annullato': return 'admin__status-badge--danger';
       default: return '';
     }
   };
@@ -86,10 +86,10 @@ const Orders = () => {
   // Traduce lo stato dell'ordine in italiano
   const translateOrderStatus = (status) => {
     switch (status) {
-      case 'delivered': return 'Completato';
-      case 'shipped': return 'Spedito';
-      case 'processing': return 'In lavorazione';
-      case 'cancelled': return 'Annullato';
+      case 'completato': return 'Completato';
+      case 'spedito': return 'Spedito';
+      case 'in_elaborazione': return 'In lavorazione';
+      case 'annullato': return 'Annullato';
       default: return status;
     }
   };
@@ -134,10 +134,10 @@ const Orders = () => {
                   onChange={handleFilterChange}
                 >
                   <option value="">Tutti gli stati</option>
-                  <option value="processing">In lavorazione</option>
-                  <option value="shipped">Spediti</option>
-                  <option value="delivered">Completati</option>
-                  <option value="cancelled">Annullati</option>
+                  <option value="in_elaborazione">In lavorazione</option>
+                  <option value="spedito">Spediti</option>
+                  <option value="completato">Completati</option>
+                  <option value="annullato">Annullati</option>
                 </select>
               </div>
               
@@ -232,7 +232,7 @@ const Orders = () => {
                             <td>#{order.id}</td>
                             <td>{order.user ? `${order.user.name} ${order.user.surname}` : 'Cliente eliminato'}</td>
                             <td>{formatDate(order.created_at)}</td>
-                            <td>€ {formatPrice(order.total)}</td>
+                            <td>€ {formatPrice(order.total_amount || order.total)}</td>
                             <td>
                               <span className={`admin__status-badge ${getOrderStatusClass(order.status)}`}>
                                 {translateOrderStatus(order.status)}

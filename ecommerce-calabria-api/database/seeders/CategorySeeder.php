@@ -16,70 +16,61 @@ class CategorySeeder extends Seeder
     {
         $categories = [
             [
-                'name' => 'Olio d\'oliva',
-                'description' => 'Oli extravergine d\'oliva calabresi, prodotti con olive raccolte a mano e spremute a freddo.',
-                'image' => 'categories/olio.jpg',
+                'name' => 'Salumi Calabresi',
+                'description' => 'La tradizione norcina calabrese è ricca di prodotti unici, dalla Nduja al Capicollo, che raccontano la storia e la cultura di questo territorio.',
                 'is_active' => true,
-                'sort_order' => 1,
             ],
             [
-                'name' => 'Formaggi',
-                'description' => 'Formaggi tradizionali calabresi, prodotti con latte di alta qualità e metodi artigianali.',
-                'image' => 'categories/formaggi.jpg',
+                'name' => 'Formaggi Tipici',
+                'description' => 'I formaggi calabresi sono il risultato di antiche tradizioni casearie, con prodotti come il Caciocavallo Silano DOP e il Pecorino del Monte Poro.',
                 'is_active' => true,
-                'sort_order' => 2,
             ],
             [
-                'name' => 'Salumi',
-                'description' => 'Salumi tipici calabresi, preparati secondo le ricette tradizionali e stagionati naturalmente.',
-                'image' => 'categories/salumi.jpg',
+                'name' => 'Olio d\'Oliva',
+                'description' => 'L\'olio extravergine d\'oliva calabrese è conosciuto per la sua qualità superiore, derivante da varietà autoctone come la Carolea e l\'Ottobratica.',
                 'is_active' => true,
-                'sort_order' => 3,
             ],
             [
-                'name' => 'Conserve',
-                'description' => 'Conserve artigianali calabresi, preparate con ingredienti freschi e ricette tradizionali.',
-                'image' => 'categories/conserve.jpg',
+                'name' => 'Conserve e Sottoli',
+                'description' => 'Le conserve calabresi racchiudono i sapori intensi del territorio, dai peperoncini ripieni alle melanzane sott\'olio.',
                 'is_active' => true,
-                'sort_order' => 4,
             ],
             [
-                'name' => 'Pasta e Riso',
-                'description' => 'Pasta artigianale calabrese, prodotta con grani antichi e metodi tradizionali.',
-                'image' => 'categories/pasta.jpg',
+                'name' => 'Vini e Liquori',
+                'description' => 'La Calabria vanta una tradizione vinicola millenaria, con vini DOC come il Cirò e liquori artigianali a base di erbe locali.',
                 'is_active' => true,
-                'sort_order' => 5,
             ],
             [
-                'name' => 'Dolci e Miele',
-                'description' => 'Dolci tipici calabresi e miele di produzione locale.',
-                'image' => 'categories/dolci.jpg',
+                'name' => 'Dolci Tipici',
+                'description' => 'I dolci calabresi riflettono influenze greche, arabe e spagnole, con preparazioni a base di miele, frutta secca e agrumi.',
                 'is_active' => true,
-                'sort_order' => 6,
             ],
             [
-                'name' => 'Liquori e Vini',
-                'description' => 'Liquori e vini calabresi, prodotti con metodi tradizionali e ingredienti di alta qualità.',
-                'image' => 'categories/liquori.jpg',
+                'name' => 'Pasta Artigianale',
+                'description' => 'La pasta calabrese si caratterizza per formati unici come la Fileja e i Fusilli ferrati, spesso realizzati a mano secondo tradizione.',
                 'is_active' => true,
-                'sort_order' => 7,
+            ],
+            [
+                'name' => 'Prodotti al Bergamotto',
+                'description' => 'Il bergamotto, agrume coltivato quasi esclusivamente nella provincia di Reggio Calabria, è alla base di numerose specialità gastronomiche.',
+                'is_active' => true,
+            ],
+            [
+                'name' => 'Legumi e Cereali',
+                'description' => 'I legumi calabresi, come la lenticchia di Mormanno e i fagioli di Cortale, sono prodotti di eccellenza della biodiversità regionale.',
+                'is_active' => true,
             ],
         ];
 
-        foreach ($categories as $category) {
-            $slug = Str::slug($category['name']);
-            
-            // Check if category already exists
-            if (!Category::where('slug', $slug)->exists()) {
-                Category::create([
-                    'name' => $category['name'],
-                    'slug' => $slug,
-                    'description' => $category['description'],
-                    'image' => $category['image'],
-                    'is_active' => $category['is_active'],
-                    'sort_order' => $category['sort_order'],
-                ]);
-            }
+        foreach ($categories as $categoryData) {
+            Category::create([
+                'name' => $categoryData['name'],
+                'slug' => Str::slug($categoryData['name']),
+                'description' => $categoryData['description'],
+                'is_active' => $categoryData['is_active'],
+            ]);
         }
+
+        $this->command->info('Create ' . count($categories) . ' categorie');
     }
 }

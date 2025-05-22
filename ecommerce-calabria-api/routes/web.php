@@ -47,4 +47,14 @@ Route::get('/categories/{slug}', [CategoryController::class, 'show']);
 
 // Rotte per autenticazione
 Route::post('/register', [App\Http\Controllers\API\AuthController::class, 'register']);
-Route::post('/login', [App\Http\Controllers\API\AuthController::class, 'login']);
+Route::post('/login', [App\Http\Controllers\API\AuthController::class, 'login'])->name('login');
+
+// Rotta GET per login che reindirizza al frontend
+Route::get('/login', function() {
+    return redirect()->away('http://localhost:5173/login');
+});
+
+// Rotta speciale per reindirizzare al frontend quando si ha bisogno di login
+Route::get('/need-login', function() {
+    return redirect()->away('http://localhost:5173/login');
+})->name('login.redirect');

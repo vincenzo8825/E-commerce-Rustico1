@@ -88,11 +88,11 @@ const SupportTickets = () => {
 
   const getStatusClass = (status) => {
     switch (status) {
-      case 'aperto':
+      case 'open':
         return 'dashboard__ticket-status--open';
-      case 'in lavorazione':
+      case 'in_progress':
         return 'dashboard__ticket-status--processing';
-      case 'chiuso':
+      case 'closed':
         return 'dashboard__ticket-status--closed';
       default:
         return '';
@@ -195,7 +195,7 @@ const SupportTickets = () => {
                     ))}
                   </div>
                   
-                  {ticket.status !== 'chiuso' && (
+                  {ticket.status !== 'closed' && (
                     <div className="dashboard__message-form">
                       <textarea
                         className="dashboard__message-input"
@@ -214,7 +214,7 @@ const SupportTickets = () => {
                     </div>
                   )}
                   
-                  {ticket.status === 'chiuso' && (
+                  {ticket.status === 'closed' && (
                     <div className="dashboard__ticket-closed-notice">
                       Questo ticket è stato chiuso. Se hai altre domande, apri un nuovo ticket.
                     </div>

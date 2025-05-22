@@ -18,7 +18,7 @@ const TicketDetail = () => {
   const fetchTicketDetails = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/admin/support-tickets/${id}`);
+      const response = await api.get(`/admin/dashboard/support-tickets/${id}`);
       setTicket(response.data.ticket);
       setError(null);
     } catch (err) {
@@ -38,7 +38,7 @@ const TicketDetail = () => {
     
     try {
       setSubmitting(true);
-      await api.post(`/admin/support-tickets/${id}/messages`, { message });
+      await api.post(`/admin/dashboard/support-tickets/${id}/messages`, { message });
       
       // Aggiorna il ticket con il nuovo messaggio
       setTicket({
@@ -72,7 +72,7 @@ const TicketDetail = () => {
   const handleStatusChange = async (newStatus) => {
     try {
       setSubmitting(true);
-      await api.put(`/admin/support-tickets/${id}/status`, { status: newStatus });
+      await api.put(`/admin/dashboard/support-tickets/${id}/status`, { status: newStatus });
       
       // Aggiorna lo stato del ticket
       setTicket({

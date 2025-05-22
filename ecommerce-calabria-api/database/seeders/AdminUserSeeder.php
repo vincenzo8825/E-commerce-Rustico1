@@ -15,12 +15,12 @@ class AdminUserSeeder extends Seeder
     public function run(): void
     {
         // Check if admin user already exists
-        if (!User::where('email', 'admin@calabria-ecommerce.it')->exists()) {
+        if (!User::where('email', 'admin@example.com')->exists()) {
             User::create([
                 'name' => 'Admin',
                 'surname' => 'Calabria',
                 'email' => 'admin@example.com',
-                'password' => Hash::make('password123'),
+                'password' => Hash::make('password'),
                 'address' => 'Via Calabria 1',
                 'city' => 'Cosenza',
                 'postal_code' => '87100',

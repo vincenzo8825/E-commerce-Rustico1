@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import ProductCard from '../../components/ProductCard/ProductCard';
 import CategoryCard from '../../components/CategoryCard/CategoryCard';
@@ -7,6 +7,7 @@ import './Home.scss';
 import { testConnection } from '../../utils/api';
 
 const Home = () => {
+  const location = useLocation();
   const [apiStatus, setApiStatus] = useState({
     loading: true,
     success: false,
@@ -17,6 +18,19 @@ const Home = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [featuredCategories, setFeaturedCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showEmailVerifiedMessage, setShowEmailVerifiedMessage] = useState(false);
+
+  useEffect(() => {
+    // Controlla se l'utente è stato reindirizzato dalla verifica email
+    const urlParams = new URLSearchParams(location.search);
+    if (urlParams.get('email_verified') === 'true') {
+      setShowEmailVerifiedMessage(true);
+      // Nascondi il messaggio dopo 5 secondi
+      setTimeout(() => {
+        setShowEmailVerifiedMessage(false);
+      }, 5000);
+    }
+  }, [location]);
 
   const testApiConnection = async () => {
     setApiStatus({
@@ -77,6 +91,28 @@ const Home = () => {
 
   return (
     <div className="home">
+      {/* Messaggio di verifica email */}
+      {showEmailVerifiedMessage && (
+        <div className="home__email-verified-message">
+          <div className="home__email-verified-content">
+            <span className="home__email-verified-icon">✓</span>
+            <div className="home__email-verified-text">
+              <h3>Email verificata con successo!</h3>
+              <p>Ora puoi procedere con il login.</p>
+            </div>
+            <Link to="/login" className="home__email-verified-button">
+              Accedi
+            </Link>
+            <button 
+              className="home__email-verified-close" 
+              onClick={() => setShowEmailVerifiedMessage(false)}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Sezione di test API */}
       <div className={`home__api-test ${apiStatus.success ? 'home__api-test--success' : 'home__api-test--error'}`}>
         {apiStatus.loading ? (

@@ -17,8 +17,8 @@ class Authenticate extends Middleware
             return null; // Questo farà in modo che Laravel restituisca una risposta 401 invece di reindirizzare
         }
 
-        // Se è una richiesta web, possiamo decidere di reindirizzare a un URL frontend
-        // ma poiché stiamo usando un'API separata, possiamo semplicemente tornare null
-        return null;
+        // Se è una richiesta web (non API), reindirizziamo alla rotta login.redirect
+        // che reindirizzerà l'utente alla pagina di login del frontend
+        return route('login.redirect');
     }
 }

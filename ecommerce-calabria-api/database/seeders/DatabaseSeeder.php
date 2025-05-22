@@ -14,14 +14,12 @@ class DatabaseSeeder extends Seeder
     {
         // Run seeders in the correct order
         $this->call([
-            AdminUserSeeder::class,
             UserSeeder::class,
             CategorySeeder::class,
             ProductSeeder::class,
+            DiscountCodeSeeder::class,
             OrderSeeder::class,
             SupportTicketSeeder::class,
-            DiscountCodeSeeder::class,
-            NotificationSeeder::class,
         ]);
     }
 }

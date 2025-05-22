@@ -67,13 +67,16 @@ class AuthController extends Controller
 
         $user = $request->user();
 
+        // Verifica se c'è bisogno di forzare l'aggiornamento dello stato di verifica
+        $this->ensureEmailVerificationStatus($user);
+
         // Genera token anche se l'email non è verificata, ma includi flag nel response
         $token = $user->createToken('auth_token')->plainTextToken;
 
         // Se l'utente è admin, consideriamo l'email come verificata
         if ($user->is_admin) {
             // Verifichiamo l'email dell'admin se non è già verificata
-            if (!$user->hasVerifiedEmail()) {
+            if (!$user->email_verified_at) {
                 // Impostiamo il timestamp di verifica email
                 $user->email_verified_at = now();
                 $user->save();
@@ -96,7 +99,7 @@ class AuthController extends Controller
         }
 
         // Se l'email non è verificata per utenti normali, informa l'utente ma concedi comunque un token limitato
-        if (!$user->hasVerifiedEmail()) {
+        if (!$user->email_verified_at) {
             return response()->json([
                 'message' => 'Devi verificare la tua email prima di accedere a tutte le funzionalità.',
                 'user' => [
@@ -150,6 +153,9 @@ class AuthController extends Controller
             ]);
         }
 
+        // Verifica se c'è bisogno di forzare l'aggiornamento dello stato di verifica
+        $this->ensureEmailVerificationStatus($user);
+
         return response()->json([
             'authenticated' => true,
             'user' => [
@@ -157,9 +163,32 @@ class AuthController extends Controller
                 'name' => $user->name,
                 'surname' => $user->surname,
                 'email' => $user->email,
-                'email_verified' => $user->hasVerifiedEmail(),
+                'email_verified' => $user->email_verified_at ? true : false,
                 'is_admin' => $user->is_admin,
             ]
         ]);
+    }
+
+    /**
+     * Assicura che lo stato di verifica dell'email sia corretto nel database
+     */
+    private function ensureEmailVerificationStatus($user)
+    {
+        // Verifica nel database se c'è un problema di tipo di dati o formato
+        if (!$user->email_verified_at) {
+            // Controlla direttamente nel database se esiste un record con email verificata
+            $verifiedUser = User::where('id', $user->id)
+                                ->whereNotNull('email_verified_at')
+                                ->first();
+
+            if ($verifiedUser) {
+                // Forza l'aggiornamento dell'utente corrente
+                $user->email_verified_at = $verifiedUser->email_verified_at;
+                $user->save();
+                return true;
+            }
+        }
+
+        return false;
     }
 }
