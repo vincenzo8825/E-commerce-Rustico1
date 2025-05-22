@@ -1,3 +1,5 @@
+@use "sass:color";
+
 .home {
   // Stile per il test API
   &__api-test {
@@ -66,7 +68,7 @@
       transition: background-color 0.3s;
       
       &:hover {
-        background-color: darken(#f8d568, 10%);
+        background-color: color.adjust(#f8d568, $lightness: -10%);
       }
     }
   }

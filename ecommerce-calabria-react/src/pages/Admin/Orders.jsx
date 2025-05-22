@@ -75,9 +75,9 @@ const Orders = () => {
   // Restituisce classe CSS in base allo stato dell'ordine
   const getOrderStatusClass = (status) => {
     switch (status) {
-      case 'completed': return 'admin__status-badge--success';
-      case 'processing': return 'admin__status-badge--info';
-      case 'pending': return 'admin__status-badge--warning';
+      case 'delivered': return 'admin__status-badge--success';
+      case 'shipped': return 'admin__status-badge--info';
+      case 'processing': return 'admin__status-badge--warning';
       case 'cancelled': return 'admin__status-badge--danger';
       default: return '';
     }
@@ -86,9 +86,9 @@ const Orders = () => {
   // Traduce lo stato dell'ordine in italiano
   const translateOrderStatus = (status) => {
     switch (status) {
-      case 'completed': return 'Completato';
+      case 'delivered': return 'Completato';
+      case 'shipped': return 'Spedito';
       case 'processing': return 'In lavorazione';
-      case 'pending': return 'In attesa';
       case 'cancelled': return 'Annullato';
       default: return status;
     }
@@ -134,9 +134,9 @@ const Orders = () => {
                   onChange={handleFilterChange}
                 >
                   <option value="">Tutti gli stati</option>
-                  <option value="pending">In attesa</option>
                   <option value="processing">In lavorazione</option>
-                  <option value="completed">Completati</option>
+                  <option value="shipped">Spediti</option>
+                  <option value="delivered">Completati</option>
                   <option value="cancelled">Annullati</option>
                 </select>
               </div>

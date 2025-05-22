@@ -2,12 +2,23 @@ import axios from 'axios';
 
 // Create axios instance with base configuration
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: 'http://127.0.0.1:8000/api',
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
-  withCredentials: false,
+  withCredentials: true,
+  timeout: 10000,
+});
+
+// Istanza API separata per le chiamate di test senza autenticazione
+export const testApi = axios.create({
+  baseURL: 'http://127.0.0.1:8000/api/test',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  },
+  withCredentials: true,
   timeout: 10000,
 });
 
@@ -48,6 +59,24 @@ api.interceptors.response.use(
   }
 );
 
+// Configurazione per intercettare ogni richiesta e aggiungere il token
+api.interceptors.request.use(
+  config => {
+    // Controlla se il token esiste nel localStorage
+    const token = localStorage.getItem('token');
+    
+    // Se esiste, aggiungi l'header di autorizzazione
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    return config;
+  },
+  error => {
+    return Promise.reject(error);
+  }
+);
+
 // Imposta l'header di autorizzazione se c'è un token nel localStorage
 const token = localStorage.getItem('token');
 if (token) {
@@ -79,6 +108,30 @@ export const testConnection = async () => {
       console.error('Errore di configurazione:', error.message);
     }
     
+    throw error;
+  }
+};
+
+// Funzioni helper per usare le API di test durante lo sviluppo
+export const fetchTestAdminData = async () => {
+  try {
+    // Statistiche dashboard
+    const statsResponse = await testApi.get('/admin/dashboard/statistics');
+    // Utenti
+    const usersResponse = await testApi.get('/admin/dashboard/users');
+    // Ordini
+    const ordersResponse = await testApi.get('/admin/dashboard/orders');
+    // Tickets
+    const ticketsResponse = await testApi.get('/admin/dashboard/support-tickets');
+    
+    return {
+      statistics: statsResponse.data,
+      users: usersResponse.data,
+      orders: ordersResponse.data,
+      tickets: ticketsResponse.data
+    };
+  } catch (error) {
+    console.error('Errore nel caricamento dei dati di test:', error);
     throw error;
   }
 };

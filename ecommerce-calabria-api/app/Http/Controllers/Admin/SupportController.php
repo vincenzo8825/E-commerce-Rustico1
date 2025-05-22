@@ -18,7 +18,7 @@ class SupportController extends Controller
      */
     public function index(Request $request)
     {
-        $query = SupportTicket::with(['user', 'supportMessages'])
+        $query = SupportTicket::with(['user', 'messages'])
             ->latest();
 
         // Filtro per stato
@@ -52,7 +52,7 @@ class SupportController extends Controller
      */
     public function show($id)
     {
-        $ticket = SupportTicket::with(['user', 'supportMessages.user', 'order'])
+        $ticket = SupportTicket::with(['user', 'messages.user', 'order'])
             ->findOrFail($id);
 
         return response()->json([
@@ -88,7 +88,7 @@ class SupportController extends Controller
             'is_from_admin' => true
         ]);
 
-        $ticket->supportMessages()->save($message);
+        $ticket->messages()->save($message);
 
         return response()->json([
             'message' => 'Risposta inviata con successo',
@@ -137,7 +137,7 @@ class SupportController extends Controller
 
         // Tempo medio di risposta (in ore)
         $averageResponseTime = 0;
-        $tickets = SupportTicket::with('supportMessages')
+        $tickets = SupportTicket::with('messages')
             ->where('status', '!=', 'aperto')
             ->get();
 
@@ -146,9 +146,9 @@ class SupportController extends Controller
             $ticketsWithResponse = 0;
 
             foreach ($tickets as $ticket) {
-                if ($ticket->supportMessages->count() > 1) {
-                    $firstMessage = $ticket->supportMessages->sortBy('created_at')->first();
-                    $adminResponse = $ticket->supportMessages->where('is_from_admin', true)->sortBy('created_at')->first();
+                if ($ticket->messages->count() > 1) {
+                    $firstMessage = $ticket->messages->sortBy('created_at')->first();
+                    $adminResponse = $ticket->messages->where('is_from_admin', true)->sortBy('created_at')->first();
 
                     if ($adminResponse) {
                         $responseTime = $adminResponse->created_at->diffInHours($firstMessage->created_at);

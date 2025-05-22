@@ -1,3 +1,5 @@
+@use "sass:color";
+
 .dashboard {
   padding: 40px 20px;
   background-color: #f7f7f7;
@@ -157,7 +159,7 @@
     align-self: flex-start;
     
     &:hover {
-      background-color: darken(#6b8e23, 10%);
+      background-color: color.adjust(#6b8e23, $lightness: -10%);
     }
     
     &:disabled {

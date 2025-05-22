@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Order;
+use App\Models\Product;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
@@ -19,7 +20,7 @@ class OrderSeeder extends Seeder
     public function run(): void
     {
         // Prendiamo alcuni utenti per associarli agli ordini
-        $users = User::all();
+        $users = User::where('is_admin', false)->get();
 
         if ($users->isEmpty()) {
             // Assicuriamoci di avere almeno un utente oltre all'admin
@@ -31,137 +32,133 @@ class OrderSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
+            $userIds = [$userId];
         } else {
-            // Prendiamo l'ID del primo utente non admin
-            $userId = $users->where('is_admin', false)->first()->id ?? $users->first()->id;
+            $userIds = $users->pluck('id')->toArray();
         }
 
-        // Dati ordini presi dal mockup del frontend
-        $orders = [
-            [
-                'user_id' => $userId,
-                'order_number' => 'ORD-' . Str::random(10),
-                'total' => 85.50,
-                'status' => 'delivered',
-                'created_at' => Carbon::parse('2023-05-10T10:30:00'),
-                'updated_at' => Carbon::parse('2023-05-10T10:30:00'),
-                'shipping_name' => 'Mario',
-                'shipping_surname' => 'Rossi',
-                'shipping_address' => 'Via Roma 123',
-                'shipping_city' => 'Milano',
-                'shipping_postal_code' => '20100',
-                'shipping_phone' => '3334445556',
-                'shipping_cost' => 5.90,
-                'payment_method' => 'credit_card',
-                'notes' => 'Consegnare al portiere',
-                'is_paid' => true,
-                'paid_at' => Carbon::parse('2023-05-10T10:30:00'),
-            ],
-            [
-                'user_id' => $userId,
-                'order_number' => 'ORD-' . Str::random(10),
-                'total' => 42.90,
-                'status' => 'processing',
-                'created_at' => Carbon::parse('2023-05-09T14:20:00'),
-                'updated_at' => Carbon::parse('2023-05-09T14:20:00'),
-                'shipping_name' => 'Anna',
-                'shipping_surname' => 'Verdi',
-                'shipping_address' => 'Via Garibaldi 45',
-                'shipping_city' => 'Roma',
-                'shipping_postal_code' => '00100',
-                'shipping_phone' => '3391112223',
-                'shipping_cost' => 5.90,
-                'payment_method' => 'paypal',
-                'notes' => '',
-                'is_paid' => true,
-                'paid_at' => Carbon::parse('2023-05-09T14:20:00'),
-            ],
-            [
-                'user_id' => $userId,
-                'order_number' => 'ORD-' . Str::random(10),
-                'total' => 120.00,
-                'status' => 'pending',
-                'created_at' => Carbon::parse('2023-05-08T09:15:00'),
-                'updated_at' => Carbon::parse('2023-05-08T09:15:00'),
-                'shipping_name' => 'Luigi',
-                'shipping_surname' => 'Bianchi',
-                'shipping_address' => 'Via Dante 78',
-                'shipping_city' => 'Napoli',
-                'shipping_postal_code' => '80100',
-                'shipping_phone' => '3358889990',
-                'shipping_cost' => 5.90,
-                'payment_method' => 'credit_card',
-                'notes' => 'Suonare al campanello 4B',
-                'is_paid' => false,
-                'paid_at' => null,
-            ],
-            // Aggiungiamo altri ordini per avere statistiche più realistiche
-            [
-                'user_id' => $userId,
-                'order_number' => 'ORD-' . Str::random(10),
-                'total' => 75.20,
-                'status' => 'shipped',
-                'created_at' => Carbon::parse('2023-05-07T11:25:00'),
-                'updated_at' => Carbon::parse('2023-05-07T11:25:00'),
-                'shipping_name' => 'Marco',
-                'shipping_surname' => 'Neri',
-                'shipping_address' => 'Via Mazzini 90',
-                'shipping_city' => 'Torino',
-                'shipping_postal_code' => '10100',
-                'shipping_phone' => '3376667778',
-                'shipping_cost' => 5.90,
-                'payment_method' => 'credit_card',
-                'notes' => '',
-                'is_paid' => true,
-                'paid_at' => Carbon::parse('2023-05-07T11:25:00'),
-            ],
-            [
-                'user_id' => $userId,
-                'order_number' => 'ORD-' . Str::random(10),
-                'total' => 63.40,
-                'status' => 'delivered',
-                'created_at' => Carbon::parse('2023-05-06T16:30:00'),
-                'updated_at' => Carbon::parse('2023-05-06T16:30:00'),
-                'shipping_name' => 'Laura',
-                'shipping_surname' => 'Verdi',
-                'shipping_address' => 'Via Verdi 12',
-                'shipping_city' => 'Bologna',
-                'shipping_postal_code' => '40100',
-                'shipping_phone' => '3392223334',
-                'shipping_cost' => 5.90,
-                'payment_method' => 'paypal',
-                'notes' => '',
-                'is_paid' => true,
-                'paid_at' => Carbon::parse('2023-05-06T16:30:00'),
-            ],
+        // Stati possibili degli ordini
+        $statuses = ['processing', 'shipped', 'delivered', 'cancelled'];
+
+        // Metodi di pagamento
+        $paymentMethods = ['credit_card', 'paypal', 'bank_transfer', 'cash_on_delivery'];
+
+        // Città italiane
+        $cities = [
+            'Roma', 'Milano', 'Napoli', 'Torino', 'Palermo',
+            'Bologna', 'Firenze', 'Catania', 'Bari', 'Messina',
+            'Reggio Calabria', 'Cosenza', 'Catanzaro', 'Vibo Valentia', 'Crotone',
+            'Lamezia Terme', 'Tropea', 'Soverato', 'Diamante', 'Scalea'
         ];
 
-        // Inserisci gli ordini nel database
-        foreach ($orders as $orderData) {
-            $order = Order::create($orderData);
+        // CAP per regione
+        $postalCodes = [
+            '00100', '20100', '80100', '10100', '90100',
+            '40100', '50100', '95100', '70100', '98100',
+            '89100', '87100', '88100', '89900', '88900',
+            '88046', '89861', '88068', '87023', '87029'
+        ];
 
-            // Aggiungiamo alcuni prodotti all'ordine
-            // Assumiamo che esista una tabella order_items o similare
-            $productIds = DB::table('products')->pluck('id')->take(3)->toArray();
+        // Ottieni tutti i prodotti
+        $products = Product::all();
 
-            if (!empty($productIds)) {
-                foreach ($productIds as $index => $productId) {
+        if ($products->isEmpty()) {
+            $this->command->info("Nessun prodotto trovato. Gli ordini non avranno prodotti.");
+            return;
+        }
+
+        // Generiamo ordini per gli ultimi 60 giorni con distribuzione realistica
+        $orders = [];
+        $totalRevenue = 0;
+
+        // Genera ordini con date distribuite negli ultimi 60 giorni
+        for ($day = 0; $day < 60; $day++) {
+            $date = Carbon::now()->subDays($day);
+
+            // Più ordini nei giorni recenti, meno nei giorni più lontani
+            $numOrders = $day < 10 ? rand(1, 3) : ($day < 30 ? rand(0, 2) : rand(0, 1));
+
+            for ($i = 0; $i < $numOrders; $i++) {
+                $userId = $userIds[array_rand($userIds)];
+                $user = User::find($userId);
+
+                // Generiamo un orario casuale per l'ordine
+                $orderTime = $date->copy()->addHours(rand(8, 22))->addMinutes(rand(0, 59));
+
+                // Stato con distribuzione realistica (più completati che annullati)
+                $status = $statuses[rand(0, 100) < 20 ? 3 : (rand(0, 100) < 30 ? 0 : (rand(0, 100) < 50 ? 1 : 2))];
+
+                // Calcoliamo il pagato in base allo stato
+                $isPaid = $status === 'cancelled' ? false : ($status === 'delivered' || rand(0, 100) < 80);
+
+                // Generiamo il costo di spedizione (gratis sopra una certa soglia)
+                $shippingCost = rand(0, 100) < 30 ? 0 : 4.99;
+
+                // Randomizziamo la città e il CAP
+                $cityIndex = array_rand($cities);
+
+                $orderData = [
+                    'user_id' => $userId,
+                    'order_number' => 'ORD-' . date('Ymd') . '-' . strtoupper(Str::random(5)),
+                    'status' => $status,
+                    'created_at' => $orderTime,
+                    'updated_at' => $orderTime,
+                    'shipping_name' => $user->name,
+                    'shipping_surname' => $user->surname,
+                    'shipping_address' => 'Via ' . $this->getRandomStreetName() . ' ' . rand(1, 100),
+                    'shipping_city' => $cities[$cityIndex],
+                    'shipping_postal_code' => $postalCodes[$cityIndex],
+                    'shipping_phone' => '3' . rand(300000000, 399999999),
+                    'shipping_cost' => $shippingCost,
+                    'payment_method' => $paymentMethods[array_rand($paymentMethods)],
+                    'notes' => rand(0, 100) < 30 ? $this->getRandomOrderNote() : '',
+                    'is_paid' => $isPaid,
+                    'paid_at' => $isPaid ? $orderTime : null,
+                ];
+
+                // Aggiungiamo prodotti all'ordine
+                $orderProducts = $products->random(rand(1, 5))->all();
+                $orderTotal = $shippingCost;
+
+                $orderItems = [];
+                foreach ($orderProducts as $product) {
                     $quantity = rand(1, 3);
-                    $product = DB::table('products')->where('id', $productId)->first();
-                    $price = $product ? $product->price : 10.00;
-                    $productName = $product ? $product->name : 'Prodotto #' . $productId;
+                    $price = $product->price;
+                    $total = $price * $quantity;
+                    $orderTotal += $total;
 
-                    DB::table('order_items')->insert([
-                        'order_id' => $order->id,
-                        'product_id' => $productId,
-                        'product_name' => $productName,
+                    $orderItems[] = [
+                        'product_id' => $product->id,
+                        'product_name' => $product->name,
                         'quantity' => $quantity,
                         'price' => $price,
-                        'total' => $price * $quantity,
-                        'created_at' => $orderData['created_at'],
-                        'updated_at' => $orderData['updated_at'],
-                    ]);
+                        'total' => $total,
+                        'created_at' => $orderTime,
+                        'updated_at' => $orderTime,
+                    ];
                 }
+
+                $orderData['total'] = $orderTotal;
+                $totalRevenue += ($status === 'delivered' ? $orderTotal : 0);
+
+                $orders[] = [
+                    'data' => $orderData,
+                    'items' => $orderItems
+                ];
+            }
+        }
+
+        // Inserisci gli ordini nel database
+        foreach ($orders as $orderInfo) {
+            $orderData = $orderInfo['data'];
+            $orderItems = $orderInfo['items'];
+
+            $order = Order::create($orderData);
+
+            // Aggiungiamo i prodotti all'ordine
+            foreach ($orderItems as $item) {
+                $item['order_id'] = $order->id;
+                DB::table('order_items')->insert($item);
             }
         }
 
@@ -176,7 +173,7 @@ class OrderSeeder extends Seeder
     {
         // Calcoliamo il totale degli ordini, il fatturato e il valore medio
         $totalOrders = Order::count();
-        $totalRevenue = Order::sum('total');
+        $totalRevenue = Order::where('status', 'delivered')->sum('total');
         $averageValue = $totalOrders > 0 ? $totalRevenue / $totalOrders : 0;
 
         // Salviamo queste statistiche in una tabella dedicata (se esiste)
@@ -194,6 +191,42 @@ class OrderSeeder extends Seeder
             );
         }
 
-        $this->command->info("Statistiche ordini aggiornate: $totalOrders ordini, €$totalRevenue fatturato");
+        $this->command->info("Statistiche ordini aggiornate: $totalOrders ordini, €" . number_format($totalRevenue, 2) . " fatturato");
+    }
+
+    /**
+     * Genera un nome di strada casuale
+     */
+    private function getRandomStreetName()
+    {
+        $streets = [
+            'Roma', 'Garibaldi', 'Mazzini', 'Dante', 'Verdi',
+            'Vittorio Emanuele', 'Cavour', 'Italia', 'Marconi', 'Colombo',
+            'XX Settembre', 'Matteotti', 'Gramsci', 'Diaz', 'Oberdan',
+            'Rossini', 'Piave', 'Alfieri', 'Carducci', 'Leonardo da Vinci'
+        ];
+
+        return $streets[array_rand($streets)];
+    }
+
+    /**
+     * Genera una nota per l'ordine casuale
+     */
+    private function getRandomOrderNote()
+    {
+        $notes = [
+            'Consegnare al portiere.',
+            'Suonare al campanello numero 3.',
+            'Lasciare il pacco davanti alla porta se assente.',
+            'Chiamare prima della consegna.',
+            'Consegnare dopo le 18:00.',
+            'Il cancello ha un codice: 1234.',
+            'Attenzione al cane.',
+            'Citofonare all\'appartamento 2B.',
+            'In caso di assenza, lasciare dai vicini.',
+            'Verificare l\'integrità del pacco alla consegna.'
+        ];
+
+        return $notes[array_rand($notes)];
     }
 }

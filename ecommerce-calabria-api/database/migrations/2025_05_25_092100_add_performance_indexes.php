@@ -35,7 +35,7 @@ return new class extends Migration
 
         // Indici per la tabella cart_items
         Schema::table('cart_items', function (Blueprint $table) {
-            $table->index(['user_id', 'product_id']); // Per trovare rapidamente un prodotto nel carrello di un utente
+            $table->index(['cart_id', 'product_id']); // Per trovare rapidamente un prodotto nel carrello
         });
 
         // Indici per la tabella favorites
@@ -72,7 +72,7 @@ return new class extends Migration
 
         // Rimozione indici dalla tabella cart_items
         Schema::table('cart_items', function (Blueprint $table) {
-            $table->dropIndex(['user_id', 'product_id']);
+            $table->dropIndex(['cart_id', 'product_id']);
         });
 
         // Rimozione indici dalla tabella favorites

@@ -162,7 +162,7 @@ class UserDashboardController extends Controller
     public function getSupportTickets()
     {
         $user = Auth::user();
-        $tickets = $user->supportTickets()->with('supportMessages')->latest()->get();
+        $tickets = $user->supportTickets()->with('messages')->latest()->get();
 
         return response()->json([
             'tickets' => $tickets
@@ -188,7 +188,7 @@ class UserDashboardController extends Controller
             'order_id' => $validated['order_id'] ?? null
         ]);
 
-        $ticket->supportMessages()->create([
+        $ticket->messages()->create([
             'user_id' => $user->id,
             'message' => $validated['message'],
             'is_from_admin' => false
@@ -196,7 +196,7 @@ class UserDashboardController extends Controller
 
         return response()->json([
             'message' => 'Ticket di supporto creato con successo',
-            'ticket' => $ticket->load('supportMessages')
+            'ticket' => $ticket->load('messages')
         ], 201);
     }
 
@@ -209,7 +209,7 @@ class UserDashboardController extends Controller
 
         $ticket = $user->supportTickets()->findOrFail($id);
 
-        if ($ticket->status === 'chiuso') {
+        if ($ticket->status === 'closed') {
             return response()->json([
                 'message' => 'Non puoi aggiungere messaggi a un ticket chiuso'
             ], 403);
@@ -219,7 +219,7 @@ class UserDashboardController extends Controller
             'message' => 'required|string'
         ]);
 
-        $message = $ticket->supportMessages()->create([
+        $message = $ticket->messages()->create([
             'user_id' => $user->id,
             'message' => $validated['message'],
             'is_from_admin' => false

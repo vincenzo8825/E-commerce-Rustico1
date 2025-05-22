@@ -6,6 +6,7 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\UserDashboardController;
 use App\Http\Controllers\API\CheckoutController;
 use App\Http\Controllers\API\ProductController;
+use App\Http\Controllers\API\AdminDashboardController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 
@@ -24,6 +25,32 @@ Route::get('ping', function () {
         'message' => 'Connessione al backend riuscita!',
         'status' => 'success',
         'timestamp' => now()->toDateTimeString()
+    ]);
+});
+
+// Rotte temporanee per test (da rimuovere in produzione)
+Route::get('/test/admin/dashboard/statistics', [AdminDashboardController::class, 'getStatistics']);
+Route::get('/test/admin/dashboard/users', [AdminDashboardController::class, 'getUsers']);
+Route::get('/test/admin/dashboard/orders', [AdminDashboardController::class, 'getOrders']);
+Route::get('/test/admin/dashboard/products', [AdminDashboardController::class, 'getProducts']);
+Route::get('/test/admin/dashboard/categories', [AdminDashboardController::class, 'getCategories']);
+Route::get('/test/admin/dashboard/discount-codes', [AdminDashboardController::class, 'getDiscountCodes']);
+Route::get('/test/admin/dashboard/support-tickets', [AdminDashboardController::class, 'getSupportTickets']);
+Route::get('/test/admin/dashboard/orders/{id}', [AdminDashboardController::class, 'getOrderDetails']);
+Route::get('/test/admin/dashboard/users/{id}', [AdminDashboardController::class, 'getUserDetails']);
+Route::get('/test/admin/dashboard/support-tickets/{id}', [AdminDashboardController::class, 'getSupportTicketDetails']);
+
+Route::get('/test/user/dashboard/{userId}', function ($userId) {
+    $user = \App\Models\User::find($userId);
+    if (!$user) {
+        return response()->json(['error' => 'Utente non trovato'], 404);
+    }
+
+    return response()->json([
+        'user' => $user,
+        'orders' => $user->orders()->with('orderItems.product')->get(),
+        'tickets' => $user->supportTickets()->with('messages')->get(),
+        'notifications' => $user->notifications
     ]);
 });
 
@@ -115,6 +142,33 @@ Route::middleware('auth:sanctum')->get('/admin/check-status', function (Request 
 
 // Rotte per l'area amministrativa, senza il middleware isAdmin
 Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
+    // Rotte per la dashboard admin
+    Route::get('/dashboard/statistics', [AdminDashboardController::class, 'getStatistics']);
+
+    // Rotte per la gestione utenti
+    Route::get('/dashboard/users', [AdminDashboardController::class, 'getUsers']);
+    Route::get('/dashboard/users/{id}', [AdminDashboardController::class, 'getUserDetails']);
+
+    // Rotte per la gestione ordini
+    Route::get('/dashboard/orders', [AdminDashboardController::class, 'getOrders']);
+    Route::get('/dashboard/orders/{id}', [AdminDashboardController::class, 'getOrderDetails']);
+    Route::put('/dashboard/orders/{id}/status', [AdminDashboardController::class, 'updateOrderStatus']);
+
+    // Rotte per la gestione prodotti
+    Route::get('/dashboard/products', [AdminDashboardController::class, 'getProducts']);
+
+    // Rotte per la gestione categorie
+    Route::get('/dashboard/categories', [AdminDashboardController::class, 'getCategories']);
+
+    // Rotte per la gestione codici sconto
+    Route::get('/dashboard/discount-codes', [AdminDashboardController::class, 'getDiscountCodes']);
+
+    // Rotte per la gestione ticket supporto
+    Route::get('/dashboard/support-tickets', [AdminDashboardController::class, 'getSupportTickets']);
+    Route::get('/dashboard/support-tickets/{id}', [AdminDashboardController::class, 'getSupportTicketDetails']);
+    Route::put('/dashboard/support-tickets/{id}/status', [AdminDashboardController::class, 'updateSupportTicketStatus']);
+    Route::post('/dashboard/support-tickets/{id}/messages', [AdminDashboardController::class, 'addMessageToTicket']);
+
     // Rotte per i prodotti
     Route::apiResource('products', 'App\Http\Controllers\Admin\ProductController');
 
@@ -132,13 +186,6 @@ Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
     Route::post('orders/{id}/notes', [App\Http\Controllers\Admin\OrderController::class, 'addNote']);
     Route::get('orders/statistics', [App\Http\Controllers\Admin\OrderController::class, 'statistics']);
 
-    // Rotte per i ticket di supporto
-    Route::get('support-tickets', [App\Http\Controllers\Admin\SupportController::class, 'index']);
-    Route::get('support-tickets/{id}', [App\Http\Controllers\Admin\SupportController::class, 'show']);
-    Route::post('support-tickets/{id}/messages', [App\Http\Controllers\Admin\SupportController::class, 'addMessage']);
-    Route::put('support-tickets/{id}/status', [App\Http\Controllers\Admin\SupportController::class, 'updateStatus']);
-    Route::get('support-tickets/statistics', [App\Http\Controllers\Admin\SupportController::class, 'statistics']);
-
     // Rotte per i codici sconto
     Route::apiResource('discounts', 'App\Http\Controllers\Admin\DiscountController');
     Route::put('discounts/{id}/toggle', [App\Http\Controllers\Admin\DiscountController::class, 'toggleActive']);
@@ -149,4 +196,25 @@ Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
     // Rotte statistiche
     Route::get('/statistics', [App\Http\Controllers\Admin\StatisticsController::class, 'index']);
     Route::get('/statistics/products', [App\Http\Controllers\Admin\StatisticsController::class, 'topProducts']);
+});
+
+// Rotta di debug per verificare i modelli e le relazioni
+Route::get('/debug/models', function () {
+    try {
+        // Test sulla relazione tickets-messages
+        $ticket = \App\Models\SupportTicket::with('messages')->first();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Modelli e relazioni funzionano correttamente',
+            'ticket' => $ticket ? $ticket->toArray() : 'Nessun ticket trovato'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Errore nel test dei modelli',
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ], 500);
+    }
 });
