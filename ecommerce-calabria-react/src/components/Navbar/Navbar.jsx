@@ -1,45 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { isAuthenticated as checkAuth, logout, isAdmin as checkIsAdmin } from '../../utils/auth';
+import { logout } from '../../utils/auth';
 import { useCart } from '../../contexts/CartContext';
+import { useAuth } from '../../App';
 import NotificationCenter from '../Notifications/NotificationCenter';
 import './Navbar.scss';
 
 const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
-  const [isUserAdmin, setIsUserAdmin] = useState(false);
   const { cartCount, favoritesCount } = useCart();
+  const { isLoggedIn, isAdmin, loading, setAuthState } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Controlla se l'utente è autenticato e/o admin
-    const checkAuthentication = () => {
-      const isAuth = checkAuth();
-      setIsUserAuthenticated(isAuth);
-      
-      if (isAuth) {
-        setIsUserAdmin(checkIsAdmin());
-      } else {
-        setIsUserAdmin(false);
-      }
-    };
-
-    // Esegui il controllo all'inizio
-    checkAuthentication();
-
-    // Ascolta gli eventi di storage per rilevare login/logout in altre schede
-    const handleStorageChange = () => {
-      checkAuthentication();
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-
-    // Esegui la pulizia alla rimozione del componente
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
-  }, []);
+  // Debug: log dello stato di autenticazione
+  console.log("Navbar - Stato autenticazione:", { isLoggedIn, isAdmin, loading });
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -47,11 +21,43 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     await logout();
-    setIsUserAuthenticated(false);
-    setIsUserAdmin(false);
+    // Aggiorna lo stato globale
+    setAuthState({
+      isLoggedIn: false,
+      isAdmin: false,
+      user: null,
+      emailVerified: false,
+      loading: false
+    });
     setIsDropdownOpen(false);
     navigate('/');
   };
+
+  // Se il context sta ancora caricando, mostra lo stato precedente
+  if (loading) {
+    return (
+      <nav className="navbar">
+        <div className="navbar__container">
+          <Link to="/" className="navbar__logo">
+            Sapori di Calabria
+          </Link>
+          <div className="navbar__menu">
+            <Link to="/products" className="navbar__menu-item">
+              Prodotti
+            </Link>
+            <Link to="/categories" className="navbar__menu-item">
+              Categorie
+            </Link>
+            <div className="navbar__dropdown">
+              <button className="navbar__dropdown-toggle">
+                Caricamento...
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
+    );
+  }
 
   return (
     <nav className="navbar">
@@ -84,7 +90,7 @@ const Navbar = () => {
             )}
           </Link>
           
-          {isUserAuthenticated && (
+          {isLoggedIn && (
             <div className="navbar__notifications">
               <NotificationCenter />
             </div>
@@ -95,11 +101,11 @@ const Navbar = () => {
               className="navbar__dropdown-toggle" 
               onClick={toggleDropdown}
             >
-              {isUserAuthenticated ? 'Il mio account' : 'Account'}
+              {isLoggedIn ? 'Il mio account' : 'Account'}
             </button>
             {isDropdownOpen && (
               <div className="navbar__dropdown-menu">
-                {isUserAuthenticated ? (
+                {isLoggedIn ? (
                   <>
                     <Link to="/dashboard/profile" className="navbar__dropdown-item">
                       Profilo
@@ -110,7 +116,10 @@ const Navbar = () => {
                     <Link to="/dashboard/notifications" className="navbar__dropdown-item">
                       Notifiche
                     </Link>
-                    {isUserAdmin && (
+                    <Link to="/dashboard/support" className="navbar__dropdown-item">
+                      Supporto
+                    </Link>
+                    {isAdmin && (
                       <Link to="/admin" className="navbar__dropdown-item navbar__dropdown-item--admin">
                         Dashboard Admin
                       </Link>

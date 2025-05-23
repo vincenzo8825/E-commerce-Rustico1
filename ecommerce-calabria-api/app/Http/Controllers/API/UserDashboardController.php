@@ -8,8 +8,11 @@ use App\Models\User;
 use App\Models\Order;
 use App\Models\Favorite;
 use App\Models\SupportTicket;
+use App\Notifications\SupportTicketCreated;
+use App\Notifications\SupportTicketUserReply;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
 
 class UserDashboardController extends Controller
@@ -170,6 +173,19 @@ class UserDashboardController extends Controller
     }
 
     /**
+     * Ottieni un singolo ticket di supporto dell'utente.
+     */
+    public function getSupportTicket($id)
+    {
+        $user = Auth::user();
+        $ticket = $user->supportTickets()->with(['messages.user', 'order'])->findOrFail($id);
+
+        return response()->json([
+            'ticket' => $ticket
+        ]);
+    }
+
+    /**
      * Crea un nuovo ticket di supporto.
      */
     public function createSupportTicket(Request $request)
@@ -182,9 +198,13 @@ class UserDashboardController extends Controller
             'order_id' => 'nullable|exists:orders,id'
         ]);
 
+        // Genera un numero di ticket unico
+        $ticketNumber = 'TIC-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid()), 0, 5));
+
         $ticket = $user->supportTickets()->create([
+            'ticket_number' => $ticketNumber,
             'subject' => $validated['subject'],
-            'status' => 'aperto',
+            'status' => 'open',
             'order_id' => $validated['order_id'] ?? null
         ]);
 
@@ -193,6 +213,10 @@ class UserDashboardController extends Controller
             'message' => $validated['message'],
             'is_from_admin' => false
         ]);
+
+        // Invia notifica a tutti gli admin
+        $admins = User::where('is_admin', true)->get();
+        Notification::send($admins, new SupportTicketCreated($ticket->load('user')));
 
         return response()->json([
             'message' => 'Ticket di supporto creato con successo',
@@ -225,9 +249,13 @@ class UserDashboardController extends Controller
             'is_from_admin' => false
         ]);
 
+        // Invia notifica agli admin per la nuova risposta dell'utente
+        $admins = User::where('is_admin', true)->get();
+        Notification::send($admins, new SupportTicketUserReply($ticket->load('user')));
+
         return response()->json([
             'message' => 'Messaggio aggiunto con successo',
-            'support_message' => $message
+            'new_message' => $message
         ], 201);
     }
 }

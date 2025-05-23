@@ -1,30 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
-import { isAuthenticated } from '../../utils/auth';
+import { useAuth } from '../../App';
 import Profile from './Profile';
 import Orders from './Orders';
 import OrderDetail from './OrderDetail';
 import Favorites from './Favorites';
 import SupportTickets from './SupportTickets';
 import CreateTicket from './CreateTicket';
+import TicketDetail from './TicketDetail';
 import NotificationsPage from './NotificationsPage';
 import './Dashboard.scss';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isLoggedIn, loading } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
 
   useEffect(() => {
-    // Reindirizza alla pagina di login se non autenticato
-    if (!isAuthenticated()) {
+    // Aspetta che il loading sia completato prima di reindirizzare
+    if (!loading && !isLoggedIn) {
       navigate('/login', { state: { from: location } });
     }
 
     // Imposta il tab attivo in base al percorso
     const path = location.pathname.split('/')[2] || 'profile';
     setActiveTab(path);
-  }, [location, navigate]);
+  }, [location, navigate, isLoggedIn, loading]);
+
+  // Mostra loading mentre verifica l'autenticazione
+  if (loading) {
+    return (
+      <div className="dashboard__loading">
+        <div className="dashboard__loading-spinner">Caricamento...</div>
+      </div>
+    );
+  }
+
+  // Non renderizza nulla se non autenticato (il redirect è gestito nell'useEffect)
+  if (!isLoggedIn) {
+    return null;
+  }
 
   const renderContent = () => (
     <Routes>
@@ -36,6 +52,7 @@ const Dashboard = () => {
       <Route path="/notifications" element={<NotificationsPage />} />
       <Route path="/support" element={<SupportTickets />} />
       <Route path="/support/new" element={<CreateTicket />} />
+      <Route path="/support/ticket/:id" element={<TicketDetail />} />
     </Routes>
   );
 

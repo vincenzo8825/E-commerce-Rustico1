@@ -1,22 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import api from '../../utils/api';
-import { isAuthenticated } from '../../utils/auth';
+import { useAuth } from '../../App';
 import NotificationList from './NotificationList';
 import './NotificationCenter.scss';
 
 const NotificationCenter = () => {
+  const location = useLocation();
+  const { isLoggedIn } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
 
+  // Determina se siamo nella dashboard admin
+  const isAdminArea = location.pathname.startsWith('/admin');
+  const notificationsLink = isAdminArea ? '/admin/notifications' : '/dashboard/notifications';
+
   useEffect(() => {
-    if (isAuthenticated()) {
+    if (isLoggedIn) {
       fetchNotifications();
+      
+      // Aggiorna le notifiche ogni 30 secondi
+      const interval = setInterval(() => {
+        fetchNotifications();
+      }, 30000);
+      
+      return () => clearInterval(interval);
     }
-  }, []);
+  }, [isLoggedIn]);
 
   const fetchNotifications = async () => {
     try {
@@ -35,6 +48,10 @@ const NotificationCenter = () => {
 
   const toggleNotifications = () => {
     setIsOpen(!isOpen);
+    // Aggiorna le notifiche quando l'utente apre il dropdown
+    if (!isOpen) {
+      fetchNotifications();
+    }
   };
 
   const markAsRead = async (notificationId) => {
@@ -72,7 +89,7 @@ const NotificationCenter = () => {
     }
   };
 
-  if (!isAuthenticated()) {
+  if (!isLoggedIn) {
     return null;
   }
 
@@ -131,7 +148,7 @@ const NotificationCenter = () => {
           
           <div className="notification-center__footer">
             <Link 
-              to="/dashboard/notifications" 
+              to={notificationsLink} 
               className="notification-center__view-all"
               onClick={() => setIsOpen(false)}
             >

@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\SupportTicket;
 use App\Models\DiscountCode;
+use App\Notifications\SupportTicketReply;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -394,6 +395,21 @@ class AdminDashboardController extends Controller
         // Se il ticket era chiuso, riapriamolo
         if ($ticket->status === 'closed') {
             $ticket->update(['status' => 'in_progress']);
+        }
+
+        // Invia notifica all'utente che ha creato il ticket
+        try {
+            Log::info('Invio notifica SupportTicketReply', [
+                'ticket_id' => $ticket->id,
+                'user_id' => $ticket->user_id,
+                'user_email' => $ticket->user->email
+            ]);
+
+            $ticket->user->notify(new SupportTicketReply($ticket));
+
+            Log::info('Notifica SupportTicketReply inviata con successo');
+        } catch (\Exception $e) {
+            Log::error('Errore invio notifica SupportTicketReply: ' . $e->getMessage());
         }
 
         return response()->json([

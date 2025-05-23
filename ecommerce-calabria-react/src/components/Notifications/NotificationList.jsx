@@ -43,6 +43,16 @@ const NotificationList = ({ notifications, onMarkAsRead }) => {
         return '💰';
       case 'product_back_in_stock':
         return '📋';
+      case 'App\\Notifications\\SupportTicketCreated':
+        return '🎫';
+      case 'App\\Notifications\\SupportTicketReply':
+        return '💬';
+      case 'App\\Notifications\\SupportTicketUserReply':
+        return '💬';
+      case 'App\\Notifications\\OrderConfirmed':
+        return '✅';
+      case 'App\\Notifications\\OrderStatusChanged':
+        return '🔄';
       default:
         return '📢';
     }
@@ -56,12 +66,18 @@ const NotificationList = ({ notifications, onMarkAsRead }) => {
       case 'order_status_changed':
       case 'order_shipped':
       case 'order_delivered':
+      case 'App\\Notifications\\OrderConfirmed':
+      case 'App\\Notifications\\OrderStatusChanged':
         return `/dashboard/orders/${data.order_id}`;
       case 'review_published':
         return `/products/${data.product_slug}#reviews`;
       case 'price_drop':
       case 'product_back_in_stock':
         return `/products/${data.product_slug}`;
+      case 'App\\Notifications\\SupportTicketCreated':
+      case 'App\\Notifications\\SupportTicketReply':
+      case 'App\\Notifications\\SupportTicketUserReply':
+        return `/dashboard/support/ticket/${data.ticket_id}`;
       default:
         return '#';
     }

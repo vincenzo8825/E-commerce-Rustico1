@@ -27,6 +27,11 @@ export const setToken = (token) => {
     localStorage.setItem('token', token);
     // Imposta il token nell'header delle richieste API
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    
+    // Scatena un evento personalizzato per notificare il cambiamento
+    window.dispatchEvent(new CustomEvent('authStateChanged', { 
+      detail: { authenticated: true } 
+    }));
   }
 };
 
@@ -36,6 +41,11 @@ export const removeToken = () => {
   localStorage.removeItem('auth_data');
   // Rimuove il token dall'header delle richieste API
   delete api.defaults.headers.common['Authorization'];
+  
+  // Scatena un evento personalizzato per notificare il cambiamento
+  window.dispatchEvent(new CustomEvent('authStateChanged', { 
+    detail: { authenticated: false } 
+  }));
 };
 
 // Inizializza l'autenticazione al caricamento dell'app

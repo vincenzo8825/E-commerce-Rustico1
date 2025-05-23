@@ -57,6 +57,12 @@
         padding: 0 20px;
         margin: 10px 0;
       }
+      
+      &--profile {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 20px;
+        margin-bottom: 25px;
+      }
     }
   }
   
@@ -123,6 +129,7 @@
     display: flex;
     align-items: center;
     position: relative;
+    gap: 15px;
     
     &-name {
       margin-right: 10px;
@@ -140,6 +147,11 @@
       font-weight: bold;
       cursor: pointer;
     }
+  }
+  
+  &__notifications {
+    display: flex;
+    align-items: center;
   }
   
   &__content {
@@ -1167,6 +1179,55 @@
       color: #155724;
     }
   }
+  
+  &__profile-card {
+    padding: 15px 20px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    margin: 0 15px;
+  }
+  
+  &__profile-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #e74c3c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin: 0 auto 15px auto;
+  }
+  
+  &__profile-info {
+    text-align: center;
+  }
+  
+  &__profile-name {
+    font-weight: 600;
+    color: #ecf0f1;
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+  }
+  
+  &__profile-email {
+    font-size: 0.8rem;
+    color: #bdc3c7;
+    margin-bottom: 8px;
+    word-break: break-all;
+  }
+  
+  &__profile-role {
+    font-size: 0.75rem;
+    color: #e74c3c;
+    font-weight: 500;
+    background-color: rgba(231, 76, 60, 0.1);
+    padding: 3px 8px;
+    border-radius: 12px;
+    display: inline-block;
+  }
 }
 
 // Stili per i grafici delle vendite
@@ -1234,4 +1295,153 @@
       }
     }
   }
+}
+
+// ============================================================================
+// NOTIFICHE ADMIN
+// ============================================================================
+
+.admin__tabs {
+  display: flex;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 20px;
+}
+
+.admin__tab {
+  padding: 10px 20px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #666;
+  transition: all 0.3s;
+  
+  &--active {
+    color: #333;
+    border-bottom: 2px solid #007bff;
+    font-weight: 600;
+  }
+  
+  &:hover {
+    color: #007bff;
+  }
+}
+
+.admin__notifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.admin__notification {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  border-left: 4px solid transparent;
+  transition: all 0.3s;
+  
+  &--unread {
+    background: #fff;
+    border-left-color: #007bff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  &-icon {
+    font-size: 1.5rem;
+    min-width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 123, 255, 0.1);
+    border-radius: 50%;
+  }
+  
+  &-content {
+    flex: 1;
+  }
+  
+  &-message {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #333;
+    margin-bottom: 8px;
+  }
+  
+  &-meta {
+    display: flex;
+    gap: 15px;
+    font-size: 0.85rem;
+    color: #666;
+  }
+  
+  &-date {
+    font-weight: 500;
+  }
+  
+  &-read {
+    font-style: italic;
+  }
+  
+  &-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 120px;
+  }
+  
+  &-action {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    color: #333;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    
+    &:hover {
+      background: #f5f5f5;
+      border-color: #bbb;
+    }
+    
+    &--delete {
+      color: #dc3545;
+      border-color: #dc3545;
+      
+      &:hover {
+        background: #dc3545;
+        color: white;
+      }
+    }
+  }
+}
+
+.admin__empty {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-style: italic;
+}
+
+.admin__loading-text {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.admin__error {
+  text-align: center;
+  padding: 40px;
+  color: #dc3545;
 } 

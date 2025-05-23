@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { isAuthenticated, isAdmin as checkIsAdmin } from '../../utils/auth';
 import api from '../../utils/api';
+import NotificationCenter from '../../components/Notifications/NotificationCenter';
 import './Admin.scss';
 
 // Importa i componenti Admin
@@ -16,6 +17,7 @@ import TicketDetail from './TicketDetail';
 import Discounts from './Discounts';
 import DiscountForm from './DiscountForm';
 import Inventory from './Inventory';
+import Notifications from './Notifications';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -157,6 +159,29 @@ const Dashboard = () => {
         </div>
         
         <nav className="admin__nav">
+          {/* Sezione Profilo Admin */}
+          {!collapsedSidebar && userInfo && (
+            <div className="admin__nav-section admin__nav-section--profile">
+              <div className="admin__nav-section-title">Profilo Admin</div>
+              <div className="admin__profile-card">
+                <div className="admin__profile-avatar">
+                  {getUserInitials()}
+                </div>
+                <div className="admin__profile-info">
+                  <div className="admin__profile-name">
+                    {userInfo.name} {userInfo.surname}
+                  </div>
+                  <div className="admin__profile-email">
+                    {userInfo.email}
+                  </div>
+                  <div className="admin__profile-role">
+                    Amministratore
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
           <div className="admin__nav-section">
             {!collapsedSidebar && <div className="admin__nav-section-title">Principale</div>}
             
@@ -227,6 +252,14 @@ const Dashboard = () => {
               <span className="admin__nav-item-icon">🔧</span>
               <span className="admin__nav-item-text">Ticket Supporto</span>
             </Link>
+            
+            <Link 
+              to="/admin/notifications" 
+              className={`admin__nav-item ${activeSection === 'notifications' ? 'admin__nav-item--active' : ''}`}
+            >
+              <span className="admin__nav-item-icon">🔔</span>
+              <span className="admin__nav-item-text">Notifiche</span>
+            </Link>
           </div>
           
           <div className="admin__nav-section">
@@ -254,9 +287,13 @@ const Dashboard = () => {
             {activeSection === 'orders' && 'Gestione Ordini'}
             {activeSection === 'discounts' && 'Codici Sconto'}
             {activeSection === 'support' && 'Ticket Supporto'}
+            {activeSection === 'notifications' && 'Notifiche'}
           </h1>
           
           <div className="admin__user-menu">
+            <div className="admin__notifications">
+              <NotificationCenter />
+            </div>
             {userInfo && (
               <>
                 <span className="admin__user-menu-name">
@@ -285,6 +322,7 @@ const Dashboard = () => {
             <Route path="/discounts" element={<Discounts />} />
             <Route path="/discounts/new" element={<DiscountForm />} />
             <Route path="/discounts/:id" element={<DiscountForm />} />
+            <Route path="/notifications" element={<Notifications />} />
           </Routes>
         </div>
       </main>

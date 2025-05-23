@@ -62,6 +62,13 @@ const Login = () => {
         loading: false,
       });
       
+      console.log("Stato autenticazione aggiornato:", {
+        isLoggedIn: true,
+        isAdmin: response.data.user.is_admin,
+        user: response.data.user,
+        emailVerified: isEmailVerified
+      });
+      
       // Salva anche i dati in localStorage come backup
       localStorage.setItem('auth_data', JSON.stringify({
         isAdmin: response.data.user.is_admin,

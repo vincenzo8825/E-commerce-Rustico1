@@ -115,6 +115,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Rotte per il supporto
         Route::get('/support-tickets', [UserDashboardController::class, 'getSupportTickets']);
+        Route::get('/support-tickets/{id}', [UserDashboardController::class, 'getSupportTicket']);
         Route::post('/support-tickets', [UserDashboardController::class, 'createSupportTicket']);
         Route::post('/support-tickets/{id}/messages', [UserDashboardController::class, 'addMessageToTicket']);
 
@@ -128,6 +129,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Rotta per le notifiche (aggiunta a livello generale, non sotto /user)
     Route::get('/notifications', [App\Http\Controllers\API\NotificationController::class, 'index']);
+    Route::post('/notifications/{id}/read', [App\Http\Controllers\API\NotificationController::class, 'markAsRead']);
+    Route::post('/notifications/read-all', [App\Http\Controllers\API\NotificationController::class, 'markAllAsRead']);
+    Route::delete('/notifications/{id}', [App\Http\Controllers\API\NotificationController::class, 'destroy']);
 });
 
 // Rotta per verifica email (link ricevuto via email)

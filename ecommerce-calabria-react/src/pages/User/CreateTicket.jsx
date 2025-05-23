@@ -6,7 +6,7 @@ const CreateTicket = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     subject: '',
-    description: '',
+    message: '',
     priority: 'medium'
   });
   const [loading, setLoading] = useState(false);
@@ -36,8 +36,8 @@ const CreateTicket = () => {
       errors.subject = 'L\'oggetto del ticket è obbligatorio';
     }
     
-    if (!formData.description.trim()) {
-      errors.description = 'La descrizione del problema è obbligatoria';
+    if (!formData.message.trim()) {
+      errors.message = 'La descrizione del problema è obbligatoria';
     }
     
     setValidationErrors(errors);
@@ -58,7 +58,7 @@ const CreateTicket = () => {
       await api.post('/user/support-tickets', formData);
       
       // Redirect to ticket list with success message
-      navigate('/user/support', {
+      navigate('/dashboard/support', {
         state: { message: 'Ticket inviato con successo! Ti risponderemo al più presto.' }
       });
     } catch (err) {
@@ -83,7 +83,7 @@ const CreateTicket = () => {
     <div className="dashboard__section">
       <div className="dashboard__section-header">
         <h2 className="dashboard__section-title">Nuovo Ticket di Supporto</h2>
-        <Link to="/user/support" className="dashboard__back-link">
+        <Link to="/dashboard/support" className="dashboard__back-link">
           Torna ai ticket
         </Link>
       </div>
@@ -130,24 +130,24 @@ const CreateTicket = () => {
           </div>
           
           <div className="dashboard__form-group">
-            <label htmlFor="description" className="dashboard__form-label">Descrizione del problema *</label>
+            <label htmlFor="message" className="dashboard__form-label">Descrizione del problema *</label>
             <textarea
-              id="description"
-              name="description"
-              className={`dashboard__form-textarea ${validationErrors.description ? 'dashboard__form-textarea--error' : ''}`}
-              value={formData.description}
+              id="message"
+              name="message"
+              className={`dashboard__form-textarea ${validationErrors.message ? 'dashboard__form-textarea--error' : ''}`}
+              value={formData.message}
               onChange={handleInputChange}
               rows="6"
               placeholder="Descrivi dettagliatamente il problema riscontrato..."
               disabled={loading}
             ></textarea>
-            {validationErrors.description && (
-              <div className="dashboard__form-error">{validationErrors.description}</div>
+            {validationErrors.message && (
+              <div className="dashboard__form-error">{validationErrors.message}</div>
             )}
           </div>
           
           <div className="dashboard__form-actions">
-            <Link to="/user/support" className="dashboard__button dashboard__button--secondary">
+            <Link to="/dashboard/support" className="dashboard__button dashboard__button--secondary">
               Annulla
             </Link>
             <button

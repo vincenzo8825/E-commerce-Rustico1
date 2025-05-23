@@ -4,10 +4,11 @@ namespace App\Notifications;
 
 use App\Models\SupportTicket;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class SupportTicketReply extends Notification
+class SupportTicketUserReply extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -28,7 +29,7 @@ class SupportTicketReply extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['mail', 'database'];
     }
 
     /**
@@ -36,15 +37,14 @@ class SupportTicketReply extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $lastMessage = $this->ticket->messages()->latest()->first();
-
         return (new MailMessage)
-                    ->subject('Nuova risposta al tuo ticket: ' . $this->ticket->subject)
+                    ->subject('Nuova risposta dall\'utente: ' . $this->ticket->subject)
                     ->greeting('Ciao ' . $notifiable->name . ',')
-                    ->line('Hai ricevuto una nuova risposta al tuo ticket di supporto.')
+                    ->line('L\'utente ha aggiunto una nuova risposta al ticket di supporto.')
                     ->line('Ticket: ' . $this->ticket->subject)
-                    ->action('Visualizza Conversazione', url('/dashboard/support'))
-                    ->line('Grazie per aver scelto Sapori di Calabria!');
+                    ->line('Utente: ' . $this->ticket->user->name . ' (' . $this->ticket->user->email . ')')
+                    ->action('Visualizza Ticket', url('/admin/support/' . $this->ticket->id))
+                    ->line('Grazie per il tuo lavoro!');
     }
 
     /**
@@ -57,8 +57,9 @@ class SupportTicketReply extends Notification
         return [
             'ticket_id' => $this->ticket->id,
             'subject' => $this->ticket->subject,
-            'status' => $this->ticket->status,
-            'new_message' => 'Nuova risposta al tuo ticket: ' . $this->ticket->subject
+            'user_name' => $this->ticket->user->name,
+            'user_email' => $this->ticket->user->email,
+            'message' => 'Nuova risposta dall\'utente al ticket: ' . $this->ticket->subject
         ];
     }
 }
