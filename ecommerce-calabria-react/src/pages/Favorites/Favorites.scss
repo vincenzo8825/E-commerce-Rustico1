@@ -1,39 +1,638 @@
+// ============================================================================
+// PAGINA PREFERITI PREMIUM - SAPORI DI CALABRIA
+// Design elegante per lista prodotti preferiti
+// ============================================================================
+
 .favorites {
-  &__container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem 1rem;
-  }
+  min-height: 100vh;
+  background: linear-gradient(135deg, 
+    var(--color-background) 0%, 
+    var(--color-neutral-50) 100%);
   
-  &__title {
-    margin-bottom: 2rem;
-    color: #333;
-    position: relative;
+  &__container {
+    max-width: var(--container-2xl);
+    margin: 0 auto;
+    padding: var(--space-8) var(--space-6);
     
-    &:after {
-      content: '';
-      position: absolute;
-      bottom: -10px;
-      left: 0;
-      width: 60px;
-      height: 3px;
-      background-color: #4a7c59;
+    @media (max-width: var(--breakpoint-md)) {
+      padding: var(--space-6) var(--space-4);
     }
   }
   
-  &__content {
-    background-color: #fff;
-    border-radius: 8px;
-    padding: 2rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    min-height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  // ============================================================================
+  // HEADER SECTION
+  // ============================================================================
+  
+  &__title {
+    font-family: var(--font-family-display);
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    text-align: center;
+    margin-bottom: var(--space-10);
+    position: relative;
+    
+    &::before {
+      content: "❤️ ";
+      margin-right: var(--space-2);
+    }
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -var(--space-4);
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 4px;
+      background: linear-gradient(90deg, 
+        var(--color-accent) 0%, 
+        var(--color-accent-light) 100%);
+      border-radius: var(--radius-full);
+    }
+    
+    // Effetto gradient
+    background: linear-gradient(135deg, 
+      var(--color-primary) 0%, 
+      var(--color-accent) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  // ============================================================================
+  // STATI SPECIALI
+  // ============================================================================
+  
+  &__login-required, &__empty, &__error {
+    text-align: center;
+    padding: var(--space-20) var(--space-8);
+    background: var(--color-surface);
+    border-radius: var(--radius-3xl);
+    box-shadow: var(--shadow-2xl);
+    border: 1px solid var(--color-neutral-200);
+    position: relative;
+    
+    // Decorazione superiore
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, 
+        var(--color-accent) 0%, 
+        var(--color-accent-light) 100%);
+      border-radius: var(--radius-3xl) var(--radius-3xl) 0 0;
+    }
+    
+    h2 {
+      font-family: var(--font-family-display);
+      font-size: var(--font-size-3xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-primary);
+      margin-bottom: var(--space-4);
+    }
     
     p {
-      color: #666;
-      font-size: 1.1rem;
+      font-family: var(--font-family-primary);
+      font-size: var(--font-size-lg);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-8);
+      line-height: var(--line-height-relaxed);
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
+  
+  &__login-required {
+    &::before {
+      background: linear-gradient(90deg, 
+        var(--color-warning) 0%, 
+        var(--color-warning-light) 100%);
+    }
+    
+    h2::before {
+      content: "🔐 ";
+      margin-right: var(--space-2);
+    }
+  }
+  
+  &__empty {
+    &::before {
+      background: linear-gradient(90deg, 
+        var(--color-info) 0%, 
+        var(--color-info-light) 100%);
+    }
+    
+    h2::before {
+      content: "💔 ";
+      margin-right: var(--space-2);
+    }
+  }
+  
+  &__error {
+    &::before {
+      background: linear-gradient(90deg, 
+        var(--color-error) 0%, 
+        var(--color-error-light) 100%);
+    }
+    
+    h2::before {
+      content: "⚠️ ";
+      margin-right: var(--space-2);
+    }
+  }
+  
+  &__loading {
+    text-align: center;
+    padding: var(--space-20) var(--space-8);
+    
+    &::before {
+      content: "⏳";
+      display: block;
+      font-size: 4rem;
+      margin-bottom: var(--space-6);
+      opacity: 0.5;
+    }
+    
+    font-family: var(--font-family-primary);
+    font-size: var(--font-size-lg);
+    color: var(--color-text-secondary);
+  }
+  
+  &__login-button, &__button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-8);
+    background: linear-gradient(135deg, 
+      var(--color-primary) 0%, 
+      var(--color-primary-light) 100%);
+    color: var(--color-text-on-dark);
+    text-decoration: none;
+    border: none;
+    border-radius: var(--radius-xl);
+    font-family: var(--font-family-primary);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: var(--transition-base);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: var(--shadow-lg);
+    
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-2xl);
+    }
+    
+    &::after {
+      content: "→";
+      font-size: var(--font-size-xl);
+      margin-left: var(--space-1);
+    }
+  }
+  
+  // ============================================================================
+  // GRIGLIA PREFERITI
+  // ============================================================================
+  
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--space-8);
+    margin-top: var(--space-8);
+    
+    @media (max-width: var(--breakpoint-lg)) {
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--space-6);
+    }
+    
+    @media (max-width: var(--breakpoint-md)) {
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+    
+    @media (max-width: var(--breakpoint-sm)) {
+      grid-template-columns: 1fr;
     }
   }
 }
+
+// ============================================================================
+// FAVORITE CARD PREMIUM
+// ============================================================================
+
+.favorite-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-neutral-200);
+  transition: var(--transition-base);
+  position: relative;
+  
+  // Hover effects eleganti
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-2xl);
+    border-color: var(--color-accent-light);
+    
+    .favorite-card__image {
+      transform: scale(1.08);
+    }
+    
+    .favorite-card__actions {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  }
+  
+  &__link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+  
+  // ============================================================================
+  // SEZIONE IMMAGINE
+  // ============================================================================
+  
+  &__image-container {
+    position: relative;
+    height: 280px;
+    overflow: hidden;
+    background: linear-gradient(135deg, 
+      var(--color-neutral-100) 0%, 
+      var(--color-neutral-50) 100%);
+    
+    @media (max-width: var(--breakpoint-sm)) {
+      height: 240px;
+    }
+  }
+  
+  &__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition-slow);
+    filter: brightness(0.95);
+    
+    &:hover {
+      filter: brightness(1);
+    }
+  }
+  
+  &__no-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-tertiary);
+    font-family: var(--font-family-primary);
+    text-align: center;
+    
+    &::before {
+      content: "🖼️";
+      font-size: 3rem;
+      margin-bottom: var(--space-2);
+      opacity: 0.5;
+    }
+  }
+  
+  &__discount-badge {
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
+    background: linear-gradient(135deg, 
+      var(--color-accent) 0%, 
+      var(--color-accent-light) 100%);
+    color: var(--color-text-on-dark);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+    font-family: var(--font-family-primary);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: var(--shadow-md);
+    z-index: 2;
+    
+    &::before {
+      content: "🔥 ";
+      margin-right: var(--space-1);
+    }
+  }
+  
+  &__favorite-badge {
+    position: absolute;
+    top: var(--space-3);
+    left: var(--space-3);
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-lg);
+    z-index: 2;
+    
+    &::before {
+      content: "❤️";
+    }
+  }
+  
+  // ============================================================================
+  // CONTENUTO CARD
+  // ============================================================================
+  
+  &__content {
+    padding: var(--space-6);
+    position: relative;
+    
+    // Decorazione sottile
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: var(--space-6);
+      right: var(--space-6);
+      height: 1px;
+      background: linear-gradient(90deg, 
+        transparent, 
+        var(--color-neutral-200), 
+        transparent);
+    }
+    
+    @media (max-width: var(--breakpoint-sm)) {
+      padding: var(--space-5);
+      
+      &::before {
+        left: var(--space-5);
+        right: var(--space-5);
+      }
+    }
+  }
+  
+  &__category {
+    font-family: var(--font-family-primary);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: var(--space-2);
+    
+    &::before {
+      content: "🏷️ ";
+      margin-right: var(--space-1);
+    }
+  }
+  
+  &__title {
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    line-height: var(--line-height-snug);
+    margin-bottom: var(--space-4);
+    
+    // Limita a 2 righe
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    
+    &:hover {
+      color: var(--color-primary);
+    }
+  }
+  
+  &__price-container {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-5);
+  }
+  
+  &__price {
+    font-family: var(--font-family-display);
+    font-weight: var(--font-weight-bold);
+    
+    &--discounted {
+      font-size: var(--font-size-base);
+      color: var(--color-text-tertiary);
+      text-decoration: line-through;
+      opacity: 0.8;
+    }
+    
+    &--current {
+      font-size: var(--font-size-2xl);
+      color: var(--color-primary);
+    }
+    
+    &:not(&--discounted):not(&--current) {
+      font-size: var(--font-size-2xl);
+      color: var(--color-primary);
+    }
+  }
+  
+  // ============================================================================
+  // AZIONI CARD
+  // ============================================================================
+  
+  &__actions {
+    display: flex;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-6);
+    background: linear-gradient(135deg, 
+      var(--color-neutral-50) 0%, 
+      var(--color-surface) 100%);
+    border-top: 1px solid var(--color-neutral-200);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: var(--transition-base);
+    
+    @media (max-width: var(--breakpoint-md)) {
+      // Su mobile mostra sempre le azioni
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      padding: var(--space-4) var(--space-5);
+    }
+  }
+  
+  &__action-btn {
+    flex: 1;
+    border: none;
+    border-radius: var(--radius-lg);
+    font-family: var(--font-family-primary);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: var(--transition-base);
+    position: relative;
+    overflow: hidden;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    
+    // Effetto shimmer
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.3), 
+        transparent);
+      transition: var(--transition-slow);
+    }
+    
+    &:hover::before {
+      left: 100%;
+    }
+    
+    &--cart {
+      padding: var(--space-3) var(--space-4);
+      background: linear-gradient(135deg, 
+        var(--color-primary) 0%, 
+        var(--color-primary-light) 100%);
+      color: var(--color-text-on-dark);
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+      }
+      
+      &::after {
+        content: " 🛒";
+        margin-left: var(--space-1);
+      }
+    }
+    
+    &--remove {
+      padding: var(--space-3) var(--space-4);
+      background: rgba(200, 16, 46, 0.1);
+      border: 2px solid var(--color-accent);
+      color: var(--color-accent);
+      
+      &:hover {
+        background: var(--color-accent);
+        color: var(--color-text-on-dark);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+      }
+      
+      &::after {
+        content: " 💔";
+        margin-left: var(--space-1);
+      }
+    }
+  }
+}
+
+// ============================================================================
+// ANIMAZIONI
+// ============================================================================
+
+@keyframes fadeInFavorites {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInCard {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes heartBeat {
+  0%, 50%, 100% {
+    transform: scale(1);
+  }
+  25%, 75% {
+    transform: scale(1.1);
+  }
+}
+
+// ============================================================================
+// RESPONSIVE DESIGN AVANZATO
+// ============================================================================
+
+@media (max-width: var(--breakpoint-sm)) {
+  .favorites {
+    &__title {
+      margin-bottom: var(--space-8);
+    }
+  }
+  
+  .favorite-card {
+    &__actions {
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+    
+    &__action-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
+
+// ============================================================================
+// MICRO-INTERAZIONI
+// ============================================================================
+
+.favorites__container {
+  animation: fadeInFavorites 0.8s ease-out;
+}
+
+.favorite-card {
+  animation: slideInCard 0.6s ease-out;
+  
+  // Delay progressivo per le card
+  &:nth-child(1) { animation-delay: 0s; }
+  &:nth-child(2) { animation-delay: 0.1s; }
+  &:nth-child(3) { animation-delay: 0.2s; }
+  &:nth-child(4) { animation-delay: 0.3s; }
+  &:nth-child(5) { animation-delay: 0.4s; }
+  &:nth-child(6) { animation-delay: 0.5s; }
+  &:nth-child(7) { animation-delay: 0.6s; }
+  &:nth-child(8) { animation-delay: 0.7s; }
+  
+  // Animazione cuoricino
+  &__favorite-badge {
+    animation: heartBeat 1.5s ease-in-out infinite;
+  }
+}
+
+// Focus styles migliorati per accessibilità
+.favorite-card__action-btn:focus-visible,
+.favorites__button:focus-visible,
+.favorites__login-button:focus-visible {
+  outline: 3px solid var(--color-secondary);
+  outline-offset: 2px;
+} 
