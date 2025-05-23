@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../utils/api';
 import { isAuthenticated } from '../../utils/auth';
+import { useToast } from '../../components/Toast/Toast';
 import './Cart.scss';
 
 const Cart = () => {
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { addToast } = useToast();
 
   useEffect(() => {
     if (isAuthenticated()) {
@@ -41,17 +43,33 @@ const Cart = () => {
       fetchCart();
     } catch (err) {
       console.error('Errore nell\'aggiornamento della quantità:', err);
-      alert('Impossibile aggiornare la quantità. Riprova più tardi.');
+      addToast(
+        'Impossibile aggiornare la quantità. Riprova più tardi.',
+        'error',
+        4000
+      );
     }
   };
 
   const removeItem = async (cartItemId) => {
     try {
+      const itemToRemove = cart.items.find(item => item.id === cartItemId);
       await api.delete(`/cart/item/${cartItemId}`);
+      
+      addToast(
+        `"${itemToRemove?.product?.name || 'Prodotto'}" rimosso dal carrello`,
+        'info',
+        3000
+      );
+      
       fetchCart();
     } catch (err) {
       console.error('Errore nella rimozione del prodotto:', err);
-      alert('Impossibile rimuovere il prodotto dal carrello.');
+      addToast(
+        'Impossibile rimuovere il prodotto dal carrello.',
+        'error',
+        4000
+      );
     }
   };
 

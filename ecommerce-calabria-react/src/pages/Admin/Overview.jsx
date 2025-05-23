@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../utils/api';
+import SalesChart from '../../components/Charts/SalesChart';
 
 const Overview = () => {
   const [stats, setStats] = useState(null);
@@ -399,6 +400,49 @@ const Overview = () => {
           </div>
         </div>
       </div>
+      
+      {/* Sezione grafici */}
+      <div className="admin__overview-row">
+        {/* Grafico vendite per categoria */}
+        <div className="admin__overview-card">
+          <div className="admin__overview-card-header">
+            <h3>Vendite per Categoria</h3>
+          </div>
+          <SalesChart 
+            data={stats.sales_by_category} 
+            type="bar" 
+            height={300}
+          />
+        </div>
+        
+        {/* Grafico torta categorie */}
+        <div className="admin__overview-card">
+          <div className="admin__overview-card-header">
+            <h3>Distribuzione Vendite</h3>
+          </div>
+          <SalesChart 
+            data={stats.sales_by_category} 
+            type="pie" 
+            height={300}
+          />
+        </div>
+      </div>
+      
+      {/* Grafico andamento vendite */}
+      {stats.sales_chart && stats.sales_chart.length > 0 && (
+        <div className="admin__overview-row">
+          <div className="admin__overview-card admin__overview-card--full">
+            <div className="admin__overview-card-header">
+              <h3>Andamento Vendite Ultimi 30 Giorni</h3>
+            </div>
+            <SalesChart 
+              data={stats.sales_chart} 
+              type="line" 
+              height={350}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

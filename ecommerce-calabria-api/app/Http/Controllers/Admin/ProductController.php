@@ -105,7 +105,7 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'stock' => 'required|integer|min:0',
             'sku' => 'required|string|max:50|unique:products,sku',
-            'image' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'gallery' => 'nullable|array',
             'is_featured' => 'boolean',
             'is_active' => 'boolean',
@@ -115,10 +115,21 @@ class ProductController extends Controller
             'ingredients' => 'nullable|string',
         ]);
 
+        // Gestione upload immagine
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '_' . Str::slug($validated['name']) . '.' . $image->getClientOriginalExtension();
+            $imagePath = $image->storeAs('products', $imageName, 'public');
+            $validated['image'] = $imagePath;
+        }
+
         // Genera uno slug dal nome
         $validated['slug'] = Str::slug($validated['name']);
 
         $product = Product::create($validated);
+
+        // Carica la relazione category per la risposta
+        $product->load('category');
 
         // Controlla se lo stock è basso e invia notifiche
         $stockService = new StockService();
@@ -164,7 +175,7 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'stock' => 'required|integer|min:0',
             'sku' => 'required|string|max:50|unique:products,sku,' . $id,
-            'image' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'gallery' => 'nullable|array',
             'is_featured' => 'boolean',
             'is_active' => 'boolean',
@@ -173,6 +184,19 @@ class ProductController extends Controller
             'weight' => 'nullable|numeric|min:0',
             'ingredients' => 'nullable|string',
         ]);
+
+        // Gestione upload immagine
+        if ($request->hasFile('image')) {
+            // Elimina l'immagine precedente se esiste
+            if ($product->image && Storage::disk('public')->exists($product->image)) {
+                Storage::disk('public')->delete($product->image);
+            }
+
+            $image = $request->file('image');
+            $imageName = time() . '_' . Str::slug($validated['name']) . '.' . $image->getClientOriginalExtension();
+            $imagePath = $image->storeAs('products', $imageName, 'public');
+            $validated['image'] = $imagePath;
+        }
 
         // Aggiorna lo slug solo se il nome è cambiato
         if ($request->has('name') && $product->name !== $request->name) {
@@ -183,6 +207,9 @@ class ProductController extends Controller
         $oldStock = $product->stock;
 
         $product->update($validated);
+
+        // Carica la relazione category per la risposta
+        $product->load('category');
 
         // Se lo stock è stato aggiornato ed è basso, invia notifiche
         if ($oldStock != $product->stock) {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { isAuthenticated as checkAuth, logout, isAdmin as checkIsAdmin } from '../../utils/auth';
+import { useCart } from '../../contexts/CartContext';
 import NotificationCenter from '../Notifications/NotificationCenter';
 import './Navbar.scss';
 
@@ -8,6 +9,7 @@ const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
   const [isUserAdmin, setIsUserAdmin] = useState(false);
+  const { cartCount, favoritesCount } = useCart();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -65,11 +67,21 @@ const Navbar = () => {
           <Link to="/categories" className="navbar__menu-item">
             Categorie
           </Link>
-          <Link to="/cart" className="navbar__menu-item">
+          <Link to="/cart" className="navbar__menu-item navbar__menu-item--with-badge">
             Carrello
+            {cartCount > 0 && (
+              <span className="navbar__badge navbar__badge--cart">
+                {cartCount}
+              </span>
+            )}
           </Link>
-          <Link to="/favorites" className="navbar__menu-item">
+          <Link to="/favorites" className="navbar__menu-item navbar__menu-item--with-badge">
             Preferiti
+            {favoritesCount > 0 && (
+              <span className="navbar__badge navbar__badge--favorites">
+                {favoritesCount}
+              </span>
+            )}
           </Link>
           
           {isUserAuthenticated && (

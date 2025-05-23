@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import './Products.scss';
 import api from '../../utils/api';
 import { isAuthenticated } from '../../utils/auth';
+import { useToast } from '../../components/Toast/Toast';
+import { useCart } from '../../contexts/CartContext';
+import './Products.scss';
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -11,6 +13,10 @@ const Products = () => {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const { addToast } = useToast();
+  const { incrementCart, incrementFavorites } = useCart();
+  
   const [filters, setFilters] = useState({
     search: '',
     category: '',
@@ -50,6 +56,7 @@ const Products = () => {
       const response = await api.get(`/products?${params.toString()}`);
       setProducts(response.data.products.data || []);
       setTotalPages(response.data.products.last_page || 1);
+      setTotalCount(response.data.products.total || 0);
       setError(null);
     } catch (err) {
       console.error('Errore nel caricamento dei prodotti:', err);
@@ -88,7 +95,11 @@ const Products = () => {
     // Verifica se l'email è stata verificata
     const authData = JSON.parse(localStorage.getItem('auth_data') || '{}');
     if (!authData.emailVerified) {
-      alert('È necessario verificare l\'email prima di aggiungere prodotti al carrello. Controlla la tua casella di posta.');
+      addToast(
+        'È necessario verificare l\'email prima di aggiungere prodotti al carrello. Controlla la tua casella di posta.',
+        'warning',
+        4000
+      );
       return;
     }
 
@@ -97,12 +108,21 @@ const Products = () => {
         product_id: productId,
         quantity
       });
-      alert('Prodotto aggiunto al carrello!');
+      
+      const addedProduct = products.find(p => p.id === productId);
+      addToast(
+        `🛒 "${addedProduct?.name || 'Prodotto'}" aggiunto al carrello!`,
+        'success',
+        3500
+      );
+      
+      // Aggiorna il contatore del carrello
+      incrementCart(quantity);
     } catch (err) {
       console.error('Errore nell\'aggiunta al carrello:', err);
       // Mostra il messaggio di errore dal server se disponibile
       const errorMessage = err.response?.data?.message || 'Impossibile aggiungere il prodotto al carrello. Riprova più tardi.';
-      alert(errorMessage);
+      addToast(errorMessage, 'error', 4000);
     }
   };
 
@@ -117,7 +137,11 @@ const Products = () => {
     // Verifica se l'email è stata verificata
     const authData = JSON.parse(localStorage.getItem('auth_data') || '{}');
     if (!authData.emailVerified) {
-      alert('È necessario verificare l\'email prima di aggiungere prodotti ai preferiti. Controlla la tua casella di posta.');
+      addToast(
+        'È necessario verificare l\'email prima di aggiungere prodotti ai preferiti. Controlla la tua casella di posta.',
+        'warning',
+        4000
+      );
       return;
     }
 
@@ -125,10 +149,23 @@ const Products = () => {
       await api.post('/favorites/add', {
         product_id: productId
       });
-      alert('Prodotto aggiunto ai preferiti!');
+      
+      const addedProduct = products.find(p => p.id === productId);
+      addToast(
+        `❤️ "${addedProduct?.name || 'Prodotto'}" aggiunto ai preferiti!`,
+        'success',
+        3500
+      );
+      
+      // Aggiorna il contatore dei preferiti
+      incrementFavorites();
     } catch (err) {
       console.error('Errore nell\'aggiunta ai preferiti:', err);
-      alert('Impossibile aggiungere il prodotto ai preferiti. Riprova più tardi.');
+      addToast(
+        'Impossibile aggiungere il prodotto ai preferiti. Riprova più tardi.',
+        'error',
+        4000
+      );
     }
   };
 
@@ -268,7 +305,17 @@ const Products = () => {
           ) : (
             <>
               <div className="products__results-count">
-                Trovati {products.length} prodotti
+                {totalCount === 0 
+                  ? 'Nessun prodotto trovato'
+                  : totalCount === 1 
+                    ? 'Trovato 1 prodotto'
+                    : `Trovati ${totalCount} prodotti`
+                }
+                {totalPages > 1 && (
+                  <span className="products__results-page-info">
+                    {' '}(pagina {currentPage} di {totalPages})
+                  </span>
+                )}
               </div>
               
               <div className="products__grid">

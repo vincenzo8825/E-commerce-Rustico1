@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate, useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar/Navbar';
 import Footer from './components/Footer/Footer';
+import { ToastProvider } from './components/Toast/Toast';
+import { CartProvider } from './contexts/CartContext';
 import Home from './pages/Home/Home';
 import Products from './pages/Products/Products';
 import Categories from './pages/Categories/Categories';
@@ -68,14 +70,12 @@ const AdminRoute = ({ children }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("AdminRoute: check accesso", { isLoggedIn, isAdmin, loading });
     // Verifica se l'utente è autenticato e admin
     if (!loading) {
       if (!isLoggedIn) {
         // Reindirizza al login se non autenticato
         navigate('/login', { replace: true });
       } else if (isAdmin !== true) {
-        console.log("Utente non admin, reindirizzamento alla home");
         // Reindirizza alla home se non è admin
         navigate('/', { 
           replace: true,
@@ -160,13 +160,13 @@ function App() {
       
       try {
         // Aggiunge log per debug
-        console.log("Verificando stato autenticazione...");
+        // console.log("Verificando stato autenticazione...");
         const response = await api.get('/auth/check');
-        console.log("Risposta check auth:", response.data);
+        // console.log("Risposta check auth:", response.data);
         
         // Verifica esplicitamente lo stato admin
         const isAdminUser = response.data.user && response.data.user.is_admin === true;
-        console.log("Utente è admin:", isAdminUser);
+        // console.log("Utente è admin:", isAdminUser);
         
         // Aggiorna lo stato con enfasi sull'attributo isAdmin
         setAuthState({
@@ -207,48 +207,52 @@ function App() {
 
   return (
     <AuthContext.Provider value={authContextValue}>
-      <Router>
-        <AppLayout>
-          <Routes>
-            {/* Rotte pubbliche */}
-            <Route path="/" element={<Home />} />
-            <Route path="/products" element={<Products />} />
-            <Route path="/products/:slug" element={<ProductDetail />} />
-            <Route path="/categories" element={<Categories />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            
-            {/* Rotte protette per utenti autenticati */}
-            <Route path="/cart" element={
-              <ProtectedRoute>
-                <Cart />
-              </ProtectedRoute>
-            } />
-            <Route path="/checkout" element={
-              <VerifiedRoute>
-                <Checkout />
-              </VerifiedRoute>
-            } />
-            <Route path="/favorites" element={
-              <ProtectedRoute>
-                <Favorites />
-              </ProtectedRoute>
-            } />
-            <Route path="/dashboard/*" element={
-              <VerifiedRoute>
-                <UserDashboard />
-              </VerifiedRoute>
-            } />
-            
-            {/* Rotte protette per admin */}
-            <Route path="/admin/*" element={
-              <AdminRoute>
-                <AdminDashboard />
-              </AdminRoute>
-            } />
-          </Routes>
-        </AppLayout>
-      </Router>
+      <ToastProvider>
+        <CartProvider>
+          <Router>
+            <AppLayout>
+              <Routes>
+                {/* Rotte pubbliche */}
+                <Route path="/" element={<Home />} />
+                <Route path="/products" element={<Products />} />
+                <Route path="/products/:slug" element={<ProductDetail />} />
+                <Route path="/categories" element={<Categories />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                
+                {/* Rotte protette per utenti autenticati */}
+                <Route path="/cart" element={
+                  <ProtectedRoute>
+                    <Cart />
+                  </ProtectedRoute>
+                } />
+                <Route path="/checkout" element={
+                  <VerifiedRoute>
+                    <Checkout />
+                  </VerifiedRoute>
+                } />
+                <Route path="/favorites" element={
+                  <ProtectedRoute>
+                    <Favorites />
+                  </ProtectedRoute>
+                } />
+                <Route path="/dashboard/*" element={
+                  <VerifiedRoute>
+                    <UserDashboard />
+                  </VerifiedRoute>
+                } />
+                
+                {/* Rotte protette per admin */}
+                <Route path="/admin/*" element={
+                  <AdminRoute>
+                    <AdminDashboard />
+                  </AdminRoute>
+                } />
+              </Routes>
+            </AppLayout>
+          </Router>
+        </CartProvider>
+      </ToastProvider>
     </AuthContext.Provider>
   );
 }

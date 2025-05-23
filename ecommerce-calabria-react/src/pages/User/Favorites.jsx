@@ -2,12 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../utils/api';
 import { isAuthenticated } from '../../utils/auth';
+import { SafeImage, getFirstValidImageUrl } from '../../utils/imageUtils.jsx';
+import { useToast } from '../../components/Toast/Toast';
+import { useCart } from '../../contexts/CartContext';
 import './Favorites.scss';
 
 const Favorites = () => {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { addToast } = useToast();
+  const { incrementCart, decrementFavorites } = useCart();
 
   useEffect(() => {
     if (isAuthenticated()) {
@@ -35,10 +40,24 @@ const Favorites = () => {
     try {
       await api.delete(`/favorites/${productId}`);
       // Rimuove il prodotto dalla lista locale senza ricaricare tutti i preferiti
+      const removedProduct = favorites.find(fav => fav.product.id === productId);
       setFavorites(favorites.filter(fav => fav.product.id !== productId));
+      
+      // Aggiorna il contatore dei preferiti
+      decrementFavorites();
+      
+      addToast(
+        `"${removedProduct?.product?.name || 'Prodotto'}" rimosso dai preferiti`, 
+        'info', 
+        3000
+      );
     } catch (err) {
       console.error('Errore nella rimozione del preferito:', err);
-      alert('Impossibile rimuovere il prodotto dai preferiti. Riprova più tardi.');
+      addToast(
+        'Impossibile rimuovere il prodotto dai preferiti. Riprova più tardi.', 
+        'error', 
+        4000
+      );
     }
   };
 
@@ -54,10 +73,23 @@ const Favorites = () => {
         product_id: productId,
         quantity
       });
-      alert('Prodotto aggiunto al carrello!');
+      
+      // Aggiorna il contatore del carrello
+      incrementCart(quantity);
+      
+      const addedProduct = favorites.find(fav => fav.product.id === productId);
+      addToast(
+        `🛒 "${addedProduct?.product?.name || 'Prodotto'}" aggiunto al carrello!`, 
+        'success', 
+        3500
+      );
     } catch (err) {
       console.error('Errore nell\'aggiunta al carrello:', err);
-      alert('Impossibile aggiungere il prodotto al carrello. Riprova più tardi.');
+      addToast(
+        'Impossibile aggiungere il prodotto al carrello. Riprova più tardi.', 
+        'error', 
+        4000
+      );
     }
   };
 
@@ -109,17 +141,16 @@ const Favorites = () => {
               <div key={favorite.id} className="favorite-card">
                 <Link to={`/products/${favorite.product.slug}`} className="favorite-card__link">
                   <div className="favorite-card__image-container">
-                    {favorite.product.images && favorite.product.images.length > 0 ? (
-                      <img 
-                        src={favorite.product.images[0].url} 
-                        alt={favorite.product.name} 
-                        className="favorite-card__image"
-                      />
-                    ) : (
-                      <div className="favorite-card__no-image">
-                        Immagine non disponibile
-                      </div>
-                    )}
+                    <SafeImage 
+                      src={getFirstValidImageUrl(favorite.product.images)} 
+                      alt={favorite.product.name} 
+                      className="favorite-card__image"
+                      fallback={
+                        <div className="favorite-card__no-image">
+                          Immagine non disponibile
+                        </div>
+                      }
+                    />
                     
                     {favorite.product.discount_price && (
                       <span className="favorite-card__discount-badge">

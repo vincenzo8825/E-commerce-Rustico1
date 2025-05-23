@@ -20,10 +20,8 @@ const SupportTickets = () => {
   }, [currentPage, filters]);
 
   const fetchTickets = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      
-      // Costruisce i parametri di query
       const params = new URLSearchParams();
       if (filters.status) params.append('status', filters.status);
       if (filters.priority) params.append('priority', filters.priority);
@@ -33,12 +31,41 @@ const SupportTickets = () => {
       
       // Usa l'endpoint corretto disponibile nelle route
       const response = await api.get(`/admin/dashboard/support-tickets?${params.toString()}`);
-      setTickets(response.data.tickets.data || []);
-      setTotalPages(response.data.tickets.last_page || 1);
+      
+      // Gestione più robusta della risposta API
+      if (response && response.data) {
+        // Se la risposta ha una struttura data.tickets.data (paginata)
+        if (response.data.tickets && response.data.tickets.data) {
+          setTickets(response.data.tickets.data);
+          setTotalPages(response.data.tickets.last_page || 1);
+        }
+        // Se la risposta ha una struttura data.data (paginata)
+        else if (response.data.data) {
+          setTickets(response.data.data);
+          setTotalPages(response.data.last_page || 1);
+        }
+        // Se la risposta è un array diretto
+        else if (Array.isArray(response.data)) {
+          setTickets(response.data);
+          setTotalPages(1);
+        }
+        // Fallback: array vuoto
+        else {
+          setTickets([]);
+          setTotalPages(1);
+        }
+      } else {
+        setTickets([]);
+        setTotalPages(1);
+      }
+      
       setError(null);
     } catch (err) {
       console.error('Errore nel caricamento dei ticket di supporto:', err);
       setError('Impossibile caricare i ticket di supporto. Riprova più tardi.');
+      // In caso di errore, imposta array vuoto per evitare crash
+      setTickets([]);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }

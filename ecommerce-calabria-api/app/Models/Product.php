@@ -49,6 +49,13 @@ class Product extends Model
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['image_url', 'images'];
+
+    /**
      * The "booted" method of the model.
      *
      * @return void
@@ -116,5 +123,63 @@ class Product extends Model
     public function favorites()
     {
         return $this->hasMany(Favorite::class);
+    }
+
+    /**
+     * Get the full URL for the product image.
+     *
+     * @return string|null
+     */
+    public function getImageUrlAttribute()
+    {
+        if (!$this->image) {
+            return null;
+        }
+
+        // Se l'immagine è già un URL completo, restituiscilo così com'è
+        if (filter_var($this->image, FILTER_VALIDATE_URL)) {
+            return $this->image;
+        }
+
+        // Usa l'URL del backend che gira su 127.0.0.1:8000
+        return 'http://127.0.0.1:8000/storage/' . $this->image;
+    }
+
+    /**
+     * Get the images array in the format expected by the frontend.
+     *
+     * @return array
+     */
+    public function getImagesAttribute()
+    {
+        $images = [];
+
+        // Aggiungi l'immagine principale se presente
+        if ($this->image_url) {
+            $images[] = [
+                'id' => 1,
+                'url' => $this->image_url,
+                'alt' => $this->name,
+                'is_primary' => true
+            ];
+        }
+
+        // Aggiungi le immagini della gallery se presenti
+        if ($this->gallery && is_array($this->gallery)) {
+            foreach ($this->gallery as $index => $galleryImage) {
+                $url = filter_var($galleryImage, FILTER_VALIDATE_URL)
+                    ? $galleryImage
+                    : 'http://127.0.0.1:8000/storage/' . $galleryImage;
+
+                $images[] = [
+                    'id' => $index + 2,
+                    'url' => $url,
+                    'alt' => $this->name . ' - Immagine ' . ($index + 2),
+                    'is_primary' => false
+                ];
+            }
+        }
+
+        return $images;
     }
 }

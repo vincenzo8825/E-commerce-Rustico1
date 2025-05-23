@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../../utils/api';
 import { isAuthenticated } from '../../utils/auth';
+import { useToast } from '../../components/Toast/Toast';
+import { useCart } from '../../contexts/CartContext';
 import './ProductDetail.scss';
 
 const ProductDetail = () => {
@@ -13,6 +15,8 @@ const ProductDetail = () => {
   const [activeImage, setActiveImage] = useState(0);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [isInFavorites, setIsInFavorites] = useState(false);
+  const { incrementCart, incrementFavorites, decrementFavorites } = useCart();
+  const { addToast } = useToast();
 
   useEffect(() => {
     // Reset lo stato quando cambia lo slug
@@ -32,9 +36,9 @@ const ProductDetail = () => {
       const response = await api.get(`/products/${slug}`);
       setProduct(response.data.product);
       
-      // Carica prodotti correlati
-      if (response.data.product && response.data.product.category_id) {
-        fetchRelatedProducts(response.data.product.id, response.data.product.category_id);
+      // I prodotti correlati arrivano già dalla stessa API
+      if (response.data.related_products) {
+        setRelatedProducts(response.data.related_products);
       }
       
       // Verifica se il prodotto è nei preferiti (solo se l'utente è autenticato)
@@ -48,15 +52,6 @@ const ProductDetail = () => {
       setError('Impossibile caricare i dettagli del prodotto. Riprova più tardi.');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchRelatedProducts = async (productId, categoryId) => {
-    try {
-      const response = await api.get(`/products/related/${productId}?category_id=${categoryId}`);
-      setRelatedProducts(response.data.products || []);
-    } catch (err) {
-      console.error('Errore nel caricamento dei prodotti correlati:', err);
     }
   };
 
@@ -99,7 +94,11 @@ const ProductDetail = () => {
     // Verifica se l'email è stata verificata
     const authData = JSON.parse(localStorage.getItem('auth_data') || '{}');
     if (!authData.emailVerified) {
-      alert('È necessario verificare l\'email prima di aggiungere prodotti al carrello. Controlla la tua casella di posta.');
+      addToast(
+        'È necessario verificare l\'email prima di aggiungere prodotti al carrello. Controlla la tua casella di posta.',
+        'warning',
+        4000
+      );
       return;
     }
 
@@ -108,12 +107,20 @@ const ProductDetail = () => {
         product_id: product.id,
         quantity: quantity
       });
-      alert('Prodotto aggiunto al carrello!');
+      
+      // Aggiorna il contatore del carrello
+      incrementCart(quantity);
+      
+      addToast(
+        `🛒 "${product.name}" (${quantity} pz) aggiunto al carrello!`,
+        'success',
+        3500
+      );
     } catch (err) {
       console.error('Errore nell\'aggiunta al carrello:', err);
       // Mostra il messaggio di errore dal server se disponibile
       const errorMessage = err.response?.data?.message || 'Impossibile aggiungere il prodotto al carrello. Riprova più tardi.';
-      alert(errorMessage);
+      addToast(errorMessage, 'error', 4000);
     }
   };
 
@@ -127,7 +134,11 @@ const ProductDetail = () => {
     // Verifica se l'email è stata verificata
     const authData = JSON.parse(localStorage.getItem('auth_data') || '{}');
     if (!authData.emailVerified) {
-      alert('È necessario verificare l\'email prima di aggiungere prodotti ai preferiti. Controlla la tua casella di posta.');
+      addToast(
+        'È necessario verificare l\'email prima di aggiungere prodotti ai preferiti. Controlla la tua casella di posta.',
+        'warning',
+        4000
+      );
       return;
     }
 
@@ -136,18 +147,38 @@ const ProductDetail = () => {
         // Rimuovi dai preferiti
         await api.delete(`/favorites/${product.id}`);
         setIsInFavorites(false);
-        alert('Prodotto rimosso dai preferiti!');
+        
+        // Aggiorna il contatore dei preferiti
+        decrementFavorites();
+        
+        addToast(
+          `💔 "${product.name}" rimosso dai preferiti!`,
+          'info',
+          3000
+        );
       } else {
         // Aggiungi ai preferiti
         await api.post('/favorites/add', {
           product_id: product.id
         });
         setIsInFavorites(true);
-        alert('Prodotto aggiunto ai preferiti!');
+        
+        // Aggiorna il contatore dei preferiti
+        incrementFavorites();
+        
+        addToast(
+          `❤️ "${product.name}" aggiunto ai preferiti!`,
+          'success',
+          3500
+        );
       }
     } catch (err) {
       console.error('Errore nella gestione dei preferiti:', err);
-      alert('Impossibile gestire i preferiti. Riprova più tardi.');
+      addToast(
+        'Impossibile gestire i preferiti. Riprova più tardi.',
+        'error',
+        4000
+      );
     }
   };
 
@@ -431,7 +462,11 @@ const ProductDetail = () => {
                         // Verifica se l'email è stata verificata
                         const authData = JSON.parse(localStorage.getItem('auth_data') || '{}');
                         if (!authData.emailVerified) {
-                          alert('È necessario verificare l\'email prima di aggiungere prodotti al carrello. Controlla la tua casella di posta.');
+                          addToast(
+                            'È necessario verificare l\'email prima di aggiungere prodotti al carrello. Controlla la tua casella di posta.',
+                            'warning',
+                            4000
+                          );
                           return;
                         }
 
@@ -439,11 +474,15 @@ const ProductDetail = () => {
                           product_id: relatedProduct.id,
                           quantity: 1
                         })
-                        .then(() => alert('Prodotto aggiunto al carrello!'))
+                        .then(() => addToast(
+                          `🛒 "${relatedProduct.name}" aggiunto al carrello!`,
+                          'success',
+                          3500
+                        ))
                         .catch(err => {
                           console.error('Errore nell\'aggiunta al carrello:', err);
                           const errorMessage = err.response?.data?.message || 'Impossibile aggiungere il prodotto al carrello.';
-                          alert(errorMessage);
+                          addToast(errorMessage, 'error', 4000);
                         });
                       }}
                     >

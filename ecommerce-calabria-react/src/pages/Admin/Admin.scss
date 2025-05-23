@@ -1167,4 +1167,71 @@
       color: #155724;
     }
   }
+}
+
+// Stili per i grafici delle vendite
+.sales-chart {
+  width: 100%;
+  
+  &__header {
+    margin-bottom: 1rem;
+  }
+  
+  &__title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+  }
+  
+  &__container {
+    width: 100%;
+    min-height: 250px;
+    
+    .recharts-wrapper {
+      .recharts-cartesian-axis-tick-value {
+        font-size: 12px;
+        fill: #666;
+      }
+      
+      .recharts-tooltip-wrapper {
+        .recharts-default-tooltip {
+          background: rgba(255, 255, 255, 0.95);
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+      }
+      
+      .recharts-legend-wrapper {
+        .recharts-default-legend {
+          font-size: 14px;
+        }
+      }
+    }
+  }
+  
+  &__no-data {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 250px;
+    color: #666;
+    font-style: italic;
+  }
+}
+
+// Stili responsive per i grafici
+@media (max-width: 768px) {
+  .sales-chart {
+    &__container {
+      min-height: 200px;
+      
+      .recharts-wrapper {
+        .recharts-cartesian-axis-tick-value {
+          font-size: 10px;
+        }
+      }
+    }
+  }
 } 

@@ -33,20 +33,16 @@ const Dashboard = () => {
       
       // Verifica innanzitutto il localStorage tramite la funzione isAdmin
       const isAdminFromStorage = checkIsAdmin();
-      console.log("Admin check da localStorage:", isAdminFromStorage);
       
       if (!isAuthenticated()) {
-        console.log("Utente non autenticato, reindirizzamento al login");
         // Reindirizza al login se non autenticato
         navigate('/login', { state: { from: location, message: 'Accedi per continuare' } });
         return;
       }
       
       try {
-        console.log("Verifica permessi admin via API...");
         // Prova prima con l'endpoint check-status
         const response = await api.get('/admin/check-status');
-        console.log("Risposta admin check:", response.data);
         
         if (response.data.isAdmin) {
           setIsAdmin(true);
@@ -54,14 +50,12 @@ const Dashboard = () => {
           // Ottieni informazioni utente
           try {
             const userResponse = await api.get('/user/profile');
-            console.log("Dati profilo:", userResponse.data);
             setUserInfo(userResponse.data.user);
           } catch (profileError) {
             console.error('Errore nel caricamento del profilo:', profileError);
             // Prova con un altro endpoint
             try {
               const userResponse = await api.get('/auth/user');
-              console.log("Dati utente:", userResponse.data);
               setUserInfo(userResponse.data);
             } catch (authError) {
               console.error('Errore nel caricamento dei dati utente:', authError);
@@ -76,8 +70,8 @@ const Dashboard = () => {
         
         // Prova con un endpoint alternativo
         try {
-          const statsResponse = await api.get('/admin/dashboard/statistics');
-          console.log("Risposta statistiche dashboard:", statsResponse.data);
+          const _statsResponse = await api.get('/admin/dashboard/statistics');
+          // console.log("Risposta statistiche dashboard:", statsResponse.data);
           // Se riceve una risposta, l'utente è admin
           setIsAdmin(true);
           
@@ -91,7 +85,7 @@ const Dashboard = () => {
           
           // Se abbiamo già verificato che è admin tramite localStorage, continua
           if (isAdminFromStorage) {
-            console.log("Errore API ma utente ha permessi admin in localStorage, continua...");
+            // console.log("Errore API ma utente ha permessi admin in localStorage, continua...");
             setIsAdmin(true);
             // Usa dati utente minimi per continuare
             setUserInfo({

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
+import { useToast } from '../../components/Toast/Toast';
 
 const ProductForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEditMode = !!id;
+  const { addToast } = useToast();
   
   const [formData, setFormData] = useState({
     name: '',
@@ -97,7 +99,7 @@ const ProductForm = () => {
     }
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
     
@@ -108,6 +110,7 @@ const ProductForm = () => {
         ...validationErrors,
         image: 'Il file deve essere un\'immagine (JPEG, PNG, WebP)'
       });
+      addToast('Formato file non supportato. Usa JPEG, PNG o WebP.', 'error', 4000);
       return;
     }
     
@@ -117,6 +120,7 @@ const ProductForm = () => {
         ...validationErrors,
         image: 'L\'immagine non può superare i 2MB'
       });
+      addToast('Immagine troppo grande. Massimo 2MB.', 'error', 4000);
       return;
     }
     
@@ -133,29 +137,6 @@ const ProductForm = () => {
         ...validationErrors,
         image: null
       });
-    }
-  };
-
-  const handleImageUpload = async () => {
-    if (!imagePreview) return null;
-    
-    try {
-      const formData = new FormData();
-      formData.append('image', imagePreview.file);
-      
-      const response = await api.post('/admin/products/upload-image', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-      
-      setUploadedImages([...uploadedImages, response.data.image]);
-      setImagePreview(null);
-      return response.data.image.id;
-    } catch (err) {
-      console.error('Errore nel caricamento dell\'immagine:', err);
-      setError('Errore nel caricamento dell\'immagine. Riprova più tardi.');
-      return null;
     }
   };
 
@@ -222,32 +203,48 @@ const ProductForm = () => {
     try {
       setSubmitting(true);
       
-      // Se c'è un'immagine in anteprima, caricala prima
-      let uploadedImageId = null;
-      if (imagePreview) {
-        uploadedImageId = await handleImageUpload();
+      // Prepara FormData per includere immagini
+      const submitData = new FormData();
+      
+      // Aggiungi i dati del prodotto
+      submitData.append('name', formData.name);
+      submitData.append('description', formData.description);
+      submitData.append('price', formData.price);
+      submitData.append('discount_price', formData.discount_price || '');
+      submitData.append('category_id', formData.category_id);
+      submitData.append('sku', formData.sku);
+      submitData.append('stock', formData.stock);
+      submitData.append('weight', formData.weight || '');
+      submitData.append('is_featured', formData.is_featured ? '1' : '0');
+      submitData.append('is_active', formData.is_active ? '1' : '0');
+      
+      // Aggiungi l'immagine se presente
+      if (imagePreview && imagePreview.file) {
+        submitData.append('image', imagePreview.file);
       }
       
-      // Prepara i dati per l'invio
-      const productData = { ...formData };
-      
-      // Aggiungi gli ID delle immagini caricate
-      productData.image_ids = uploadedImages.map(img => img.id);
-      if (uploadedImageId) {
-        productData.image_ids.push(uploadedImageId);
+      // Aggiungi gli ID delle immagini esistenti se in modalità modifica
+      if (isEditMode && uploadedImages.length > 0) {
+        uploadedImages.forEach(img => {
+          submitData.append('existing_image_ids[]', img.id);
+        });
       }
+      
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      };
       
       if (isEditMode) {
-        await api.put(`/admin/products/${id}`, productData);
+        await api.put(`/admin/products/${id}`, submitData, config);
+        addToast('Prodotto aggiornato con successo!', 'success', 3000);
       } else {
-        await api.post('/admin/products', productData);
+        await api.post('/admin/products', submitData, config);
+        addToast('Prodotto creato con successo!', 'success', 3000);
       }
       
-      navigate('/admin/products', { 
-        state: { 
-          message: `Prodotto ${isEditMode ? 'modificato' : 'creato'} con successo` 
-        } 
-      });
+      navigate('/admin/products');
     } catch (err) {
       console.error(`Errore nel ${isEditMode ? 'aggiornamento' : 'salvataggio'} del prodotto:`, err);
       
@@ -260,8 +257,11 @@ const ProductForm = () => {
         setValidationErrors(serverErrors);
       } else if (err.response && err.response.data && err.response.data.message) {
         setError(err.response.data.message);
+        addToast(err.response.data.message, 'error', 4000);
       } else {
-        setError(`Errore nel ${isEditMode ? 'aggiornamento' : 'salvataggio'} del prodotto. Riprova più tardi.`);
+        const errorMsg = `Errore nel ${isEditMode ? 'aggiornamento' : 'salvataggio'} del prodotto. Riprova più tardi.`;
+        setError(errorMsg);
+        addToast(errorMsg, 'error', 4000);
       }
     } finally {
       setSubmitting(false);
