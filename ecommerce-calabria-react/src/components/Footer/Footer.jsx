@@ -20,6 +20,7 @@ const Footer = () => {
             <li><Link to="/" className="footer__link">Home</Link></li>
             <li><Link to="/products" className="footer__link">Prodotti</Link></li>
             <li><Link to="/categories" className="footer__link">Categorie</Link></li>
+            <li><Link to="/reviews" className="footer__link">Recensioni</Link></li>
             <li><Link to="/about" className="footer__link">Chi Siamo</Link></li>
             <li><Link to="/contact" className="footer__link">Contatti</Link></li>
           </ul>

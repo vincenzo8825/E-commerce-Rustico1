@@ -258,4 +258,194 @@ class UserDashboardController extends Controller
             'new_message' => $message
         ], 201);
     }
+
+    /**
+     * Ottieni le statistiche dashboard dell'utente
+     */
+    public function getDashboardStats()
+    {
+        $user = Auth::user();
+
+        $totalOrders = $user->orders()->count();
+        $totalSpent = $user->orders()->where('status', 'delivered')->sum('total');
+        $favoriteProducts = $user->favorites()->count();
+        $loyaltyPoints = $totalSpent * 10; // 10 punti per euro speso
+
+        // Statistiche del mese corrente
+        $ordersThisMonth = $user->orders()
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->count();
+
+        $spentThisMonth = $user->orders()
+            ->where('status', 'delivered')
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->sum('total');
+
+        $recentFavorites = $user->favorites()
+            ->where('created_at', '>=', now()->subDays(30))
+            ->count();
+
+        $pointsThisMonth = $spentThisMonth * 10;
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'user_name' => $user->name,
+                'total_orders' => $totalOrders,
+                'total_spent' => $totalSpent,
+                'favorite_products' => $favoriteProducts,
+                'loyalty_points' => $loyaltyPoints,
+                'orders_this_month' => $ordersThisMonth,
+                'spent_this_month' => $spentThisMonth,
+                'recent_favorites' => $recentFavorites,
+                'points_this_month' => $pointsThisMonth
+            ]
+        ]);
+    }
+
+    /**
+     * Ottieni lo status del customer (Bronze, Silver, Gold)
+     */
+    public function getCustomerStatus()
+    {
+        $user = Auth::user();
+        $totalSpent = $user->orders()->where('status', 'delivered')->sum('total');
+
+        $status = 'Bronze';
+        $description = 'Cliente standard';
+        $nextLevel = 'Silver';
+        $nextLevelRequirement = 500;
+        $progressPercentage = ($totalSpent / $nextLevelRequirement) * 100;
+
+        if ($totalSpent >= 1500) {
+            $status = 'Gold';
+            $description = 'Cliente VIP premium';
+            $nextLevel = null;
+            $nextLevelRequirement = null;
+            $progressPercentage = 100;
+        } elseif ($totalSpent >= 500) {
+            $status = 'Silver';
+            $description = 'Cliente fedele';
+            $nextLevel = 'Gold';
+            $nextLevelRequirement = 1500;
+            $progressPercentage = (($totalSpent - 500) / 1000) * 100;
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'level' => $status,
+                'description' => $description,
+                'current_spent' => $totalSpent,
+                'next_level' => $nextLevel,
+                'next_level_requirement' => $nextLevelRequirement,
+                'progress_percentage' => min(100, $progressPercentage)
+            ]
+        ]);
+    }
+
+    /**
+     * Ottieni le azioni rapide per l'utente
+     */
+    public function getQuickActions()
+    {
+        $user = Auth::user();
+
+        $actions = [
+            [
+                'title' => 'Nuovo Ordine',
+                'description' => 'Sfoglia i nostri prodotti',
+                'icon' => '🛒',
+                'url' => '/products',
+                'type' => 'primary'
+            ],
+            [
+                'title' => 'I Tuoi Ordini',
+                'description' => 'Controlla lo stato dei tuoi ordini',
+                'icon' => '📦',
+                'url' => '/dashboard/orders',
+                'type' => 'secondary'
+            ],
+            [
+                'title' => 'Prodotti Preferiti',
+                'description' => 'Vedi i tuoi prodotti salvati',
+                'icon' => '❤️',
+                'url' => '/dashboard/favorites',
+                'type' => 'accent',
+                'badge' => $user->favorites()->count() > 0 ? $user->favorites()->count() : null
+            ],
+            [
+                'title' => 'Supporto',
+                'description' => 'Contatta il nostro team',
+                'icon' => '💬',
+                'url' => '/dashboard/support',
+                'type' => 'info'
+            ]
+        ];
+
+        return response()->json([
+            'success' => true,
+            'data' => $actions
+        ]);
+    }
+
+    /**
+     * Ottieni dati per grafico ordini utente
+     */
+    public function getOrdersChartData()
+    {
+        $user = Auth::user();
+
+        $data = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $month = now()->subMonths($i);
+            $ordersCount = $user->orders()
+                ->whereMonth('created_at', $month->month)
+                ->whereYear('created_at', $month->year)
+                ->count();
+
+            $totalAmount = $user->orders()
+                ->where('status', 'delivered')
+                ->whereMonth('created_at', $month->month)
+                ->whereYear('created_at', $month->year)
+                ->sum('total');
+
+            $data[] = [
+                'month' => $month->format('M Y'),
+                'ordini' => $ordersCount,
+                'importo' => $totalAmount
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $data
+        ]);
+    }
+
+    /**
+     * Ottieni prodotti più acquistati dall'utente
+     */
+    public function getTopPurchasedProducts()
+    {
+        $user = Auth::user();
+
+        $products = \DB::table('order_items')
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->join('products', 'order_items.product_id', '=', 'products.id')
+            ->where('orders.user_id', $user->id)
+            ->where('orders.status', 'delivered')
+            ->select('products.name', \DB::raw('SUM(order_items.quantity) as quantity'))
+            ->groupBy('products.id', 'products.name')
+            ->orderBy('quantity', 'desc')
+            ->limit(5)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $products
+        ]);
+    }
 }

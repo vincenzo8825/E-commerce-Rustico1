@@ -8,12 +8,12 @@ import './Navbar.scss';
 
 const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const { cartCount, favoritesCount } = useCart();
+  const { cartCount, favoritesCount, clearCart } = useCart();
   const { isLoggedIn, isAdmin, loading, setAuthState } = useAuth();
   const navigate = useNavigate();
 
-  // Debug: log dello stato di autenticazione
-  console.log("Navbar - Stato autenticazione:", { isLoggedIn, isAdmin, loading });
+  // Debug: log dello stato di autenticazione solo in development e quando cambia
+  // console.log("Navbar - Stato autenticazione:", { isLoggedIn, isAdmin, loading });
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -21,6 +21,8 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     await logout();
+    // Pulisce esplicitamente il carrello e i preferiti
+    clearCart();
     // Aggiorna lo stato globale
     setAuthState({
       isLoggedIn: false,

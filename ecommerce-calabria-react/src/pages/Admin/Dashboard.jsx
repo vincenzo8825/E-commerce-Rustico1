@@ -18,6 +18,7 @@ import Discounts from './Discounts';
 import DiscountForm from './DiscountForm';
 import Inventory from './Inventory';
 import Notifications from './Notifications';
+import AdminReviews from './Reviews';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -254,6 +255,14 @@ const Dashboard = () => {
             </Link>
             
             <Link 
+              to="/admin/reviews" 
+              className={`admin__nav-item ${activeSection === 'reviews' ? 'admin__nav-item--active' : ''}`}
+            >
+              <span className="admin__nav-item-icon">⭐</span>
+              <span className="admin__nav-item-text">Recensioni</span>
+            </Link>
+            
+            <Link 
               to="/admin/notifications" 
               className={`admin__nav-item ${activeSection === 'notifications' ? 'admin__nav-item--active' : ''}`}
             >
@@ -287,6 +296,7 @@ const Dashboard = () => {
             {activeSection === 'orders' && 'Gestione Ordini'}
             {activeSection === 'discounts' && 'Codici Sconto'}
             {activeSection === 'support' && 'Ticket Supporto'}
+            {activeSection === 'reviews' && 'Gestione Recensioni'}
             {activeSection === 'notifications' && 'Notifiche'}
           </h1>
           
@@ -323,6 +333,7 @@ const Dashboard = () => {
             <Route path="/discounts/new" element={<DiscountForm />} />
             <Route path="/discounts/:id" element={<DiscountForm />} />
             <Route path="/notifications" element={<Notifications />} />
+            <Route path="/reviews" element={<AdminReviews />} />
           </Routes>
         </div>
       </main>

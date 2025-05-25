@@ -39,6 +39,10 @@ const OrderDetail = () => {
   };
 
   const getOrderStatusSteps = () => {
+    if (!order || !order.status) {
+      return [];
+    }
+    
     const steps = [
       { key: 'ordinato', label: 'Ordine Ricevuto', icon: '📋' },
       { key: 'in_elaborazione', label: 'In Elaborazione', icon: '⚙️' },
@@ -56,7 +60,7 @@ const OrderDetail = () => {
       'completato': 4
     };
 
-    const currentIndex = statusIndex[order?.status] || 0;
+    const currentIndex = statusIndex[order.status] || 0;
 
     return steps.map((step, index) => ({
       ...step,
@@ -95,11 +99,11 @@ const OrderDetail = () => {
   };
 
   const handleGoBack = () => {
-    navigate('/user/orders');
+    navigate('/dashboard/orders');
   };
 
   const handleCreateTicket = () => {
-    navigate('/user/support/new', { state: { orderId: id } });
+    navigate('/dashboard/support/new', { state: { orderId: id } });
   };
 
   if (loading) {
@@ -191,27 +195,33 @@ const OrderDetail = () => {
       <div className="dashboard__section">
         <h2 className="dashboard__section-title">Tracking dello stato ordine</h2>
         <div className="order-tracking">
-          {orderSteps.map((step, index) => (
-            <div 
-              key={step.key} 
-              className={`order-tracking__step ${step.isCompleted ? 'order-tracking__step--completed' : ''} ${step.isCurrent ? 'order-tracking__step--current' : ''}`}
-            >
-              <div className="order-tracking__icon">
-                {step.icon}
-              </div>
-              <div className="order-tracking__content">
-                <div className="order-tracking__label">{step.label}</div>
-                {step.isCurrent && (
-                  <div className="order-tracking__current-indicator">
-                    Stato attuale
-                  </div>
+          {orderSteps && orderSteps.length > 0 ? (
+            orderSteps.map((step, index) => (
+              <div 
+                key={step.key} 
+                className={`order-tracking__step ${step.isCompleted ? 'order-tracking__step--completed' : ''} ${step.isCurrent ? 'order-tracking__step--current' : ''}`}
+              >
+                <div className="order-tracking__icon">
+                  {step.icon}
+                </div>
+                <div className="order-tracking__content">
+                  <div className="order-tracking__label">{step.label}</div>
+                  {step.isCurrent && (
+                    <div className="order-tracking__current-indicator">
+                      Stato attuale
+                    </div>
+                  )}
+                </div>
+                {index < orderSteps.length - 1 && (
+                  <div className={`order-tracking__line ${step.isCompleted ? 'order-tracking__line--completed' : ''}`}></div>
                 )}
               </div>
-              {index < orderSteps.length - 1 && (
-                <div className={`order-tracking__line ${step.isCompleted ? 'order-tracking__line--completed' : ''}`}></div>
-              )}
+            ))
+          ) : (
+            <div className="dashboard__loading">
+              Caricamento tracking ordine...
             </div>
-          ))}
+          )}
         </div>
       </div>
       

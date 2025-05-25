@@ -40,19 +40,28 @@ api.interceptors.response.use(
         }
       }
       
-      // Log per debug
-      console.error('Errore API:', {
-        status: error.response.status,
-        data: error.response.data,
-        url: error.config.url,
-        method: error.config.method
-      });
+      // Log solo per errori importanti (non per notifiche)
+      const isNotificationError = error.config?.url?.includes('/notifications');
+      const isDevelopment = import.meta.env.DEV;
+      
+      if (!isNotificationError || isDevelopment) {
+        console.warn('Errore API:', {
+          status: error.response.status,
+          data: error.response.data,
+          url: error.config.url,
+          method: error.config.method
+        });
+      }
     } else if (error.request) {
       // La richiesta è stata fatta ma non è stata ricevuta alcuna risposta
-      console.error('Nessuna risposta ricevuta:', error.request);
+      if (import.meta.env.DEV) {
+        console.warn('Nessuna risposta ricevuta:', error.request);
+      }
     } else {
       // Qualcosa è andato storto nella configurazione della richiesta
-      console.error('Errore nella configurazione della richiesta:', error.message);
+      if (import.meta.env.DEV) {
+        console.warn('Errore nella configurazione della richiesta:', error.message);
+      }
     }
     
     return Promise.reject(error);
@@ -86,12 +95,19 @@ if (token) {
 // Function to test backend connection
 export const testConnection = async () => {
   try {
-    console.log('Tentativo di connessione al backend...');
-    console.log('URL di base configurato:', api.defaults.baseURL);
+    // Log ridotti solo per debug importante
+    if (import.meta.env.DEV) {
+      console.log('Tentativo di connessione al backend...');
+      console.log('URL di base configurato:', api.defaults.baseURL);
+    }
     
     // Usa l'istanza api configurata per chiamare l'endpoint di ping
     const response = await api.get('/ping');
-    console.log('Risposta da API ping:', response.data);
+    
+    if (import.meta.env.DEV) {
+      console.log('Risposta da API ping:', response.data);
+    }
+    
     return response.data;
   } catch (error) {
     console.error('Errore durante il test di connessione:', error);

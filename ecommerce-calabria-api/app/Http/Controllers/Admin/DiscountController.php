@@ -7,6 +7,7 @@ use App\Models\DiscountCode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class DiscountController extends Controller
 {
@@ -56,60 +57,36 @@ class DiscountController extends Controller
 
             $discounts = $query->paginate($perPage, ['*'], 'page', $page);
 
+            // Mappiamo i campi database ai campi frontend per ogni elemento
+            $mappedDiscounts = $discounts->getCollection()->map(function ($discount) {
+                return [
+                    'id' => $discount->id,
+                    'code' => $discount->code,
+                    'description' => $discount->description,
+                    'type' => $discount->type,
+                    'amount' => $discount->value,
+                    'min_order_amount' => $discount->min_order_value,
+                    'max_uses' => $discount->max_uses,
+                    'uses' => $discount->used_count,
+                    'is_active' => $discount->is_active,
+                    'starts_at' => $discount->starts_at,
+                    'expires_at' => $discount->expires_at,
+                    'created_at' => $discount->created_at,
+                    'updated_at' => $discount->updated_at,
+                ];
+            });
+
+            // Sostituiamo la collection mappata
+            $discounts->setCollection($mappedDiscounts);
+
             return response()->json([
                 'discounts' => $discounts
             ]);
         } catch (\Exception $e) {
-            \Log::error('Errore nel recupero dei codici sconto: ' . $e->getMessage());
-
-            // Restituisci una risposta con dati di esempio in caso di errore
-            $exampleDiscounts = [
-                'data' => [
-                    [
-                        'id' => 1,
-                        'code' => 'WELCOME10',
-                        'description' => 'Sconto del 10% per i nuovi clienti',
-                        'type' => 'percentage',
-                        'value' => 10.00,
-                        'min_order_value' => 30.00,
-                        'max_uses' => 100,
-                        'used_count' => 0,
-                        'is_active' => true,
-                        'starts_at' => now()->toDateTimeString(),
-                        'expires_at' => now()->addMonths(3)->toDateTimeString(),
-                        'created_at' => now()->toDateTimeString(),
-                        'updated_at' => now()->toDateTimeString()
-                    ],
-                    [
-                        'id' => 2,
-                        'code' => 'SUMMER2023',
-                        'description' => 'Sconto di 15€ per ordini superiori a 100€',
-                        'type' => 'fixed',
-                        'value' => 15.00,
-                        'min_order_value' => 100.00,
-                        'max_uses' => 50,
-                        'used_count' => 0,
-                        'is_active' => true,
-                        'starts_at' => now()->toDateTimeString(),
-                        'expires_at' => now()->addMonths(2)->toDateTimeString(),
-                        'created_at' => now()->toDateTimeString(),
-                        'updated_at' => now()->toDateTimeString()
-                    ],
-                ],
-                'current_page' => 1,
-                'per_page' => 10,
-                'total' => 2,
-                'last_page' => 1,
-                'from' => 1,
-                'to' => 2,
-                'path' => url('/admin/discounts'),
-                'prev_page_url' => null,
-                'next_page_url' => null
-            ];
-
             return response()->json([
-                'discounts' => $exampleDiscounts
-            ]);
+                'error' => 'Errore nel caricamento dei codici sconto',
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -122,28 +99,32 @@ class DiscountController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'code' => 'nullable|string|max:20|unique:discount_codes,code',
-            'description' => 'required|string|max:255',
-            'discount_percent' => 'required_without:discount_amount|nullable|numeric|min:1|max:100',
-            'discount_amount' => 'required_without:discount_percent|nullable|numeric|min:1',
+            'code' => 'required|string|max:20|unique:discount_codes,code',
+            'description' => 'nullable|string|max:255',
+            'type' => 'required|in:percentage,fixed',
+            'amount' => 'required|numeric|min:0',
             'min_order_amount' => 'nullable|numeric|min:0',
             'max_uses' => 'nullable|integer|min:1',
-            'valid_from' => 'required|date',
-            'valid_until' => 'required|date|after:valid_from',
+            'starts_at' => 'nullable|date',
+            'expires_at' => 'nullable|date|after:starts_at',
             'is_active' => 'boolean'
         ]);
 
-        // Genera un codice casuale se non specificato
-        if (empty($validated['code'])) {
-            $validated['code'] = strtoupper(Str::random(8));
-        }
+        // Mappiamo i campi frontend ai campi database
+        $data = [
+            'code' => strtoupper($validated['code']),
+            'description' => $validated['description'] ?? '',
+            'type' => $validated['type'],
+            'value' => $validated['amount'],
+            'min_order_value' => $validated['min_order_amount'] ?? null,
+            'max_uses' => $validated['max_uses'] ?? null,
+            'used_count' => 0,
+            'is_active' => $validated['is_active'] ?? true,
+            'starts_at' => $validated['starts_at'] ? \Carbon\Carbon::parse($validated['starts_at']) : null,
+            'expires_at' => $validated['expires_at'] ? \Carbon\Carbon::parse($validated['expires_at']) : null,
+        ];
 
-        // Imposta is_active a true di default
-        if (!isset($validated['is_active'])) {
-            $validated['is_active'] = true;
-        }
-
-        $discount = DiscountCode::create($validated);
+        $discount = DiscountCode::create($data);
 
         return response()->json([
             'message' => 'Codice sconto creato con successo',
@@ -161,8 +142,25 @@ class DiscountController extends Controller
     {
         $discount = DiscountCode::findOrFail($id);
 
+        // Mappiamo i campi database ai campi frontend
+        $mappedDiscount = [
+            'id' => $discount->id,
+            'code' => $discount->code,
+            'description' => $discount->description,
+            'type' => $discount->type,
+            'amount' => $discount->value,
+            'min_order_amount' => $discount->min_order_value,
+            'max_uses' => $discount->max_uses,
+            'uses' => $discount->used_count,
+            'is_active' => $discount->is_active,
+            'starts_at' => $discount->starts_at ? $discount->starts_at->format('Y-m-d') : null,
+            'expires_at' => $discount->expires_at ? $discount->expires_at->format('Y-m-d') : null,
+            'created_at' => $discount->created_at,
+            'updated_at' => $discount->updated_at,
+        ];
+
         return response()->json([
-            'discount' => $discount
+            'discount' => $mappedDiscount
         ]);
     }
 
@@ -178,18 +176,31 @@ class DiscountController extends Controller
         $discount = DiscountCode::findOrFail($id);
 
         $validated = $request->validate([
-            'code' => 'nullable|string|max:20|unique:discount_codes,code,' . $id,
-            'description' => 'required|string|max:255',
-            'discount_percent' => 'required_without:discount_amount|nullable|numeric|min:1|max:100',
-            'discount_amount' => 'required_without:discount_percent|nullable|numeric|min:1',
+            'code' => 'required|string|max:20|unique:discount_codes,code,' . $id,
+            'description' => 'nullable|string|max:255',
+            'type' => 'required|in:percentage,fixed',
+            'amount' => 'required|numeric|min:0',
             'min_order_amount' => 'nullable|numeric|min:0',
             'max_uses' => 'nullable|integer|min:1',
-            'valid_from' => 'required|date',
-            'valid_until' => 'required|date|after:valid_from',
+            'starts_at' => 'nullable|date',
+            'expires_at' => 'nullable|date|after:starts_at',
             'is_active' => 'boolean'
         ]);
 
-        $discount->update($validated);
+        // Mappiamo i campi frontend ai campi database
+        $data = [
+            'code' => strtoupper($validated['code']),
+            'description' => $validated['description'] ?? '',
+            'type' => $validated['type'],
+            'value' => $validated['amount'],
+            'min_order_value' => $validated['min_order_amount'] ?? null,
+            'max_uses' => $validated['max_uses'] ?? null,
+            'is_active' => $validated['is_active'] ?? true,
+            'starts_at' => $validated['starts_at'] ? \Carbon\Carbon::parse($validated['starts_at']) : null,
+            'expires_at' => $validated['expires_at'] ? \Carbon\Carbon::parse($validated['expires_at']) : null,
+        ];
+
+        $discount->update($data);
 
         return response()->json([
             'message' => 'Codice sconto aggiornato con successo',

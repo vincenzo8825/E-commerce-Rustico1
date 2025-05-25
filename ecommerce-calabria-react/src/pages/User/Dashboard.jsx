@@ -9,6 +9,8 @@ import SupportTickets from './SupportTickets';
 import CreateTicket from './CreateTicket';
 import TicketDetail from './TicketDetail';
 import NotificationsPage from './NotificationsPage';
+import UserReviews from './UserReviews';
+import EditReview from './EditReview';
 import './Dashboard.scss';
 
 const Dashboard = () => {
@@ -53,6 +55,8 @@ const Dashboard = () => {
       <Route path="/support" element={<SupportTickets />} />
       <Route path="/support/new" element={<CreateTicket />} />
       <Route path="/support/ticket/:id" element={<TicketDetail />} />
+      <Route path="/reviews" element={<UserReviews />} />
+      <Route path="/reviews/:reviewId/edit" element={<EditReview />} />
     </Routes>
   );
 
@@ -106,6 +110,15 @@ const Dashboard = () => {
             >
               <span className="dashboard__sidebar-icon">🔧</span>
               Supporto
+            </Link>
+            
+            <Link 
+              to="/dashboard/reviews" 
+              className={`dashboard__sidebar-link ${activeTab === 'reviews' ? 'dashboard__sidebar-link--active' : ''}`}
+              onClick={() => setActiveTab('reviews')}
+            >
+              <span className="dashboard__sidebar-icon">👍</span>
+              Recensioni
             </Link>
           </nav>
         </aside>

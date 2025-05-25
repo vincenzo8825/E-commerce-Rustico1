@@ -371,17 +371,24 @@ const Inventory = () => {
                               </td>
                               <td>{product.id}</td>
                               <td>
-                                {product.image ? (
+                                {product.image_url ? (
                                   <img
-                                    src={product.image}
+                                    src={product.image_url}
                                     alt={product.name}
                                     className="admin__product-image"
                                     width="50"
                                     height="50"
+                                    onError={(e) => {
+                                      e.target.style.display = 'none';
+                                      e.target.nextSibling.style.display = 'flex';
+                                    }}
                                   />
                                 ) : (
                                   <div className="admin__product-no-image">No img</div>
                                 )}
+                                <div className="admin__product-no-image" style={{display: 'none'}}>
+                                  No img
+                                </div>
                               </td>
                               <td>{product.name}</td>
                               <td>{product.sku || '-'}</td>
@@ -390,14 +397,14 @@ const Inventory = () => {
                                 {product.discount_price ? (
                                   <>
                                     <span className="admin__product-discount-price">
-                                      €{product.discount_price.toFixed(2)}
+                                      €{parseFloat(product.discount_price || 0).toFixed(2)}
                                     </span>
                                     <span className="admin__product-original-price">
-                                      €{product.price.toFixed(2)}
+                                      €{parseFloat(product.price || 0).toFixed(2)}
                                     </span>
                                   </>
                                 ) : (
-                                  <span>€{product.price.toFixed(2)}</span>
+                                  <span>€{parseFloat(product.price || 0).toFixed(2)}</span>
                                 )}
                               </td>
                               <td>
@@ -417,7 +424,8 @@ const Inventory = () => {
                                   }}
                                   onBlur={(e) => {
                                     const newStock = parseInt(e.target.value) || 0;
-                                    if (newStock !== product.original_stock) {
+                                    const originalStock = product.original_stock || product.stock;
+                                    if (newStock !== originalStock) {
                                       updateStock(product.id, newStock);
                                     }
                                   }}

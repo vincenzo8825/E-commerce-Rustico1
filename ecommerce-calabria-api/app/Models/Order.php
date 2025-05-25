@@ -52,6 +52,22 @@ class Order extends Model
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['formatted_total', 'status_label'];
+
+    /**
+     * Available order statuses
+     */
+    const STATUS_PENDING = 'pending';
+    const STATUS_PROCESSING = 'processing';
+    const STATUS_SHIPPED = 'shipped';
+    const STATUS_DELIVERED = 'delivered';
+    const STATUS_CANCELLED = 'cancelled';
+
+    /**
      * Get the user that owns the order.
      */
     public function user()
@@ -65,5 +81,79 @@ class Order extends Model
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    /**
+     * Scope per ordini pagati
+     */
+    public function scopePaid($query)
+    {
+        return $query->where('is_paid', true);
+    }
+
+    /**
+     * Scope per ordini per status
+     */
+    public function scopeByStatus($query, $status)
+    {
+        return $query->where('status', $status);
+    }
+
+    /**
+     * Accessor per il totale formattato
+     */
+    public function getFormattedTotalAttribute()
+    {
+        return '€ ' . number_format($this->total, 2, ',', '.');
+    }
+
+    /**
+     * Accessor per la label dello status
+     */
+    public function getStatusLabelAttribute()
+    {
+        $labels = [
+            self::STATUS_PENDING => 'In Attesa',
+            self::STATUS_PROCESSING => 'In Elaborazione',
+            self::STATUS_SHIPPED => 'Spedito',
+            self::STATUS_DELIVERED => 'Consegnato',
+            self::STATUS_CANCELLED => 'Annullato',
+        ];
+
+        return $labels[$this->status] ?? $this->status;
+    }
+
+    /**
+     * Calcola il totale dell'ordine
+     */
+    public function calculateTotal()
+    {
+        $subtotal = $this->orderItems()->sum('total_price');
+        $total = $subtotal + $this->shipping_cost + $this->tax - $this->discount;
+
+        return max(0, $total);
+    }
+
+    /**
+     * Ottieni il subtotale dell'ordine
+     */
+    public function getSubtotalAttribute()
+    {
+        return $this->orderItems()->sum('total_price');
+    }
+
+    /**
+     * Ottieni l'indirizzo di spedizione completo
+     */
+    public function getFullShippingAddressAttribute()
+    {
+        $parts = array_filter([
+            $this->shipping_name . ' ' . $this->shipping_surname,
+            $this->shipping_address,
+            $this->shipping_city . ' ' . $this->shipping_postal_code,
+            $this->shipping_phone
+        ]);
+
+        return implode(', ', $parts);
     }
 }

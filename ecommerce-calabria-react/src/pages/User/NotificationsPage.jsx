@@ -8,6 +8,7 @@ const NotificationsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('all');
+  const [unreadCount, setUnreadCount] = useState(0);
   
   useEffect(() => {
     if (isAuthenticated()) {
@@ -18,12 +19,15 @@ const NotificationsPage = () => {
   const fetchNotifications = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/notifications');
-      setNotifications(response.data.notifications || []);
-      setError(null);
-    } catch (err) {
-      console.error('Errore nel caricamento delle notifiche:', err);
-      setError('Impossibile caricare le notifiche. Riprova più tardi.');
+      const response = await api.get('/user/notifications');
+      
+      if (response.data.success) {
+        setNotifications(response.data.data);
+        setUnreadCount(response.data.unread_count);
+      }
+    } catch (error) {
+      console.error('Errore nel caricamento delle notifiche:', error);
+      setError('Errore nel caricamento delle notifiche');
     } finally {
       setLoading(false);
     }
@@ -31,56 +35,38 @@ const NotificationsPage = () => {
 
   const markAsRead = async (notificationId) => {
     try {
-      await api.post(`/notifications/${notificationId}/read`);
-      
-      // Aggiorna lo stato locale
-      setNotifications(notifications.map(notif => 
-        notif.id === notificationId 
-          ? { ...notif, read_at: new Date().toISOString() } 
-          : notif
-      ));
-    } catch (err) {
-      console.error('Errore nel marcare la notifica come letta:', err);
+      await api.post(`/user/notifications/${notificationId}/read`);
+      await fetchNotifications();
+    } catch (error) {
+      console.error('Errore nel segnare come letta:', error);
     }
   };
 
   const markAllAsRead = async () => {
     try {
-      await api.post('/notifications/read-all');
-      
-      // Aggiorna lo stato locale
-      const now = new Date().toISOString();
-      setNotifications(notifications.map(notif => 
-        !notif.read_at ? { ...notif, read_at: now } : notif
-      ));
-    } catch (err) {
-      console.error('Errore nel marcare tutte le notifiche come lette:', err);
+      await api.post('/user/notifications/read-all');
+      await fetchNotifications();
+    } catch (error) {
+      console.error('Errore nel segnare tutte come lette:', error);
     }
   };
 
   const deleteNotification = async (notificationId) => {
-    if (window.confirm('Sei sicuro di voler eliminare questa notifica?')) {
-      try {
-        await api.delete(`/notifications/${notificationId}`);
-        
-        // Rimuovi la notifica dallo stato locale
-        setNotifications(notifications.filter(notif => notif.id !== notificationId));
-      } catch (err) {
-        console.error('Errore nell\'eliminazione della notifica:', err);
-      }
+    try {
+      await api.delete(`/user/notifications/${notificationId}`);
+      await fetchNotifications();
+    } catch (error) {
+      console.error('Errore nell\'eliminare la notifica:', error);
     }
   };
 
-  const deleteAllRead = async () => {
-    if (window.confirm('Sei sicuro di voler eliminare tutte le notifiche lette?')) {
-      try {
-        await api.delete('/notifications/read');
-        
-        // Rimuovi le notifiche lette dallo stato locale
-        setNotifications(notifications.filter(notif => !notif.read_at));
-      } catch (err) {
-        console.error('Errore nell\'eliminazione delle notifiche lette:', err);
-      }
+  const deleteOldNotifications = async () => {
+    try {
+      await api.delete('/user/notifications/read');
+      alert('Notifiche lette eliminate con successo!');
+      await fetchNotifications();
+    } catch (error) {
+      console.error('Errore nell\'eliminare le notifiche lette:', error);
     }
   };
 
@@ -124,6 +110,8 @@ const NotificationsPage = () => {
   };
 
   const getNotificationLink = (type, data) => {
+    if (!data) return '#';
+    
     switch (type) {
       case 'order_confirmed':
       case 'order_status_changed':
@@ -136,7 +124,7 @@ const NotificationsPage = () => {
       case 'product_back_in_stock':
         return `/products/${data.product_slug}`;
       default:
-        return '#';
+        return data.action_url || '#';
     }
   };
 
@@ -179,7 +167,7 @@ const NotificationsPage = () => {
             {hasRead && (
               <button 
                 className="notifications-page__action-button notifications-page__action-button--secondary" 
-                onClick={deleteAllRead}
+                onClick={deleteOldNotifications}
               >
                 Elimina notifiche lette
               </button>
@@ -249,7 +237,7 @@ const NotificationsPage = () => {
                   
                   <div className="notification-card__content">
                     <div className="notification-card__message">
-                      {notification.data.message}
+                      {notification.data?.message || notification.message || 'Notifica senza messaggio'}
                     </div>
                     
                     <div className="notification-card__meta">

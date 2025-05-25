@@ -116,9 +116,9 @@ const Orders = () => {
                 {getStatusText(order.status)}
               </span>
             </div>
-            <div className="dashboard__order-total">€ {order.total_price.toFixed(2)}</div>
+            <div className="dashboard__order-total">€ {parseFloat(order.total || order.total_price || 0).toFixed(2)}</div>
             <div className="dashboard__order-actions">
-              <Link to={`/user/orders/${order.id}`} className="dashboard__order-link">
+              <Link to={`/dashboard/orders/${order.id}`} className="dashboard__order-link">
                 Dettagli
               </Link>
             </div>

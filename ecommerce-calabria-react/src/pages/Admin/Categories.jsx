@@ -11,7 +11,8 @@ const Categories = () => {
     name: '',
     description: '',
     slug: '',
-    is_active: true
+    is_active: true,
+    is_featured: false
   });
   const [showForm, setShowForm] = useState(false);
 
@@ -98,7 +99,8 @@ const Categories = () => {
       name: category.name,
       description: category.description || '',
       slug: category.slug,
-      is_active: category.is_active
+      is_active: category.is_active,
+      is_featured: category.is_featured
     });
     setShowForm(true);
   };
@@ -126,7 +128,8 @@ const Categories = () => {
       name: '',
       description: '',
       slug: '',
-      is_active: true
+      is_active: true,
+      is_featured: false
     });
     setEditingCategory(null);
     setShowForm(false);
@@ -228,6 +231,19 @@ const Categories = () => {
                 </div>
               </div>
               
+              <div className="admin__form-group">
+                <div className="admin__form-group-checkbox">
+                  <input
+                    type="checkbox"
+                    id="is_featured"
+                    name="is_featured"
+                    checked={formData.is_featured}
+                    onChange={handleInputChange}
+                  />
+                  <label htmlFor="is_featured">Categoria in evidenza</label>
+                </div>
+              </div>
+              
               <div className="admin__form-actions">
                 <button
                   type="button"
@@ -261,6 +277,7 @@ const Categories = () => {
                         <th>Slug</th>
                         <th>Prodotti</th>
                         <th>Stato</th>
+                        <th>In Evidenza</th>
                         <th>Azioni</th>
                       </tr>
                     </thead>
@@ -274,6 +291,11 @@ const Categories = () => {
                           <td>
                             <span className={`admin__status-badge ${category.is_active ? 'admin__status-badge--success' : 'admin__status-badge--danger'}`}>
                               {category.is_active ? 'Attiva' : 'Inattiva'}
+                            </span>
+                          </td>
+                          <td>
+                            <span className={`admin__status-badge ${category.is_featured ? 'admin__status-badge--success' : 'admin__status-badge--danger'}`}>
+                              {category.is_featured ? 'Attiva' : 'Inattiva'}
                             </span>
                           </td>
                           <td>

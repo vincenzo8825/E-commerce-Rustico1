@@ -36,6 +36,8 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255|unique:categories,name',
             'description' => 'nullable|string',
             'image' => 'nullable|string',
+            'is_active' => 'boolean',
+            'is_featured' => 'boolean',
         ]);
 
         // Genera uno slug dal nome
@@ -79,6 +81,8 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255|unique:categories,name,' . $id,
             'description' => 'nullable|string',
             'image' => 'nullable|string',
+            'is_active' => 'boolean',
+            'is_featured' => 'boolean',
         ]);
 
         // Aggiorna lo slug solo se il nome è cambiato

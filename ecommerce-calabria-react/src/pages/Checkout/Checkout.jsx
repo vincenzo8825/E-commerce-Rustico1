@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Elements } from '@stripe/react-stripe-js';
 import api from '../../utils/api';
 import { isAuthenticated } from '../../utils/auth';
+import stripePromise from '../../utils/stripe';
+import PaymentForm from '../../components/Payment/PaymentForm';
 import './Checkout.scss';
 
 const Checkout = () => {
@@ -14,8 +17,9 @@ const Checkout = () => {
   const [discountCode, setDiscountCode] = useState('');
   const [discountMessage, setDiscountMessage] = useState('');
   const [discountValid, setDiscountValid] = useState(false);
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
 
-  // Stato per i dati di spedizione
+  // Stato per i dati di spedizione (rimuovo i campi carta)
   const [formData, setFormData] = useState({
     shipping_name: '',
     shipping_surname: '',
@@ -25,10 +29,7 @@ const Checkout = () => {
     shipping_phone: '',
     payment_method: 'carta',
     notes: '',
-    card_number: '',
-    card_holder: '',
-    card_expiry: '',
-    card_cvv: '',
+    email: ''
   });
 
   useEffect(() => {
@@ -74,6 +75,7 @@ const Checkout = () => {
         shipping_city: user.city || '',
         shipping_postal_code: user.postal_code || '',
         shipping_phone: user.phone || '',
+        email: user.email || ''
       }));
     } catch (err) {
       console.error('Errore nel caricamento dei dati utente:', err);
@@ -95,7 +97,7 @@ const Checkout = () => {
     }
     
     try {
-      const response = await api.post('/checkout/verify-discount', {
+      await api.post('/checkout/verify-discount', {
         code: discountCode
       });
       
@@ -113,24 +115,29 @@ const Checkout = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Validazione form
+    if (!formData.shipping_name || !formData.shipping_surname || !formData.shipping_address || 
+        !formData.shipping_city || !formData.shipping_postal_code || !formData.shipping_phone) {
+      setError('Tutti i campi di spedizione sono obbligatori');
+      return;
+    }
+
+    if (formData.payment_method === 'carta') {
+      // Mostra il form di pagamento Stripe
+      setShowPaymentForm(true);
+    } else {
+      // Gestisci altri metodi di pagamento (contrassegno, bonifico, etc.)
+      await processOrder();
+    }
+  };
+
+  const processOrder = async () => {
     try {
       setLoading(true);
       const response = await api.post('/checkout', formData);
       
       setOrderComplete(true);
       setOrderNumber(response.data.order_number);
-      
-      // Se il pagamento è con carta, procedi con il pagamento
-      if (formData.payment_method === 'carta') {
-        const paymentResponse = await api.post('/checkout/payment', {
-          order_id: response.data.order.id,
-          payment_method: formData.payment_method,
-          card_number: formData.card_number,
-          card_holder: formData.card_holder,
-          card_expiry: formData.card_expiry,
-          card_cvv: formData.card_cvv,
-        });
-      }
     } catch (err) {
       console.error('Errore durante il checkout:', err);
       setError(err.response?.data?.message || 'Si è verificato un errore durante il completamento dell\'ordine.');
@@ -139,6 +146,34 @@ const Checkout = () => {
     }
   };
 
+  const handlePaymentSuccess = async (paymentIntent) => {
+    try {
+      setLoading(true);
+      
+      // Crea l'ordine con i dati di pagamento
+      const response = await api.post('/checkout/complete', {
+        ...formData,
+        payment_intent_id: paymentIntent.id,
+        payment_status: 'paid'
+      });
+      
+      setOrderComplete(true);
+      setOrderNumber(response.data.order_number);
+      setShowPaymentForm(false);
+    } catch (err) {
+      console.error('Errore nel completamento dell\'ordine:', err);
+      setError(err.response?.data?.message || 'Errore nel completamento dell\'ordine');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePaymentError = (errorMessage) => {
+    setError(errorMessage);
+    setShowPaymentForm(false);
+  };
+
+  // Resto del codice per loading, error e orderComplete rimane uguale...
   if (loading && !cart) {
     return (
       <div className="checkout">
@@ -157,7 +192,11 @@ const Checkout = () => {
           <h1 className="checkout__title">Checkout</h1>
           <div className="checkout__error">
             <p>{error}</p>
-            <button className="checkout__button" onClick={fetchCart}>
+            <button className="checkout__button" onClick={() => {
+              setError(null);
+              setShowPaymentForm(false);
+              fetchCart();
+            }}>
               Riprova
             </button>
           </div>
@@ -190,6 +229,39 @@ const Checkout = () => {
                 Torna alla home
               </Link>
             </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Se il form di pagamento è mostrato, renderizza solo quello
+  if (showPaymentForm) {
+    const orderData = {
+      ...formData,
+      total: parseFloat(cart?.total || 0)
+    };
+
+    return (
+      <div className="checkout">
+        <div className="checkout__container">
+          <h1 className="checkout__title">Pagamento</h1>
+          
+          <div className="checkout__payment-container">
+            <button 
+              className="checkout__back-button"
+              onClick={() => setShowPaymentForm(false)}
+            >
+              ← Torna ai dati di spedizione
+            </button>
+            
+            <Elements stripe={stripePromise}>
+              <PaymentForm 
+                orderData={orderData}
+                onSuccess={handlePaymentSuccess}
+                onError={handlePaymentError}
+              />
+            </Elements>
           </div>
         </div>
       </div>
@@ -231,6 +303,18 @@ const Checkout = () => {
                       required
                     />
                   </div>
+                </div>
+
+                <div className="checkout__form-group">
+                  <label className="checkout__label">Email *</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className="checkout__input"
+                    required
+                  />
                 </div>
                 
                 <div className="checkout__form-group">
@@ -310,22 +394,7 @@ const Checkout = () => {
                       className="checkout__radio"
                     />
                     <label htmlFor="carta" className="checkout__payment-label">
-                      Carta di Credito/Debito
-                    </label>
-                  </div>
-                  
-                  <div className="checkout__payment-method">
-                    <input
-                      type="radio"
-                      id="paypal"
-                      name="payment_method"
-                      value="paypal"
-                      checked={formData.payment_method === 'paypal'}
-                      onChange={handleInputChange}
-                      className="checkout__radio"
-                    />
-                    <label htmlFor="paypal" className="checkout__payment-label">
-                      PayPal
+                      💳 Carta di Credito/Debito (Stripe)
                     </label>
                   </div>
                   
@@ -340,187 +409,109 @@ const Checkout = () => {
                       className="checkout__radio"
                     />
                     <label htmlFor="bonifico" className="checkout__payment-label">
-                      Bonifico Bancario
+                      🏦 Bonifico Bancario
+                    </label>
+                  </div>
+
+                  <div className="checkout__payment-method">
+                    <input
+                      type="radio"
+                      id="contrassegno"
+                      name="payment_method"
+                      value="contrassegno"
+                      checked={formData.payment_method === 'contrassegno'}
+                      onChange={handleInputChange}
+                      className="checkout__radio"
+                    />
+                    <label htmlFor="contrassegno" className="checkout__payment-label">
+                      📦 Contrassegno
                     </label>
                   </div>
                 </div>
-                
-                {formData.payment_method === 'carta' && (
-                  <div className="checkout__card-details">
-                    <div className="checkout__form-group">
-                      <label className="checkout__label">Numero Carta *</label>
-                      <input
-                        type="text"
-                        name="card_number"
-                        value={formData.card_number}
-                        onChange={handleInputChange}
-                        className="checkout__input"
-                        placeholder="1234 5678 9012 3456"
-                        required
-                      />
-                    </div>
-                    
-                    <div className="checkout__form-group">
-                      <label className="checkout__label">Intestatario Carta *</label>
-                      <input
-                        type="text"
-                        name="card_holder"
-                        value={formData.card_holder}
-                        onChange={handleInputChange}
-                        className="checkout__input"
-                        placeholder="Mario Rossi"
-                        required
-                      />
-                    </div>
-                    
-                    <div className="checkout__form-row">
-                      <div className="checkout__form-group">
-                        <label className="checkout__label">Scadenza *</label>
-                        <input
-                          type="text"
-                          name="card_expiry"
-                          value={formData.card_expiry}
-                          onChange={handleInputChange}
-                          className="checkout__input"
-                          placeholder="MM/AA"
-                          required
-                        />
-                      </div>
-                      
-                      <div className="checkout__form-group">
-                        <label className="checkout__label">CVV *</label>
-                        <input
-                          type="text"
-                          name="card_cvv"
-                          value={formData.card_cvv}
-                          onChange={handleInputChange}
-                          className="checkout__input"
-                          placeholder="123"
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                {formData.payment_method === 'bonifico' && (
-                  <div className="checkout__bank-details">
-                    <p className="checkout__bank-info">
-                      Effettua il bonifico alle seguenti coordinate bancarie:
-                    </p>
-                    <div className="checkout__bank-account">
-                      <p><strong>Intestatario:</strong> Sapori di Calabria S.r.l.</p>
-                      <p><strong>IBAN:</strong> IT12A0123456789000000123456</p>
-                      <p><strong>Causale:</strong> Ordine [inserire numero ordine]</p>
-                    </div>
-                    <p className="checkout__bank-note">
-                      L'ordine verrà elaborato dopo la ricezione del pagamento.
-                    </p>
-                  </div>
-                )}
               </div>
-              
-              <div className="checkout__actions">
-                <Link to="/cart" className="checkout__back-link">
-                  Torna al Carrello
+
+              <div className="checkout__form-actions">
+                <Link to="/cart" className="checkout__button checkout__button--secondary">
+                  Torna al carrello
                 </Link>
-                <button 
-                  type="submit" 
-                  className="checkout__submit-button"
+                <button
+                  type="submit"
+                  className="checkout__button checkout__button--primary"
                   disabled={loading}
                 >
-                  {loading ? 'Elaborazione in corso...' : 'Completa l\'Ordine'}
+                  {loading ? 'Elaborazione...' : 'Procedi al pagamento'}
                 </button>
               </div>
             </form>
           </div>
           
           <div className="checkout__summary">
-            <h2 className="checkout__summary-title">Riepilogo Ordine</h2>
-            
-            <div className="checkout__items">
-              {cart && cart.items && cart.items.map(item => (
-                <div key={item.id} className="checkout__item">
-                  <div className="checkout__item-image-container">
-                    {item.product.images && item.product.images.length > 0 ? (
-                      <img 
-                        src={item.product.images[0].url} 
-                        alt={item.product.name} 
-                        className="checkout__item-image"
-                      />
-                    ) : (
-                      <div className="checkout__item-no-image">
-                        No image
+            <div className="checkout__summary-card">
+              <h3 className="checkout__summary-title">Riepilogo Ordine</h3>
+              
+              {cart && cart.items && (
+                <div className="checkout__items">
+                  {cart.items.map((item) => (
+                    <div key={item.id} className="checkout__item">
+                      <div className="checkout__item-info">
+                        <h4>{item.product.name}</h4>
+                        <p>Quantità: {item.quantity}</p>
                       </div>
-                    )}
-                  </div>
-                  <div className="checkout__item-details">
-                    <div className="checkout__item-name">{item.product.name}</div>
-                    <div className="checkout__item-quantity">Quantità: {item.quantity}</div>
-                    <div className="checkout__item-price">€{parseFloat(item.price).toFixed(2)}</div>
-                  </div>
-                  <div className="checkout__item-total">
-                    €{(item.quantity * parseFloat(item.price)).toFixed(2)}
-                  </div>
-                </div>
-              ))}
-            </div>
-            
-            <div className="checkout__discount">
-              <input
-                type="text"
-                value={discountCode}
-                onChange={(e) => setDiscountCode(e.target.value)}
-                placeholder="Codice sconto"
-                className="checkout__discount-input"
-              />
-              <button 
-                onClick={applyDiscountCode} 
-                className="checkout__discount-button"
-              >
-                Applica
-              </button>
-              {discountMessage && (
-                <div className={`checkout__discount-message ${discountValid ? 'checkout__discount-message--valid' : 'checkout__discount-message--invalid'}`}>
-                  {discountMessage}
-                </div>
-              )}
-            </div>
-            
-            <div className="checkout__totals">
-              <div className="checkout__total-row">
-                <span className="checkout__total-label">Subtotale:</span>
-                <span className="checkout__total-value">
-                  €{cart ? parseFloat(cart.total).toFixed(2) : '0.00'}
-                </span>
-              </div>
-              
-              {cart && cart.discount_amount > 0 && (
-                <div className="checkout__total-row checkout__total-row--discount">
-                  <span className="checkout__total-label">Sconto:</span>
-                  <span className="checkout__total-value">
-                    -€{parseFloat(cart.discount_amount).toFixed(2)}
-                  </span>
+                      <div className="checkout__item-price">
+                        €{(parseFloat(item.price || 0) * parseInt(item.quantity || 0)).toFixed(2)}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
               
-              <div className="checkout__total-row">
-                <span className="checkout__total-label">Spedizione:</span>
-                <span className="checkout__total-value">€7.90</span>
-              </div>
-              
-              <div className="checkout__total-row">
-                <span className="checkout__total-label">IVA (22%):</span>
-                <span className="checkout__total-value">
-                  €{cart ? parseFloat(cart.total * 0.22).toFixed(2) : '0.00'}
-                </span>
-              </div>
-              
-              <div className="checkout__total-row checkout__total-row--final">
-                <span className="checkout__total-label">Totale:</span>
-                <span className="checkout__total-value checkout__total-value--final">
-                  €{cart ? parseFloat(cart.total + 7.90 + (cart.total * 0.22) - (cart.discount_amount || 0)).toFixed(2) : '0.00'}
-                </span>
+              {cart && (
+                <div className="checkout__totals">
+                  <div className="checkout__total-row">
+                    <span>Subtotale:</span>
+                    <span>€{parseFloat(cart.subtotal || 0).toFixed(2)}</span>
+                  </div>
+                  <div className="checkout__total-row">
+                    <span>Spedizione:</span>
+                    <span>€{parseFloat(cart.shipping || 0).toFixed(2)}</span>
+                  </div>
+                  {(cart.discount && parseFloat(cart.discount) > 0) && (
+                    <div className="checkout__total-row checkout__total-row--discount">
+                      <span>Sconto:</span>
+                      <span>-€{parseFloat(cart.discount || 0).toFixed(2)}</span>
+                    </div>
+                  )}
+                  <div className="checkout__total-row checkout__total-row--final">
+                    <span>Totale:</span>
+                    <span>€{parseFloat(cart.total || 0).toFixed(2)}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Codice sconto */}
+              <div className="checkout__discount">
+                <h4>Codice Sconto</h4>
+                <div className="checkout__discount-form">
+                  <input
+                    type="text"
+                    value={discountCode}
+                    onChange={(e) => setDiscountCode(e.target.value)}
+                    placeholder="Inserisci codice sconto"
+                    className="checkout__discount-input"
+                  />
+                  <button 
+                    type="button"
+                    onClick={applyDiscountCode}
+                    className="checkout__discount-button"
+                  >
+                    Applica
+                  </button>
+                </div>
+                {discountMessage && (
+                  <p className={`checkout__discount-message ${discountValid ? 'checkout__discount-message--success' : 'checkout__discount-message--error'}`}>
+                    {discountMessage}
+                  </p>
+                )}
               </div>
             </div>
           </div>

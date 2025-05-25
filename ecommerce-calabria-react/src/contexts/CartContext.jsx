@@ -17,6 +17,12 @@ export const CartProvider = ({ children }) => {
   const [favoritesCount, setFavoritesCount] = useState(0);
   const [loading, setLoading] = useState(false);
 
+  // Funzione per pulire tutto lo stato del carrello e preferiti
+  const clearCart = () => {
+    setCartCount(0);
+    setFavoritesCount(0);
+  };
+
   // Funzione per aggiornare il contatore del carrello
   const updateCartCount = async () => {
     if (!isAuthenticated()) {
@@ -90,10 +96,20 @@ export const CartProvider = ({ children }) => {
     if (isAuthenticated()) {
       loadCounts();
     } else {
-      setCartCount(0);
-      setFavoritesCount(0);
+      clearCart();
       setLoading(false);
     }
+
+    // Listener per gli eventi di autenticazione personalizzati
+    const handleAuthStateChange = (e) => {
+      if (e.detail.authenticated) {
+        // Utente ha fatto login
+        loadCounts();
+      } else {
+        // Utente ha fatto logout
+        clearCart();
+      }
+    };
 
     // Listener per gli eventi di storage (login/logout in altre tab)
     const handleStorageChange = (e) => {
@@ -103,15 +119,17 @@ export const CartProvider = ({ children }) => {
           loadCounts();
         } else {
           // Utente ha fatto logout
-          setCartCount(0);
-          setFavoritesCount(0);
+          clearCart();
         }
       }
     };
 
+    // Aggiungi entrambi i listener
+    window.addEventListener('authStateChanged', handleAuthStateChange);
     window.addEventListener('storage', handleStorageChange);
 
     return () => {
+      window.removeEventListener('authStateChanged', handleAuthStateChange);
       window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
@@ -125,7 +143,8 @@ export const CartProvider = ({ children }) => {
     incrementCart,
     decrementCart,
     incrementFavorites,
-    decrementFavorites
+    decrementFavorites,
+    clearCart
   };
 
   return (

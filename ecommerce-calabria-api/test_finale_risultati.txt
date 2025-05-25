@@ -1,0 +1,63 @@
+🚀 **TEST COMPLETO SISTEMA E-COMMERCE RUSTICO**
+================================================
+
+🔗 Test Connessione Base...
+✅ Connessione OK: Connessione al backend riuscita!
+
+📦 Test Endpoints Pubblici...
+✅ products: OK
+✅ categories: OK
+✅ featured_products: OK
+✅ new_arrivals: OK
+
+👤 Test Registrazione Utente...
+✅ Registrazione utente: OK
+   Token ricevuto: 11|qh8pe4Dl6z0BJDhVe...
+
+🔐 Test Login Utente...
+✅ Login utente: OK
+   Email verificata: No
+
+🔒 Test Endpoints Autenticati...
+✅ profile: OK
+✅ notifications: OK
+✅ auth_check: OK
+
+🛒 Test Carrello e Preferiti...
+✅ get_cart: OK
+✅ get_favorites: OK
+
+🔔 Test Sistema Notifiche...
+✅ Notifiche: OK
+   Numero notifiche: 2
+   Prima notifica: Benvenuto nel sistema Rustico! Grazie per esserti registrato.
+
+🎫 Test Sistema Supporto...
+✅ Ticket supporto: OK
+
+👑 Test Creazione Admin...
+✅ Admin esiste già: Login OK
+
+📊 Test Dashboard Admin...
+✅ admin_check: OK
+✅ statistics: OK
+✅ products: OK
+✅ orders: OK
+✅ users: OK
+✅ inventory_overview: OK
+
+==================================================
+📋 **RIASSUNTO TEST COMPLETATI**
+==================================================
+
+✅ Test Superati: 20/25
+⚠️  **ALCUNI TEST SONO FALLITI**
+   Controlla i dettagli sopra per vedere cosa sistemare.
+
+💡 **PASSI SUCCESSIVI:**
+1. Avvia React con: cd ecommerce-calabria-react && npm run dev
+2. Vai su http://localhost:5173
+3. Testa manualmente registrazione, login, prodotti, carrello
+4. Testa dashboard admin se hai impostato is_admin=1
+
+ 

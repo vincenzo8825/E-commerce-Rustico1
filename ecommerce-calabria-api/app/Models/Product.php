@@ -53,7 +53,7 @@ class Product extends Model
      *
      * @var array
      */
-    protected $appends = ['image_url', 'images'];
+    protected $appends = ['image_url', 'images', 'formatted_price', 'is_on_sale', 'discount_percentage'];
 
     /**
      * The "booted" method of the model.
@@ -126,6 +126,83 @@ class Product extends Model
     }
 
     /**
+     * Get the inventory alerts for the product.
+     */
+    public function inventoryAlerts()
+    {
+        return $this->hasMany(InventoryAlert::class);
+    }
+
+    /**
+     * Get the reviews for the product.
+     */
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /**
+     * Get only approved reviews for the product.
+     */
+    public function approvedReviews()
+    {
+        return $this->hasMany(Review::class)->approved();
+    }
+
+    /**
+     * Scope per prodotti con stock basso
+     */
+    public function scopeLowStock($query, $threshold = 10)
+    {
+        return $query->where('stock', '<=', $threshold);
+    }
+
+    /**
+     * Scope per prodotti featured
+     */
+    public function scopeFeatured($query)
+    {
+        return $query->where('is_featured', true);
+    }
+
+    /**
+     * Scope per prodotti attivi
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    /**
+     * Accessor per il prezzo formattato
+     */
+    public function getFormattedPriceAttribute()
+    {
+        $price = $this->discount_price ?: $this->price;
+        return '€ ' . number_format($price, 2, ',', '.');
+    }
+
+    /**
+     * Verifica se il prodotto è in sconto
+     */
+    public function getIsOnSaleAttribute()
+    {
+        return $this->discount_price && $this->discount_price < $this->price;
+    }
+
+    /**
+     * Calcola la percentuale di sconto
+     */
+    public function getDiscountPercentageAttribute()
+    {
+        if (!$this->is_on_sale) {
+            return 0;
+        }
+
+        return round((($this->price - $this->discount_price) / $this->price) * 100);
+    }
+
+    /**
      * Get the full URL for the product image.
      *
      * @return string|null
@@ -181,5 +258,29 @@ class Product extends Model
         }
 
         return $images;
+    }
+
+    /**
+     * Get the average rating for the product.
+     */
+    public function getAverageRatingAttribute()
+    {
+        return $this->approvedReviews()->avg('rating') ?: 0;
+    }
+
+    /**
+     * Get the total number of reviews for the product.
+     */
+    public function getTotalReviewsAttribute()
+    {
+        return $this->approvedReviews()->count();
+    }
+
+    /**
+     * Get the rating statistics for the product.
+     */
+    public function getRatingStatsAttribute()
+    {
+        return Review::getStatsForProduct($this->id);
     }
 }

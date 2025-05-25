@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import axios from 'axios';
 import ProductCard from '../../components/ProductCard/ProductCard';
 import CategoryCard from '../../components/CategoryCard/CategoryCard';
 import './Home.scss';
-import { testConnection } from '../../utils/api';
+import api, { testConnection } from '../../utils/api';
 
 const Home = () => {
   const location = useLocation();
@@ -66,19 +65,32 @@ const Home = () => {
   const fetchFeaturedData = async () => {
     setLoading(true);
     try {
-      // Carica prodotti in evidenza usando l'URL completo
-      const productsResponse = await axios.get('http://localhost:8000/api/products/featured');
+      // Carica prodotti in evidenza usando l'API configurata
+      const productsResponse = await api.get('/products/featured');
       setFeaturedProducts(productsResponse.data.featured_products || []);
       
-      // Carica categorie usando l'URL completo
-      const categoriesResponse = await axios.get('http://localhost:8000/api/categories');
-      const allCategories = categoriesResponse.data.categories || [];
+      // Carica categorie in evidenza usando l'API configurata
+      const categoriesResponse = await api.get('/categories/featured');
+      const featuredCategories = categoriesResponse.data.featured_categories || [];
+      setFeaturedCategories(featuredCategories);
       
-      // Filtra le categorie in evidenza o prendi le prime 4
-      const featured = allCategories.filter(cat => cat.is_featured).slice(0, 4);
-      setFeaturedCategories(featured.length ? featured : allCategories.slice(0, 4));
+      console.log('Categorie in evidenza caricate:', featuredCategories);
     } catch (error) {
       console.error('Errore nel caricamento dei dati in evidenza:', error);
+      // Se l'API delle categorie fallisce, proviamo con l'endpoint generale
+      try {
+        const categoriesResponse = await api.get('/categories');
+        const allCategories = categoriesResponse.data.categories || [];
+        
+        // Filtra le categorie in evidenza o prendi le prime 4
+        const featured = allCategories.filter(cat => cat.is_featured).slice(0, 4);
+        setFeaturedCategories(featured.length ? featured : allCategories.slice(0, 4));
+        
+        console.log('Categorie caricate (fallback):', featured);
+      } catch (fallbackError) {
+        console.error('Errore anche nel fallback delle categorie:', fallbackError);
+        setFeaturedCategories([]);
+      }
     } finally {
       setLoading(false);
     }

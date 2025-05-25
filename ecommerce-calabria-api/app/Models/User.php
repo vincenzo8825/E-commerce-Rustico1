@@ -81,4 +81,76 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(SupportTicket::class);
     }
+
+    /**
+     * Get the user's notifications.
+     */
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    /**
+     * Get the user's reviews.
+     */
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /**
+     * Scope per utenti admin
+     */
+    public function scopeAdmins($query)
+    {
+        return $query->where('is_admin', true);
+    }
+
+    /**
+     * Scope per utenti standard
+     */
+    public function scopeCustomers($query)
+    {
+        return $query->where('is_admin', false);
+    }
+
+    /**
+     * Verifica se l'utente è admin
+     */
+    public function isAdmin(): bool
+    {
+        return $this->is_admin === true;
+    }
+
+    /**
+     * Get the user's full name
+     */
+    public function getFullNameAttribute(): string
+    {
+        return trim($this->name . ' ' . $this->surname);
+    }
+
+    /**
+     * Get the user's full address
+     */
+    public function getFullAddressAttribute(): string
+    {
+        $parts = array_filter([
+            $this->address,
+            $this->city,
+            $this->postal_code
+        ]);
+
+        return implode(', ', $parts);
+    }
+
+    /**
+     * Calcola il totale degli ordini dell'utente
+     */
+    public function getTotalSpentAttribute(): float
+    {
+        return $this->orders()
+            ->where('status', 'completed')
+            ->sum('total_amount');
+    }
 }

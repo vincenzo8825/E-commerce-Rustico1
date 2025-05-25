@@ -56,6 +56,13 @@ const ProductForm = () => {
       
       // Formatta i dati per il form
       const product = response.data.product;
+      
+      // Gestione speciale per il weight per rimuovere unità di misura
+      let weightValue = product.weight || '';
+      if (typeof weightValue === 'string') {
+        weightValue = weightValue.replace(/[^0-9.]/g, '');
+      }
+      
       setFormData({
         name: product.name,
         description: product.description || '',
@@ -64,13 +71,24 @@ const ProductForm = () => {
         category_id: product.category_id,
         sku: product.sku,
         stock: product.stock,
-        weight: product.weight || '',
+        weight: weightValue,
         is_featured: product.is_featured,
         is_active: product.is_active
       });
       
       if (product.images && product.images.length > 0) {
-        setUploadedImages(product.images);
+        const imagesWithUrl = product.images.map(img => ({
+          ...img,
+          url: img.url || product.image_url || img
+        }));
+        setUploadedImages(imagesWithUrl);
+      } else if (product.image_url) {
+        // Se non ci sono images ma c'è image_url, aggiungiamo come singola immagine
+        setUploadedImages([{
+          id: 'main',
+          url: product.image_url,
+          alt: product.name
+        }]);
       }
       
       setError(null);
@@ -85,9 +103,17 @@ const ProductForm = () => {
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     
+    // Gestione speciale per il campo weight per convertire valori come "700ml" in "700"
+    let processedValue = value;
+    if (name === 'weight' && typeof value === 'string') {
+      // Estrae solo i numeri dal valore (rimuove "ml", "g", "kg", etc.)
+      const numericValue = value.replace(/[^0-9.]/g, '');
+      processedValue = numericValue;
+    }
+    
     setFormData({
       ...formData,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : processedValue
     });
     
     // Pulisci l'errore di validazione quando l'utente modifica il campo
@@ -237,7 +263,9 @@ const ProductForm = () => {
       };
       
       if (isEditMode) {
-        await api.put(`/admin/products/${id}`, submitData, config);
+        // Laravel richiede _method per simulare PUT con FormData
+        submitData.append('_method', 'PUT');
+        await api.post(`/admin/products/${id}`, submitData, config);
         addToast('Prodotto aggiornato con successo!', 'success', 3000);
       } else {
         await api.post('/admin/products', submitData, config);

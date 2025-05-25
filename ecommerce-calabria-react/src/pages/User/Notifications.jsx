@@ -7,6 +7,7 @@ const Notifications = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deleteOldDays, setDeleteOldDays] = useState(30);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     fetchNotifications();
@@ -15,12 +16,15 @@ const Notifications = () => {
   const fetchNotifications = async () => {
     try {
       setLoading(true);
-      setError(null);
-      const response = await api.get('/notifications');
-      setNotifications(response.data.notifications || []);
-    } catch (err) {
-      console.error('Errore nel caricamento delle notifiche:', err);
-      setError('Impossibile caricare le notifiche. Riprova più tardi.');
+      const response = await api.get('/user/notifications');
+      
+      if (response.data.success) {
+        setNotifications(response.data.data);
+        setUnreadCount(response.data.unread_count);
+      }
+    } catch (error) {
+      console.error('Errore nel caricamento delle notifiche:', error);
+      setError('Errore nel caricamento delle notifiche');
     } finally {
       setLoading(false);
     }
@@ -28,56 +32,40 @@ const Notifications = () => {
 
   const markAsRead = async (notificationId) => {
     try {
-      await api.post(`/notifications/${notificationId}/read`);
-      
-      // Aggiorna lo stato locale
-      setNotifications(notifications.map(notif => 
-        notif.id === notificationId 
-          ? { ...notif, read_at: new Date().toISOString() } 
-          : notif
-      ));
-    } catch (err) {
-      console.error('Errore nel marcare la notifica come letta:', err);
+      await api.post(`/user/notifications/${notificationId}/read`);
+      await fetchNotifications();
+    } catch (error) {
+      console.error('Errore nel segnare come letta:', error);
     }
   };
 
   const markAllAsRead = async () => {
     try {
-      await api.post('/notifications/read-all');
-      
-      // Aggiorna lo stato locale
-      const now = new Date().toISOString();
-      setNotifications(notifications.map(notif => 
-        !notif.read_at 
-          ? { ...notif, read_at: now } 
-          : notif
-      ));
-    } catch (err) {
-      console.error('Errore nel marcare tutte le notifiche come lette:', err);
+      await api.post('/user/notifications/read-all');
+      await fetchNotifications();
+    } catch (error) {
+      console.error('Errore nel segnare tutte come lette:', error);
     }
   };
 
   const deleteNotification = async (notificationId) => {
     try {
-      await api.delete(`/notifications/${notificationId}`);
-      
-      // Aggiorna lo stato locale
-      setNotifications(notifications.filter(notif => notif.id !== notificationId));
-    } catch (err) {
-      console.error('Errore nell\'eliminazione della notifica:', err);
+      await api.delete(`/user/notifications/${notificationId}`);
+      await fetchNotifications();
+    } catch (error) {
+      console.error('Errore nell\'eliminare la notifica:', error);
     }
   };
 
   const deleteOldNotifications = async () => {
     try {
-      const response = await api.delete(`/notifications/old?days=${deleteOldDays}`);
-      
-      // Aggiorna lo stato locale dopo aver eliminato le notifiche vecchie
-      await fetchNotifications();
-      
-      alert(`${response.data.count} notifiche vecchie eliminate con successo.`);
-    } catch (err) {
-      console.error('Errore nell\'eliminazione delle notifiche vecchie:', err);
+      const response = await api.delete(`/user/notifications/old?days=${deleteOldDays}`);
+      if (response.data.success) {
+        alert(`${response.data.deleted_count} notifiche vecchie eliminate`);
+        await fetchNotifications();
+      }
+    } catch (error) {
+      console.error('Errore nell\'eliminare le notifiche vecchie:', error);
     }
   };
   
@@ -96,10 +84,18 @@ const Notifications = () => {
   
   const getNotificationIcon = (type) => {
     switch (type) {
+      case 'order_confirmed':
       case 'App\\Notifications\\OrderConfirmed':
         return '✅';
+      case 'order_status_changed':
       case 'App\\Notifications\\OrderStatusChanged':
         return '🔄';
+      case 'new_order':
+        return '📦';
+      case 'low_stock':
+        return '⚠️';
+      case 'info':
+        return 'ℹ️';
       default:
         return '📢';
     }
@@ -108,8 +104,14 @@ const Notifications = () => {
   const getNotificationLink = (notification) => {
     const { type, data } = notification;
     
-    if (type.includes('Order')) {
+    if (!data) return '#';
+    
+    if (type.includes('Order') || type === 'order_confirmed' || type === 'order_status_changed') {
       return `/dashboard/orders/${data.order_id}`;
+    }
+    
+    if (data.action_url) {
+      return data.action_url;
     }
     
     return '#';
@@ -119,6 +121,8 @@ const Notifications = () => {
     const isUnread = !notification.read_at;
     const notificationDate = formatDate(notification.created_at);
     const readDate = notification.read_at ? formatDate(notification.read_at) : null;
+    
+    const message = notification.data?.message || notification.message || 'Notifica senza messaggio';
     
     return (
       <div 
@@ -140,14 +144,14 @@ const Notifications = () => {
           </div>
           
           <div className="notification__message">
-            {notification.data.message}
+            {message}
           </div>
           
           <div className="notification__actions">
             <a 
               href={getNotificationLink(notification)} 
               className="notification__link" 
-              onClick={(e) => {
+              onClick={() => {
                 if (isUnread) {
                   markAsRead(notification.id);
                 }
@@ -177,8 +181,6 @@ const Notifications = () => {
     );
   };
   
-  const unreadCount = notifications.filter(n => !n.read_at).length;
-
   return (
     <div className="notifications-page">
       <div className="notifications-page__header">

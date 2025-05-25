@@ -34,6 +34,13 @@ class OrderItem extends Model
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['subtotal', 'formatted_price', 'formatted_total'];
+
+    /**
      * Get the order that owns the item.
      */
     public function order()
@@ -47,5 +54,37 @@ class OrderItem extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    /**
+     * Accessor per subtotal (alias di total per compatibilità)
+     */
+    public function getSubtotalAttribute()
+    {
+        return $this->total;
+    }
+
+    /**
+     * Accessor per prezzo formattato
+     */
+    public function getFormattedPriceAttribute()
+    {
+        return '€ ' . number_format($this->price, 2, ',', '.');
+    }
+
+    /**
+     * Accessor per totale formattato
+     */
+    public function getFormattedTotalAttribute()
+    {
+        return '€ ' . number_format($this->total, 2, ',', '.');
+    }
+
+    /**
+     * Calcola il totale per questo item
+     */
+    public function calculateTotal()
+    {
+        return $this->quantity * $this->price;
     }
 }

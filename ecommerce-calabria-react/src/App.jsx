@@ -13,6 +13,7 @@ import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 import UserDashboard from './pages/User/Dashboard';
 import AdminDashboard from './pages/Admin/Dashboard';
+import AllReviews from './pages/Reviews/AllReviews';
 import { isAuthenticated } from './utils/auth';
 import api from './utils/api';
 import './App.scss';
@@ -219,6 +220,7 @@ function App() {
                 <Route path="/categories" element={<Categories />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/reviews" element={<AllReviews />} />
                 
                 {/* Rotte protette per utenti autenticati */}
                 <Route path="/cart" element={

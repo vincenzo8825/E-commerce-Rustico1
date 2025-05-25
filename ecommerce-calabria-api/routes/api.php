@@ -8,6 +8,8 @@ use App\Http\Controllers\API\CheckoutController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\AdminDashboardController;
 use App\Http\Controllers\API\EmailVerificationController;
+use App\Http\Controllers\API\InventoryController;
+use App\Http\Controllers\API\ReviewController;
 
 
 // Rotta di test per verificare il collegamento
@@ -62,8 +64,13 @@ Route::get('/products/featured', [ProductController::class, 'featured']);
 Route::get('/products/new-arrivals', [ProductController::class, 'newArrivals']);
 Route::get('/products/{slug}', [ProductController::class, 'show']);
 
+// Rotte pubbliche per le recensioni (lettura)
+Route::get('/products/{productId}/reviews', [ReviewController::class, 'getProductReviews']);
+Route::get('/reviews', [ReviewController::class, 'getAllReviews']);
+
 // Rotte pubbliche per le categorie
 Route::get('/categories', [App\Http\Controllers\API\CategoryController::class, 'index']);
+Route::get('/categories/featured', [App\Http\Controllers\API\CategoryController::class, 'featured']);
 Route::get('/categories/{slug}', [App\Http\Controllers\API\CategoryController::class, 'show']);
 
 // Rotte autenticazione
@@ -125,13 +132,22 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/notifications/read-all', [App\Http\Controllers\API\NotificationController::class, 'markAllAsRead']);
         Route::delete('/notifications/{id}', [App\Http\Controllers\API\NotificationController::class, 'destroy']);
         Route::delete('/notifications/old', [App\Http\Controllers\API\NotificationController::class, 'deleteOldNotifications']);
+
+        // Rotte per la dashboard avanzata utente
+        Route::get('/dashboard/stats', [UserDashboardController::class, 'getDashboardStats']);
+        Route::get('/dashboard/customer-status', [UserDashboardController::class, 'getCustomerStatus']);
+        Route::get('/dashboard/quick-actions', [UserDashboardController::class, 'getQuickActions']);
+        Route::get('/dashboard/charts/orders', [UserDashboardController::class, 'getOrdersChartData']);
+        Route::get('/dashboard/charts/top-products', [UserDashboardController::class, 'getTopPurchasedProducts']);
     });
 
-    // Rotta per le notifiche (aggiunta a livello generale, non sotto /user)
-    Route::get('/notifications', [App\Http\Controllers\API\NotificationController::class, 'index']);
-    Route::post('/notifications/{id}/read', [App\Http\Controllers\API\NotificationController::class, 'markAsRead']);
-    Route::post('/notifications/read-all', [App\Http\Controllers\API\NotificationController::class, 'markAllAsRead']);
-    Route::delete('/notifications/{id}', [App\Http\Controllers\API\NotificationController::class, 'destroy']);
+    // Rotte per le recensioni (autenticate)
+    Route::post('/products/{productId}/reviews', [ReviewController::class, 'store']);
+    Route::get('/user/reviews/{id}', [ReviewController::class, 'getUserReview']);
+    Route::put('/reviews/{id}', [ReviewController::class, 'update']);
+    Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
+    Route::post('/reviews/{id}/helpful', [ReviewController::class, 'markHelpful']);
+    Route::get('/user/reviews', [ReviewController::class, 'getUserReviews']);
 });
 
 // Rotta per verifica email (link ricevuto via email)
@@ -201,12 +217,35 @@ Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
     Route::apiResource('discounts', 'App\Http\Controllers\Admin\DiscountController');
     Route::put('discounts/{id}/toggle', [App\Http\Controllers\Admin\DiscountController::class, 'toggleActive']);
 
+    // Rotte per la gestione inventario e alert
+    Route::get('/inventory/alerts', [InventoryController::class, 'stockAlerts']);
+    Route::get('/inventory/low-stock', [InventoryController::class, 'lowStockProducts']);
+    Route::post('/inventory/bulk-update-stock', [InventoryController::class, 'bulkUpdateStock']);
+    Route::get('/inventory/export', [InventoryController::class, 'exportInventory']);
+    Route::get('/inventory/stats', [InventoryController::class, 'inventoryStats']);
+    Route::post('/inventory/alerts', [InventoryController::class, 'createAlert']);
+    Route::put('/inventory/alerts/{alert}', [InventoryController::class, 'updateAlert']);
+    Route::delete('/inventory/alerts/{alert}', [InventoryController::class, 'deleteAlert']);
+
+    // Rotte per Dashboard Inventario Admin
+    Route::get('/inventory/dashboard/overview', [App\Http\Controllers\Admin\InventoryDashboardController::class, 'getInventoryOverview']);
+    Route::get('/inventory/dashboard/products', [App\Http\Controllers\Admin\InventoryDashboardController::class, 'getInventoryProducts']);
+    Route::put('/inventory/dashboard/products/{product}/stock', [App\Http\Controllers\Admin\InventoryDashboardController::class, 'updateProductStock']);
+    Route::post('/inventory/dashboard/bulk-update', [App\Http\Controllers\Admin\InventoryDashboardController::class, 'bulkUpdateStock']);
+
     // Rotte per verificare lo stato admin
     Route::get('/check-status', [App\Http\Controllers\Admin\StatisticsController::class, 'checkStatus']);
 
     // Rotte statistiche
     Route::get('/statistics', [App\Http\Controllers\Admin\StatisticsController::class, 'index']);
     Route::get('/statistics/products', [App\Http\Controllers\Admin\StatisticsController::class, 'topProducts']);
+
+    // Rotte per la gestione recensioni admin
+    Route::get('/reviews', [ReviewController::class, 'adminIndex']);
+    Route::patch('/reviews/{id}/approve', [ReviewController::class, 'approve']);
+    Route::patch('/reviews/{id}/reject', [ReviewController::class, 'reject']);
+    Route::delete('/reviews/{id}', [ReviewController::class, 'adminDestroy']);
+    Route::post('/reviews/{id}/reply', [ReviewController::class, 'adminReply']);
 });
 
 // Rotta di debug per verificare i modelli e le relazioni
@@ -229,3 +268,20 @@ Route::get('/debug/models', function () {
         ], 500);
     }
 });
+
+// Rotte per Health Check e Monitoraggio Sistema
+Route::get('/health/check', [App\Http\Controllers\API\HealthController::class, 'check']);
+Route::get('/health/stats', [App\Http\Controllers\API\HealthController::class, 'stats']);
+
+// Rotte per gestione Cache (solo per admin autenticati)
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('/cache/optimize', [App\Http\Controllers\API\CacheController::class, 'optimizeCache']);
+    Route::post('/cache/clear', [App\Http\Controllers\API\CacheController::class, 'clearCache']);
+    Route::get('/cache/stats', [App\Http\Controllers\API\CacheController::class, 'getCacheStats']);
+    Route::post('/cache/preload', [App\Http\Controllers\API\CacheController::class, 'preloadCriticalData']);
+});
+
+// Rotte per Reset Test Data (solo in sviluppo)
+if (app()->environment(['local', 'development'])) {
+    Route::post('/health/reset-test-data', [App\Http\Controllers\API\HealthController::class, 'resetTestData']);
+}

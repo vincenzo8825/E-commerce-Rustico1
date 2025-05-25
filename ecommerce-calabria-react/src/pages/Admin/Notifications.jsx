@@ -19,12 +19,13 @@ const Notifications = () => {
   const fetchNotifications = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/notifications');
-      setNotifications(response.data.notifications || []);
-      setError(null);
-    } catch (err) {
-      console.error('Errore nel caricamento delle notifiche:', err);
-      setError('Impossibile caricare le notifiche');
+      const response = await api.get('/user/notifications');
+      
+      if (response.data.success) {
+        setNotifications(response.data.data);
+      }
+    } catch (error) {
+      console.error('Errore nel caricamento delle notifiche:', error);
     } finally {
       setLoading(false);
     }
@@ -32,35 +33,28 @@ const Notifications = () => {
 
   const markAsRead = async (notificationId) => {
     try {
-      await api.post(`/notifications/${notificationId}/read`);
-      setNotifications(notifications.map(notif => 
-        notif.id === notificationId 
-          ? { ...notif, read_at: new Date().toISOString() } 
-          : notif
-      ));
-    } catch (err) {
-      console.error('Errore nel marcare la notifica come letta:', err);
+      await api.post(`/user/notifications/${notificationId}/read`);
+      await fetchNotifications();
+    } catch (error) {
+      console.error('Errore nel segnare come letta:', error);
     }
   };
 
   const markAllAsRead = async () => {
     try {
-      await api.post('/notifications/read-all');
-      const now = new Date().toISOString();
-      setNotifications(notifications.map(notif => 
-        !notif.read_at ? { ...notif, read_at: now } : notif
-      ));
-    } catch (err) {
-      console.error('Errore nel marcare tutte le notifiche come lette:', err);
+      await api.post('/user/notifications/read-all');
+      await fetchNotifications();
+    } catch (error) {
+      console.error('Errore nel segnare tutte come lette:', error);
     }
   };
 
   const deleteNotification = async (notificationId) => {
     try {
-      await api.delete(`/notifications/${notificationId}`);
-      setNotifications(notifications.filter(notif => notif.id !== notificationId));
-    } catch (err) {
-      console.error('Errore nell\'eliminazione della notifica:', err);
+      await api.delete(`/user/notifications/${notificationId}`);
+      await fetchNotifications();
+    } catch (error) {
+      console.error('Errore nell\'eliminare la notifica:', error);
     }
   };
 
@@ -112,6 +106,8 @@ const Notifications = () => {
   const getNotificationLink = (notification) => {
     const { type, data } = notification;
     
+    if (!data) return '#';
+    
     switch (type) {
       case 'order_confirmed':
       case 'order_status_changed':
@@ -123,7 +119,7 @@ const Notifications = () => {
       case 'App\\Notifications\\SupportTicketUserReply':
         return `/admin/support/${data.ticket_id}`;
       default:
-        return '#';
+        return data.action_url || '#';
     }
   };
 
@@ -224,7 +220,7 @@ const Notifications = () => {
                     
                     <div className="admin__notification-content">
                       <div className="admin__notification-message">
-                        {notification.data.message}
+                        {notification.data?.message || notification.message || 'Notifica senza messaggio'}
                       </div>
                       <div className="admin__notification-meta">
                         <span className="admin__notification-date">

@@ -4,9 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Notifications\DatabaseNotification;
 
-class Notification extends DatabaseNotification
+class Notification extends Model
 {
     use HasFactory;
 
@@ -15,7 +14,7 @@ class Notification extends DatabaseNotification
      *
      * @var string
      */
-    protected $table = 'notifications';
+    protected $table = 'custom_notifications';
 
     /**
      * The attributes that should be cast.
@@ -33,9 +32,10 @@ class Notification extends DatabaseNotification
      * @var array
      */
     protected $fillable = [
+        'user_id',
         'type',
-        'notifiable_id',
-        'notifiable_type',
+        'title',
+        'message',
         'data',
         'read_at'
     ];
@@ -45,7 +45,40 @@ class Notification extends DatabaseNotification
      */
     public function user()
     {
-        return $this->belongsTo(User::class, 'notifiable_id')
-            ->where('notifiable_type', User::class);
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Scope per notifiche non lette
+     */
+    public function scopeUnread($query)
+    {
+        return $query->whereNull('read_at');
+    }
+
+    /**
+     * Scope per notifiche lette
+     */
+    public function scopeRead($query)
+    {
+        return $query->whereNotNull('read_at');
+    }
+
+    /**
+     * Verifica se la notifica è stata letta
+     */
+    public function isRead(): bool
+    {
+        return !is_null($this->read_at);
+    }
+
+    /**
+     * Segna la notifica come letta
+     */
+    public function markAsRead()
+    {
+        if (!$this->isRead()) {
+            $this->update(['read_at' => now()]);
+        }
     }
 }

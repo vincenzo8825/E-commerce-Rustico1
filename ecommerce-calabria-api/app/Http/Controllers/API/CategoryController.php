@@ -46,6 +46,39 @@ class CategoryController extends Controller
     }
 
     /**
+     * Ottieni le categorie in evidenza per la homepage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function featured()
+    {
+        $cacheKey = 'featured_categories';
+
+        if (Cache::has($cacheKey)) {
+            return response()->json(Cache::get($cacheKey));
+        }
+
+        $featuredCategories = Category::withCount(['products' => function($query) {
+                $query->where('is_active', true);
+            }])
+            ->where('is_active', true)
+            ->where('is_featured', true)
+            ->having('products_count', '>', 0)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->limit(4)
+            ->get();
+
+        $response = [
+            'featured_categories' => $featuredCategories
+        ];
+
+        Cache::put($cacheKey, $response, self::CACHE_DURATION);
+
+        return response()->json($response);
+    }
+
+    /**
      * Mostra i dettagli di una categoria specifica e i suoi prodotti.
      *
      * @param  string  $slug

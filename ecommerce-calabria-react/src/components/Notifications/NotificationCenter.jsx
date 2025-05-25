@@ -34,13 +34,19 @@ const NotificationCenter = () => {
   const fetchNotifications = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/notifications');
-      setNotifications(response.data.notifications || []);
-      setUnreadCount(response.data.unreadCount || 0);
-      setError(null);
+      const response = await api.get('/user/notifications');
+      
+      if (response.data.success) {
+        setNotifications(response.data.data);
+        setUnreadCount(response.data.unread_count);
+      }
     } catch (err) {
-      console.error('Errore nel caricamento delle notifiche:', err);
-      setError('Impossibile caricare le notifiche');
+      if (import.meta.env.DEV && err.config?.url?.includes('/notifications')) {
+        // In sviluppo, mostra warning invece di errore per notifiche
+        console.warn('Errore notifiche (normale se API non configurata):', err.response?.status);
+        return;
+      }
+      setError('Errore nel caricamento delle notifiche');
     } finally {
       setLoading(false);
     }
@@ -56,36 +62,19 @@ const NotificationCenter = () => {
 
   const markAsRead = async (notificationId) => {
     try {
-      await api.post(`/notifications/${notificationId}/read`);
-      
-      // Aggiorna lo stato locale
-      setNotifications(notifications.map(notif => 
-        notif.id === notificationId 
-          ? { ...notif, read_at: new Date().toISOString() } 
-          : notif
-      ));
-      
-      setUnreadCount(prevCount => Math.max(0, prevCount - 1));
-    } catch (err) {
-      console.error('Errore nel marcare la notifica come letta:', err);
+      await api.post(`/user/notifications/${notificationId}/read`);
+      await fetchNotifications();
+    } catch (error) {
+      console.error('Errore nel segnare come letta:', error);
     }
   };
 
   const markAllAsRead = async () => {
     try {
-      await api.post('/notifications/read-all');
-      
-      // Aggiorna lo stato locale
-      const now = new Date().toISOString();
-      setNotifications(notifications.map(notif => 
-        !notif.read_at 
-          ? { ...notif, read_at: now } 
-          : notif
-      ));
-      
-      setUnreadCount(0);
-    } catch (err) {
-      console.error('Errore nel marcare tutte le notifiche come lette:', err);
+      await api.post('/user/notifications/read-all');
+      await fetchNotifications();
+    } catch (error) {
+      console.error('Errore nel segnare tutte come lette:', error);
     }
   };
 
