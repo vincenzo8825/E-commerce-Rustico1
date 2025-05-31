@@ -1,0 +1,684 @@
+// ============================================================================
+// LOADING STATES - SISTEMA UX UNIFICATO
+// ============================================================================
+
+// Variabili colori
+:root {
+  --calabria-primary: #d2691e;
+  --calabria-secondary: #ff8c42;
+  --calabria-success: #28a745;
+  --calabria-error: #dc3545;
+  --calabria-warning: #ffc107;
+  --calabria-info: #17a2b8;
+  --text-primary: #2c3e50;
+  --text-secondary: #6c757d;
+  --text-muted: #adb5bd;
+  --surface: #ffffff;
+  --background: #f8f9fa;
+  --border: #dee2e6;
+  --border-light: #e9ecef;
+}
+
+// =====================================
+// LOADING SPINNERS
+// =====================================
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+
+  &__icon {
+    margin-bottom: 1rem;
+
+    i {
+      font-size: 2rem;
+      color: var(--calabria-primary);
+    }
+  }
+
+  &__message {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 0;
+  }
+
+  // Varianti dimensioni
+  &--small {
+    padding: 1rem;
+
+    .loading-spinner__icon i {
+      font-size: 1.25rem;
+    }
+
+    .loading-spinner__message {
+      font-size: 0.875rem;
+    }
+  }
+
+  &--large {
+    padding: 3rem;
+
+    .loading-spinner__icon i {
+      font-size: 3rem;
+    }
+
+    .loading-spinner__message {
+      font-size: 1.125rem;
+    }
+  }
+}
+
+// =====================================
+// LOADING DOTS
+// =====================================
+
+.loading-dots {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  justify-content: center;
+
+  &__message {
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  &__container {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  &__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--calabria-primary);
+    animation: loadingDots 1.4s ease-in-out infinite both;
+
+    &:nth-child(1) { animation-delay: -0.32s; }
+    &:nth-child(2) { animation-delay: -0.16s; }
+    &:nth-child(3) { animation-delay: 0; }
+  }
+}
+
+@keyframes loadingDots {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+// =====================================
+// LOADING PROGRESS
+// =====================================
+
+.loading-progress {
+  padding: 2rem;
+  text-align: center;
+
+  &__message {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    font-weight: 500;
+  }
+
+  &__bar {
+    width: 100%;
+    height: 8px;
+    background: var(--border-light);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+    position: relative;
+  }
+
+  &__fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--calabria-primary), var(--calabria-secondary));
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+      );
+      animation: progressShine 2s infinite;
+    }
+  }
+
+  &__percentage {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
+}
+
+@keyframes progressShine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+// =====================================
+// SKELETON LOADERS
+// =====================================
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 25%,
+    #e0e0e0 50%,
+    #f0f0f0 75%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.5s infinite;
+}
+
+@keyframes skeletonShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeleton-card {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  &__image {
+    width: 100%;
+    height: 200px;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  &__title {
+    height: 20px;
+    border-radius: 4px;
+    width: 80%;
+  }
+
+  &__subtitle {
+    height: 16px;
+    border-radius: 4px;
+    width: 60%;
+  }
+
+  &__price {
+    height: 18px;
+    border-radius: 4px;
+    width: 40%;
+  }
+}
+
+.skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--surface);
+    border-radius: 8px;
+  }
+
+  &__avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  &__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__line {
+    height: 16px;
+    border-radius: 4px;
+
+    &--title {
+      width: 70%;
+    }
+
+    &--subtitle {
+      width: 50%;
+    }
+  }
+}
+
+.skeleton-table {
+  background: var(--surface);
+  border-radius: 8px;
+  overflow: hidden;
+
+  &__header {
+    display: grid;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--background);
+    border-bottom: 1px solid var(--border);
+  }
+
+  &__header-cell {
+    height: 20px;
+    border-radius: 4px;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__row {
+    display: grid;
+    gap: 1rem;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-light);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  &__cell {
+    height: 16px;
+    border-radius: 4px;
+  }
+}
+
+// =====================================
+// ERROR DISPLAYS
+// =====================================
+
+.error-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 3rem 2rem;
+  background: var(--surface);
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+
+  &__icon {
+    margin-bottom: 1.5rem;
+
+    i {
+      font-size: 4rem;
+      color: var(--calabria-error);
+    }
+  }
+
+  &__content {
+    max-width: 500px;
+  }
+
+  &__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+  }
+
+  &__message {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  &__button {
+    background: var(--calabria-primary);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    &:hover {
+      background: var(--calabria-secondary);
+      transform: translateY(-1px);
+    }
+
+    &--secondary {
+      background: var(--text-muted);
+
+      &:hover {
+        background: var(--text-secondary);
+      }
+    }
+  }
+
+  // Varianti tipo errore
+  &--warning {
+    .error-display__icon i {
+      color: var(--calabria-warning);
+    }
+  }
+
+  &--network {
+    .error-display__icon i {
+      color: var(--calabria-info);
+    }
+  }
+}
+
+// =====================================
+// EMPTY STATES
+// =====================================
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 4rem 2rem;
+  background: var(--surface);
+  border-radius: 12px;
+
+  &__icon {
+    margin-bottom: 2rem;
+
+    i {
+      font-size: 5rem;
+      color: var(--text-muted);
+      opacity: 0.7;
+    }
+  }
+
+  &__content {
+    max-width: 400px;
+  }
+
+  &__title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+  }
+
+  &__message {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+  }
+
+  &__action {
+    background: linear-gradient(135deg, var(--calabria-primary), var(--calabria-secondary));
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(210, 105, 30, 0.3);
+    }
+  }
+}
+
+.empty-search {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 4rem 2rem;
+  background: var(--surface);
+  border-radius: 12px;
+
+  &__icon {
+    margin-bottom: 2rem;
+
+    i {
+      font-size: 4rem;
+      color: var(--text-muted);
+      opacity: 0.7;
+    }
+  }
+
+  &__content {
+    max-width: 500px;
+  }
+
+  &__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+  }
+
+  &__message {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  &__button {
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    &--primary {
+      background: var(--calabria-primary);
+      color: white;
+
+      &:hover {
+        background: var(--calabria-secondary);
+        transform: translateY(-1px);
+      }
+    }
+
+    &--secondary {
+      background: var(--border);
+      color: var(--text-secondary);
+
+      &:hover {
+        background: var(--text-muted);
+        color: white;
+      }
+    }
+  }
+}
+
+// =====================================
+// RESPONSIVE DESIGN
+// =====================================
+
+@media (max-width: 768px) {
+  .loading-spinner {
+    padding: 1.5rem 1rem;
+
+    &__icon i {
+      font-size: 1.5rem;
+    }
+
+    &__message {
+      font-size: 0.875rem;
+    }
+  }
+
+  .error-display {
+    padding: 2rem 1rem;
+
+    &__icon i {
+      font-size: 3rem;
+    }
+
+    &__title {
+      font-size: 1.25rem;
+    }
+
+    &__actions {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    &__button {
+      width: 100%;
+      max-width: 250px;
+    }
+  }
+
+  .empty-state {
+    padding: 3rem 1rem;
+
+    &__icon i {
+      font-size: 4rem;
+    }
+
+    &__title {
+      font-size: 1.5rem;
+    }
+  }
+
+  .empty-search {
+    padding: 3rem 1rem;
+
+    &__actions {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    &__button {
+      width: 100%;
+      max-width: 200px;
+    }
+  }
+
+  .skeleton-card {
+    padding: 0.75rem;
+
+    &__image {
+      height: 150px;
+    }
+  }
+
+  .skeleton-table {
+    &__header,
+    &__row {
+      padding: 0.75rem;
+      gap: 0.75rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .loading-spinner {
+    padding: 1rem 0.5rem;
+  }
+
+  .error-display,
+  .empty-state,
+  .empty-search {
+    padding: 2rem 1rem;
+  }
+
+  .loading-progress {
+    padding: 1.5rem;
+  }
+}
+
+// =====================================
+// ACCESSIBILITY
+// =====================================
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-spinner__icon i,
+  .loading-dots__dot,
+  .skeleton-shimmer,
+  .loading-progress__fill::after {
+    animation: none;
+  }
+
+  .skeleton-shimmer {
+    background: #f0f0f0;
+  }
+}
+
+// =====================================
+// DARK MODE SUPPORT (Futuro)
+// =====================================
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface: #1a1a1a;
+    --background: #121212;
+    --text-primary: #ffffff;
+    --text-secondary: #b3b3b3;
+    --text-muted: #666666;
+    --border: #333333;
+    --border-light: #2a2a2a;
+  }
+
+  .skeleton-shimmer {
+    background: linear-gradient(
+      90deg,
+      #2a2a2a 25%,
+      #333333 50%,
+      #2a2a2a 75%
+    );
+  }
+} 

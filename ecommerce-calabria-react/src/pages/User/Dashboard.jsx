@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../App';
+import { useAuth } from '../../contexts/AuthContext';
 import Profile from './Profile';
 import Orders from './Orders';
 import OrderDetail from './OrderDetail';

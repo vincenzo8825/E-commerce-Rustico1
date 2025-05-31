@@ -1,0 +1,53 @@
+{
+  "name": "rustico-ecommerce",
+  "version": "1.0.0",
+  "description": "E-commerce di prodotti tipici calabresi - Sistema completo React + Laravel",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run frontend:dev\" \"npm run backend:dev\"",
+    "frontend:dev": "cd ecommerce-calabria-react && npm run dev",
+    "backend:dev": "cd ecommerce-calabria-api && php artisan serve",
+    "frontend:build": "cd ecommerce-calabria-react && npm run build",
+    "frontend:install": "cd ecommerce-calabria-react && npm install",
+    "backend:install": "cd ecommerce-calabria-api && composer install",
+    "install:all": "npm run frontend:install && npm run backend:install",
+    "setup": "npm run install:all && npm run backend:setup",
+    "backend:setup": "cd ecommerce-calabria-api && php artisan key:generate && php artisan migrate:fresh --seed",
+    "backend:migrate": "cd ecommerce-calabria-api && php artisan migrate",
+    "backend:seed": "cd ecommerce-calabria-api && php artisan db:seed",
+    "backend:fresh": "cd ecommerce-calabria-api && php artisan migrate:fresh --seed",
+    "test": "npm run frontend:test && npm run backend:test",
+    "frontend:test": "cd ecommerce-calabria-react && npm run test",
+    "backend:test": "cd ecommerce-calabria-api && php artisan test",
+    "build": "npm run frontend:build",
+    "lint": "cd ecommerce-calabria-react && npm run lint",
+    "check:health": "cd ecommerce-calabria-api && php artisan route:list | grep 'api/ping'",
+    "logs": "cd ecommerce-calabria-api && tail -f storage/logs/laravel.log"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "concurrently": "^8.2.2",
+    "happy-dom": "^17.5.6",
+    "jest-environment-jsdom": "^30.0.0-beta.3",
+    "vitest": "^3.1.4"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "keywords": [
+    "ecommerce",
+    "calabria",
+    "react",
+    "laravel",
+    "rustico",
+    "prodotti-tipici"
+  ],
+  "author": "Vincenzo",
+  "license": "MIT",
+  "dependencies": {
+    "web-vitals": "^5.0.2"
+  }
+}

@@ -1,0 +1,308 @@
+@use '../../styles/design-system' as *;
+
+// ============================================================================
+// USER CHARTS PREMIUM CALABRESE 👤📊
+// ============================================================================
+
+.user-chart {
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+  transition: var(--transition-base);
+  border: 1px solid var(--color-border);
+
+  @media (max-width: 768px) {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  }
+
+  &-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ecf0f1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    @media (max-width: 768px) {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+    }
+
+    &::before {
+      content: "📊";
+      font-size: 1.2rem;
+    }
+  }
+
+  .chart-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    color: #7f8c8d;
+    font-size: 1rem;
+    font-weight: 500;
+
+    &::before {
+      content: "";
+      width: 30px;
+      height: 30px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #8B4513;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 15px;
+    }
+  }
+
+  .chart-error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    color: #e74c3c;
+    font-size: 1rem;
+    font-weight: 500;
+    text-align: center;
+    padding: 20px;
+
+    &::before {
+      content: "⚠️";
+      font-size: 1.5rem;
+      margin-right: 10px;
+    }
+  }
+
+  // Stili per i tooltip dei grafici
+  .recharts-tooltip-wrapper {
+    .recharts-default-tooltip {
+      background: white !important;
+      border: 1px solid #8B4513 !important;
+      border-radius: 8px !important;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+      
+      .recharts-tooltip-label {
+        color: #2c3e50 !important;
+        font-weight: 600 !important;
+        margin-bottom: 5px !important;
+      }
+
+      .recharts-tooltip-item {
+        color: #8B4513 !important;
+        font-weight: 500 !important;
+      }
+    }
+  }
+
+  // Stili per le legende
+  .recharts-legend-wrapper {
+    .recharts-default-legend {
+      .recharts-legend-item {
+        margin-right: 15px !important;
+        
+        .recharts-legend-item-text {
+          color: #2c3e50 !important;
+          font-weight: 500 !important;
+          font-size: 0.9rem !important;
+        }
+      }
+    }
+  }
+}
+
+// Container per dashboard con layout grid
+.user-dashboard-charts {
+  &--grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 25px;
+    margin-bottom: 30px;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 480px) {
+      gap: 15px;
+    }
+  }
+
+  &--stack {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    margin-bottom: 30px;
+
+    @media (max-width: 768px) {
+      gap: 20px;
+    }
+
+    @media (max-width: 480px) {
+      gap: 15px;
+    }
+  }
+
+  &--horizontal {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    margin-bottom: 30px;
+
+    @media (max-width: 1024px) {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 480px) {
+      gap: 15px;
+    }
+  }
+}
+
+// Stili specifici per i diversi tipi di grafici
+.user-orders-chart {
+  .user-chart-title::before {
+    content: "📈";
+  }
+}
+
+.user-top-products-chart {
+  .user-chart-title::before {
+    content: "🏆";
+  }
+}
+
+.user-category-spending-chart {
+  .user-chart-title::before {
+    content: "🥧";
+  }
+}
+
+.user-loyalty-chart {
+  .user-chart-title::before {
+    content: "💎";
+  }
+}
+
+// Responsive per i grafici
+@media (max-width: 768px) {
+  .user-chart {
+    .recharts-wrapper {
+      .recharts-surface {
+        overflow: visible;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .user-chart {
+    .recharts-legend-wrapper {
+      .recharts-default-legend {
+        .recharts-legend-item {
+          margin-right: 8px !important;
+          margin-bottom: 5px !important;
+          
+          .recharts-legend-item-text {
+            font-size: 0.8rem !important;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Animazioni
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.user-chart {
+  animation: fadeIn 0.5s ease-out;
+}
+
+// Stili per accessibilità
+@media (prefers-reduced-motion: reduce) {
+  .user-chart {
+    animation: none;
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+
+    .chart-loading::before {
+      animation: none;
+    }
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .user-chart {
+    border: 2px solid #000;
+    
+    &-title {
+      border-bottom-color: #000;
+    }
+
+    .chart-loading::before {
+      border-color: #000;
+      border-top-color: #8B4513;
+    }
+  }
+}
+
+// Print styles
+@media print {
+  .user-chart {
+    box-shadow: none;
+    border: 1px solid #000;
+    break-inside: avoid;
+    
+    &:hover {
+      transform: none;
+    }
+  }
+
+  .user-dashboard-charts {
+    &--grid,
+    &--horizontal {
+      grid-template-columns: 1fr;
+    }
+  }
+} 

@@ -242,22 +242,28 @@ const OrderDetail = () => {
 
               <div className="admin__order-info-section">
                 <h3 className="admin__order-info-title">Indirizzo di Spedizione</h3>
-                <div className="admin__order-info-group">
-                  <label>Indirizzo:</label>
-                  <span>{order.shipping_address.address}</span>
-                </div>
-                <div className="admin__order-info-group">
-                  <label>Città:</label>
-                  <span>{order.shipping_address.city}</span>
-                </div>
-                <div className="admin__order-info-group">
-                  <label>CAP:</label>
-                  <span>{order.shipping_address.postal_code}</span>
-                </div>
-                <div className="admin__order-info-group">
-                  <label>Provincia:</label>
-                  <span>{order.shipping_address.province}</span>
-                </div>
+                {order.shipping_address ? (
+                  <>
+                    <div className="admin__order-info-group">
+                      <label>Indirizzo:</label>
+                      <span>{order.shipping_address.address || 'N/A'}</span>
+                    </div>
+                    <div className="admin__order-info-group">
+                      <label>Città:</label>
+                      <span>{order.shipping_address.city || 'N/A'}</span>
+                    </div>
+                    <div className="admin__order-info-group">
+                      <label>CAP:</label>
+                      <span>{order.shipping_address.postal_code || 'N/A'}</span>
+                    </div>
+                    <div className="admin__order-info-group">
+                      <label>Provincia:</label>
+                      <span>{order.shipping_address.province || 'N/A'}</span>
+                    </div>
+                  </>
+                ) : (
+                  <p>Indirizzo di spedizione non disponibile</p>
+                )}
               </div>
             </div>
 
@@ -329,25 +335,31 @@ const OrderDetail = () => {
                 </tr>
               </thead>
               <tbody>
-                {order.items.map(item => (
+                {order.items && order.items.length > 0 ? order.items.map(item => (
                   <tr key={item.id}>
                     <td>
                       <div className="admin__product-name-cell">
-                        {item.product.image && (
+                        {item.product?.image && (
                           <img
                             src={item.product.image}
                             alt={item.product.name}
                             className="admin__product-mini-image"
                           />
                         )}
-                        <span>{item.product.name}</span>
+                        <span>{item.product?.name || 'Prodotto non disponibile'}</span>
                       </div>
                     </td>
-                    <td>€ {formatPrice(item.price)}</td>
-                    <td>{item.quantity}</td>
-                    <td>€ {formatPrice(item.price * item.quantity)}</td>
+                    <td>€ {formatPrice(item.price || 0)}</td>
+                    <td>{item.quantity || 0}</td>
+                    <td>€ {formatPrice((item.price || 0) * (item.quantity || 0))}</td>
                   </tr>
-                ))}
+                )) : (
+                  <tr>
+                    <td colSpan="4" style={{ textAlign: 'center', padding: '2rem' }}>
+                      Nessun prodotto trovato per questo ordine
+                    </td>
+                  </tr>
+                )}
               </tbody>
               <tfoot>
                 <tr>
@@ -394,7 +406,7 @@ const OrderDetail = () => {
                     </span>
                   </div>
                   <div className="admin__timeline-content">
-                    <p className="admin__timeline-date">{formatDate(entry.date)}</p>
+                    <p className="admin__timeline-date">{formatDate(entry.date || entry.created_at)}</p>
                     <p className="admin__timeline-text">
                       {entry.user?.name || 'Sistema'} ha cambiato lo stato in <strong>{translateOrderStatus(entry.status)}</strong>
                     </p>
@@ -420,10 +432,10 @@ const OrderDetail = () => {
                 <li key={index} className="admin__note-item">
                   <div className="admin__note-header">
                     <span className="admin__note-author">{note.user?.name || 'Admin'}</span>
-                    <span className="admin__note-date">{formatDate(note.date)}</span>
+                    <span className="admin__note-date">{formatDate(note.date || note.created_at)}</span>
                   </div>
                   <div className="admin__note-content">
-                    {note.content}
+                    {note.content || note.note}
                   </div>
                 </li>
               ))}

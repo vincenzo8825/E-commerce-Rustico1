@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
-import { useAuth } from '../../App';
+import { useAuth } from '../../contexts/AuthContext';
 import './Auth.scss';
 
 const Login = () => {

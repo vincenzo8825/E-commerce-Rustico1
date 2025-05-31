@@ -12,12 +12,15 @@ import ProductForm from './ProductForm';
 import Categories from './Categories';
 import Orders from './Orders';
 import OrderDetail from './OrderDetail';
+import Users from './Users';
+import UserDetail from './UserDetail';
 import SupportTickets from './SupportTickets';
 import TicketDetail from './TicketDetail';
 import Discounts from './Discounts';
 import DiscountForm from './DiscountForm';
 import Inventory from './Inventory';
 import Notifications from './Notifications';
+import Settings from './Settings';
 import AdminReviews from './Reviews';
 
 const Dashboard = () => {
@@ -244,11 +247,23 @@ const Dashboard = () => {
           </div>
           
           <div className="admin__nav-section">
+            {!collapsedSidebar && <div className="admin__nav-section-title">Utenti</div>}
+            
+            <Link 
+              to="/admin/users" 
+              className={`admin__nav-item ${activeSection === 'users' ? 'admin__nav-item--active' : ''}`}
+            >
+              <span className="admin__nav-item-icon">👥</span>
+              <span className="admin__nav-item-text">Gestione Utenti</span>
+            </Link>
+          </div>
+          
+          <div className="admin__nav-section">
             {!collapsedSidebar && <div className="admin__nav-section-title">Supporto</div>}
             
             <Link 
-              to="/admin/support" 
-              className={`admin__nav-item ${activeSection === 'support' ? 'admin__nav-item--active' : ''}`}
+              to="/admin/tickets" 
+              className={`admin__nav-item ${activeSection === 'tickets' ? 'admin__nav-item--active' : ''}`}
             >
               <span className="admin__nav-item-icon">🔧</span>
               <span className="admin__nav-item-text">Ticket Supporto</span>
@@ -268,6 +283,18 @@ const Dashboard = () => {
             >
               <span className="admin__nav-item-icon">🔔</span>
               <span className="admin__nav-item-text">Notifiche</span>
+            </Link>
+          </div>
+          
+          <div className="admin__nav-section">
+            {!collapsedSidebar && <div className="admin__nav-section-title">Configurazione</div>}
+            
+            <Link 
+              to="/admin/settings" 
+              className={`admin__nav-item ${activeSection === 'settings' ? 'admin__nav-item--active' : ''}`}
+            >
+              <span className="admin__nav-item-icon">⚙️</span>
+              <span className="admin__nav-item-text">Impostazioni</span>
             </Link>
           </div>
           
@@ -294,10 +321,12 @@ const Dashboard = () => {
             {activeSection === 'inventory' && 'Gestione Magazzino'}
             {activeSection === 'categories' && 'Gestione Categorie'}
             {activeSection === 'orders' && 'Gestione Ordini'}
+            {activeSection === 'users' && 'Gestione Utenti'}
             {activeSection === 'discounts' && 'Codici Sconto'}
-            {activeSection === 'support' && 'Ticket Supporto'}
+            {activeSection === 'tickets' && 'Ticket Supporto'}
             {activeSection === 'reviews' && 'Gestione Recensioni'}
             {activeSection === 'notifications' && 'Notifiche'}
+            {activeSection === 'settings' && 'Impostazioni Sistema'}
           </h1>
           
           <div className="admin__user-menu">
@@ -327,13 +356,16 @@ const Dashboard = () => {
             <Route path="/categories" element={<Categories />} />
             <Route path="/orders" element={<Orders />} />
             <Route path="/orders/:id" element={<OrderDetail />} />
-            <Route path="/support" element={<SupportTickets />} />
-            <Route path="/support/:id" element={<TicketDetail />} />
+            <Route path="/users" element={<Users />} />
+            <Route path="/users/:id" element={<UserDetail />} />
+            <Route path="/tickets" element={<SupportTickets />} />
+            <Route path="/tickets/:id" element={<TicketDetail />} />
             <Route path="/discounts" element={<Discounts />} />
             <Route path="/discounts/new" element={<DiscountForm />} />
             <Route path="/discounts/:id" element={<DiscountForm />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/reviews" element={<AdminReviews />} />
+            <Route path="/settings" element={<Settings />} />
           </Routes>
         </div>
       </main>

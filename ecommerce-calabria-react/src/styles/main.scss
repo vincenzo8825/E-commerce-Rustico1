@@ -1,0 +1,228 @@
+// ============================================================================
+// MAIN SCSS - RUSTICO CALABRIA E-COMMERCE
+// File principale che importa tutto il design system e gli stili
+// ============================================================================
+
+// 1. DESIGN SYSTEM (variabili, mixin, funzioni)
+@use 'design-system' as *;
+
+// 2. RESET E STILI GLOBALI
+@use 'globals';
+
+// 3. COMPONENTI BASE
+@use 'components';
+
+// 4. LAYOUT
+@use 'layout';
+
+// 5. UTILITIES
+@use 'utilities';
+
+// ============================================================================
+// STILI GLOBALI PRINCIPALI
+// ============================================================================
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  width: 100%;
+  overflow-x: hidden; // Previene scroll orizzontale
+  
+  @media (prefers-reduced-motion: reduce) {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-primary);
+  background-color: var(--color-background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden; // Previene scroll orizzontale
+}
+
+// Root container per React
+#root {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+// ============================================================================
+// APP LAYOUT GLOBALE
+// ============================================================================
+
+.app {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  
+  &__content {
+    width: 100%;
+    flex: 1;
+    
+    // Rimuovo il padding di default per permettere componenti full-width
+    &:not(.app__content--admin) {
+      // Lasciamo che ogni componente gestisca il proprio padding
+    }
+    
+    &--admin {
+      padding: 0;
+    }
+    
+    &--full-width {
+      padding: 0;
+      margin: 0;
+      width: 100vw;
+    }
+  }
+}
+
+// ============================================================================
+// LINK E BOTTONI GLOBALI
+// ============================================================================
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: var(--transition-base);
+  
+  &:hover {
+    color: var(--color-primary-dark);
+    text-decoration: underline;
+  }
+  
+  &:focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  
+  &:focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 2px;
+  }
+}
+
+// ============================================================================
+// IMMAGINI E MEDIA
+// ============================================================================
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+svg {
+  display: block;
+}
+
+// ============================================================================
+// FORM ELEMENTS
+// ============================================================================
+
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+// ============================================================================
+// SCROLLBAR PERSONALIZZATA
+// ============================================================================
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-neutral-100);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-neutral-400);
+  border-radius: var(--radius-full);
+  
+  &:hover {
+    background: var(--color-neutral-500);
+  }
+}
+
+// ============================================================================
+// SELEZIONE TESTO
+// ============================================================================
+
+::selection {
+  background: var(--color-secondary-200);
+  color: var(--color-text-primary);
+}
+
+::-moz-selection {
+  background: var(--color-secondary-200);
+  color: var(--color-text-primary);
+}
+
+// ============================================================================
+// FOCUS OUTLINE GLOBALE
+// ============================================================================
+
+:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+// ============================================================================
+// PRINT STYLES
+// ============================================================================
+
+@media print {
+  * {
+    background: transparent !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  
+  a,
+  a:visited {
+    text-decoration: underline;
+  }
+  
+  a[href]:after {
+    content: " (" attr(href) ")";
+  }
+  
+  abbr[title]:after {
+    content: " (" attr(title) ")";
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+} 

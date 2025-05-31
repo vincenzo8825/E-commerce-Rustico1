@@ -1,0 +1,86 @@
+# Robots.txt per Rustico Calabria E-commerce
+# Prodotti tipici calabresi - https://rusticocalabria.it
+
+# Permetti a tutti i crawler di indicizzare il sito
+User-agent: *
+Allow: /
+
+# Divieti specifici per aree sensibili
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /dashboard/
+Disallow: /checkout/
+Disallow: /cart/
+Disallow: /login/
+Disallow: /register/
+Disallow: /reset-password/
+Disallow: /support/
+
+# Permetti esplicitamente contenuto pubblico importante
+Allow: /products/
+Allow: /categories/
+Allow: /reviews/
+Allow: /search/
+Allow: /about/
+Allow: /contact/
+
+# Divieti per file sensibili
+Disallow: /*.json$
+Disallow: /*.xml$
+Disallow: /*.txt$
+Disallow: /.*
+Disallow: /*?*session=
+Disallow: /*?*token=
+Disallow: /*?*auth=
+
+# Permetti file specifici necessari
+Allow: /sitemap.xml
+Allow: /robots.txt
+Allow: /manifest.json
+Allow: /favicon.ico
+
+# Direttive specifiche per Googlebot
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+# Direttive per Bingbot
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 2
+
+# Direttive per social media crawlers
+User-agent: facebookexternalhit
+Allow: /products/
+Allow: /
+
+User-agent: Twitterbot
+Allow: /products/
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /products/
+Allow: /
+
+# Blocca crawler spam comuni
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+# Sitemap location
+Sitemap: https://rusticocalabria.it/sitemap.xml
+Sitemap: https://rusticocalabria.it/sitemap-products.xml
+Sitemap: https://rusticocalabria.it/sitemap-categories.xml
+
+# Informazioni di contatto per webmaster
+# Contatto: info@rusticocalabria.it
+# Ultimo aggiornamento: 2024-01-15 

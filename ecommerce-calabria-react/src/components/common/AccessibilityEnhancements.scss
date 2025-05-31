@@ -1,0 +1,667 @@
+// ============================================================================
+// ACCESSIBILITY ENHANCEMENTS - STILI PER CONFORMITÀ WCAG 2.1 AA
+// ============================================================================
+
+// Variabili per accessibilità
+:root {
+  --a11y-focus-color: #005fcc;
+  --a11y-focus-outline: 3px solid var(--a11y-focus-color);
+  --a11y-focus-offset: 2px;
+  --a11y-contrast-ratio: 4.5; // WCAG AA standard
+  --a11y-large-text-ratio: 3; // WCAG AA per testo grande
+  --a11y-touch-target: 44px; // Dimensione minima touch target
+  --a11y-font-size-min: 16px; // Dimensione minima font
+}
+
+// =====================================
+// SCREEN READER ONLY
+// =====================================
+
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+// =====================================
+// SKIP NAVIGATION
+// =====================================
+
+.skip-navigation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  width: 100%;
+  background: var(--color-primary);
+  padding: 0;
+
+  .skip-link {
+    position: absolute;
+    top: -100vh;
+    left: 6px;
+    background: var(--color-primary);
+    color: white;
+    padding: 12px 16px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+    border-radius: 0 0 4px 4px;
+    border: 2px solid white;
+    transition: top 0.2s ease;
+    min-width: var(--a11y-touch-target);
+    min-height: var(--a11y-touch-target);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:focus {
+      top: 0;
+      outline: var(--a11y-focus-outline);
+      outline-offset: var(--a11y-focus-offset);
+    }
+
+    &:hover {
+      background: var(--color-primary-dark);
+    }
+
+    // Posiziona i link uno accanto all'altro quando visibili
+    &:focus + .skip-link:focus,
+    &:focus ~ .skip-link:focus {
+      left: calc(6px + 200px * var(--skip-index, 0));
+    }
+  }
+
+  .skip-link:nth-child(2) { --skip-index: 1; }
+  .skip-link:nth-child(3) { --skip-index: 2; }
+  .skip-link:nth-child(4) { --skip-index: 3; }
+}
+
+// =====================================
+// LANDMARK REGIONS
+// =====================================
+
+.landmark {
+  position: relative;
+
+  // Migliora la navigazione per screen reader
+  &--main {
+    min-height: 50vh; // Assicura contenuto minimo
+  }
+
+  &--nav {
+    &[aria-label]::before {
+      content: attr(aria-label);
+      @extend .sr-only;
+    }
+  }
+
+  // Focus per landmark quando navigati
+  &:focus {
+    outline: var(--a11y-focus-outline);
+    outline-offset: var(--a11y-focus-offset);
+  }
+}
+
+// =====================================
+// HEADING HIERARCHY
+// =====================================
+
+.heading {
+  font-family: var(--font-family-display);
+  font-weight: 700;
+  line-height: 1.25;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--color-text-primary);
+
+  // Dimensioni responsive e accessibili
+  &--level-1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    margin-bottom: 1.5rem;
+  }
+
+  &--level-2 {
+    font-size: clamp(1.5rem, 4vw, 2.25rem);
+    margin-bottom: 1.25rem;
+  }
+
+  &--level-3 {
+    font-size: clamp(1.25rem, 3vw, 1.75rem);
+    margin-bottom: 1rem;
+  }
+
+  &--level-4 {
+    font-size: clamp(1.125rem, 2.5vw, 1.5rem);
+    margin-bottom: 0.875rem;
+  }
+
+  &--level-5 {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    margin-bottom: 0.75rem;
+  }
+
+  &--level-6 {
+    font-size: clamp(1rem, 1.5vw, 1.125rem);
+    margin-bottom: 0.5rem;
+  }
+
+  // Focus per heading navigabili
+  &:focus {
+    outline: var(--a11y-focus-outline);
+    outline-offset: var(--a11y-focus-offset);
+  }
+}
+
+// =====================================
+// EXTERNAL LINKS
+// =====================================
+
+.external-link {
+  position: relative;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  transition: all 0.2s ease;
+
+  &__icon {
+    margin-left: 4px;
+    font-size: 0.875em;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+  }
+
+  &:hover {
+    text-decoration-thickness: 3px;
+
+    .external-link__icon {
+      opacity: 1;
+    }
+  }
+
+  &:focus {
+    outline: var(--a11y-focus-outline);
+    outline-offset: var(--a11y-focus-offset);
+    text-decoration: none;
+    background: rgba(0, 95, 204, 0.1);
+    border-radius: 2px;
+    padding: 2px 4px;
+    margin: -2px -4px;
+  }
+
+  // Per link email e telefono
+  &[href^="mailto:"],
+  &[href^="tel:"] {
+    .external-link__icon {
+      display: none;
+    }
+  }
+}
+
+// =====================================
+// ACCESSIBLE DESCRIPTIONS
+// =====================================
+
+.accessible-description {
+  background: var(--color-neutral-100);
+  border-left: 4px solid var(--color-info);
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 0 4px 4px 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+
+  &::before {
+    content: "ℹ️";
+    margin-right: 8px;
+    font-style: normal;
+  }
+}
+
+// =====================================
+// ACCESSIBLE MEDIA CONTROLS
+// =====================================
+
+.accessible-media-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 8px;
+  margin-top: 8px;
+
+  .media-control-btn {
+    background: transparent;
+    border: 2px solid white;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: var(--a11y-touch-target);
+    min-height: var(--a11y-touch-target);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    &:focus {
+      outline: var(--a11y-focus-outline);
+      outline-offset: var(--a11y-focus-offset);
+      outline-color: white;
+    }
+
+    &:active {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(0.95);
+    }
+
+    // Stati specifici
+    &[aria-pressed="true"] {
+      background: rgba(255, 255, 255, 0.3);
+    }
+  }
+}
+
+// =====================================
+// ACCESSIBLE NOTIFICATIONS
+// =====================================
+
+.accessible-notification {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 8px;
+  margin: 8px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid;
+  min-height: var(--a11y-touch-target);
+  position: relative;
+
+  &__content {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+
+    i {
+      font-size: 20px;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+  }
+
+  &__message {
+    flex: 1;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--color-text-primary);
+  }
+
+  &__close {
+    background: transparent;
+    border: none;
+    color: currentColor;
+    padding: 4px;
+    border-radius: 4px;
+    cursor: pointer;
+    min-width: var(--a11y-touch-target);
+    min-height: var(--a11y-touch-target);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: -4px -4px -4px 12px;
+    flex-shrink: 0;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    &:focus {
+      outline: var(--a11y-focus-outline);
+      outline-offset: var(--a11y-focus-offset);
+    }
+  }
+
+  // Varianti tipo
+  &--success {
+    background: #f0f9ff;
+    border-left-color: var(--color-success);
+    color: #065f46;
+
+    i {
+      color: var(--color-success);
+    }
+  }
+
+  &--error {
+    background: #fef2f2;
+    border-left-color: var(--color-error);
+    color: #991b1b;
+
+    i {
+      color: var(--color-error);
+    }
+  }
+
+  &--warning {
+    background: #fffbeb;
+    border-left-color: var(--color-warning);
+    color: #92400e;
+
+    i {
+      color: var(--color-warning);
+    }
+  }
+
+  &--info {
+    background: #f0f9ff;
+    border-left-color: var(--color-info);
+    color: #1e40af;
+
+    i {
+      color: var(--color-info);
+    }
+  }
+}
+
+// =====================================
+// FOCUS MANAGEMENT
+// =====================================
+
+// Focus globale migliorato
+*:focus {
+  outline: var(--a11y-focus-outline);
+  outline-offset: var(--a11y-focus-offset);
+}
+
+// Focus visibile solo per navigazione keyboard
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: var(--a11y-focus-outline);
+  outline-offset: var(--a11y-focus-offset);
+}
+
+// Focus per elementi interattivi
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: var(--a11y-focus-outline);
+  outline-offset: var(--a11y-focus-offset);
+}
+
+// =====================================
+// HIGH CONTRAST MODE
+// =====================================
+
+@media (prefers-contrast: high) {
+  :root {
+    --a11y-focus-color: #ffff00;
+    --color-text-primary: #000000;
+    --color-text-secondary: #000000;
+    --color-background: #ffffff;
+    --color-surface: #ffffff;
+    --color-border: #000000;
+  }
+
+  .accessible-notification {
+    border: 2px solid #000000;
+    background: #ffffff;
+    color: #000000;
+
+    &--success {
+      background: #ffffff;
+      border-color: #008000;
+      color: #000000;
+    }
+
+    &--error {
+      background: #ffffff;
+      border-color: #ff0000;
+      color: #000000;
+    }
+
+    &--warning {
+      background: #ffffff;
+      border-color: #ff8000;
+      color: #000000;
+    }
+
+    &--info {
+      background: #ffffff;
+      border-color: #0000ff;
+      color: #000000;
+    }
+  }
+
+  .external-link {
+    border: 1px solid #000000;
+    background: #ffffff;
+    color: #000000;
+  }
+
+  .accessible-media-controls {
+    background: #000000;
+    border: 2px solid #ffffff;
+
+    .media-control-btn {
+      border: 2px solid #ffffff;
+      background: #000000;
+      color: #ffffff;
+
+      &:hover,
+      &:focus {
+        background: #ffffff;
+        color: #000000;
+      }
+    }
+  }
+}
+
+// =====================================
+// REDUCED MOTION
+// =====================================
+
+@media (prefers-reduced-motion: reduce) {
+  .accessible-notification,
+  .external-link,
+  .media-control-btn,
+  .skip-link {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .media-control-btn:active {
+    transform: none !important;
+  }
+}
+
+// =====================================
+// RESPONSIVE DESIGN
+// =====================================
+
+@media (max-width: 768px) {
+  .skip-navigation {
+    .skip-link {
+      font-size: 14px;
+      padding: 8px 12px;
+      
+      &:focus ~ .skip-link:focus {
+        left: calc(6px + 160px * var(--skip-index, 0));
+      }
+    }
+  }
+
+  .accessible-media-controls {
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px;
+
+    .media-control-btn {
+      min-width: 40px;
+      min-height: 40px;
+      padding: 6px 8px;
+    }
+  }
+
+  .accessible-notification {
+    padding: 12px;
+    margin: 6px 0;
+
+    &__message {
+      font-size: 14px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .heading {
+    &--level-1 {
+      font-size: 1.75rem;
+    }
+
+    &--level-2 {
+      font-size: 1.5rem;
+    }
+
+    &--level-3 {
+      font-size: 1.25rem;
+    }
+  }
+
+  .accessible-notification {
+    flex-direction: column;
+    align-items: flex-start;
+
+    &__content {
+      width: 100%;
+    }
+
+    &__close {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      margin: 0;
+    }
+  }
+}
+
+// =====================================
+// PRINT STYLES
+// =====================================
+
+@media print {
+  .skip-navigation,
+  .accessible-media-controls,
+  .accessible-notification__close {
+    display: none !important;
+  }
+
+  .external-link__icon {
+    display: none;
+  }
+
+  .accessible-notification {
+    border: 1px solid #000000;
+    background: #ffffff;
+    color: #000000;
+    page-break-inside: avoid;
+  }
+
+  .heading {
+    page-break-after: avoid;
+  }
+}
+
+// =====================================
+// ARIA LIVE REGIONS
+// =====================================
+
+.a11y-regions {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+// =====================================
+// TOUCH TARGET ENHANCEMENTS
+// =====================================
+
+@media (pointer: coarse) {
+  button,
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  .media-control-btn,
+  .accessible-notification__close,
+  .skip-link {
+    min-height: 48px; // Aumenta per touch
+    min-width: 48px;
+  }
+
+  .external-link {
+    min-height: 32px;
+    padding: 4px 8px;
+    margin: -4px -8px;
+    display: inline-block;
+  }
+}
+
+// =====================================
+// COLOR BLIND SUPPORT
+// =====================================
+
+.accessible-notification {
+  // Usa pattern oltre al colore per differenziare
+  &--success::before {
+    content: "✓ ";
+    font-weight: bold;
+  }
+
+  &--error::before {
+    content: "✕ ";
+    font-weight: bold;
+  }
+
+  &--warning::before {
+    content: "⚠ ";
+    font-weight: bold;
+  }
+
+  &--info::before {
+    content: "ℹ ";
+    font-weight: bold;
+  }
+}
+
+// Indicatori visivi aggiuntivi per stati
+.external-link[href^="mailto:"]::after {
+  content: " 📧";
+  font-size: 0.8em;
+}
+
+.external-link[href^="tel:"]::after {
+  content: " 📞";
+  font-size: 0.8em;
+} 

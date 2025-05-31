@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import api from '../../utils/api';
-import { useAuth } from '../../App';
+import { useAuth } from '../../contexts/AuthContext';
 import NotificationList from './NotificationList';
 import './NotificationCenter.scss';
 

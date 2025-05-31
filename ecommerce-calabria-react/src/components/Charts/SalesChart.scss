@@ -1,0 +1,363 @@
+@use '../../styles/design-system' as *;
+
+// ============================================================================
+// SALES CHART PREMIUM CALABRESE 📈
+// ============================================================================
+
+.sales-chart {
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+  transition: var(--transition-base);
+  border: 1px solid var(--color-border);
+
+  @media (max-width: 768px) {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  }
+
+  &__header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #ecf0f1;
+
+    @media (max-width: 768px) {
+      margin-bottom: 15px;
+      padding-bottom: 12px;
+    }
+  }
+
+  &__title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    @media (max-width: 768px) {
+      font-size: 1.2rem;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 1.1rem;
+    }
+
+    &::before {
+      content: "📈";
+      font-size: 1.3rem;
+    }
+  }
+
+  &__container {
+    position: relative;
+    min-height: 300px;
+
+    // Stili per i tooltip di Recharts
+    .recharts-tooltip-wrapper {
+      .recharts-default-tooltip {
+        background: white !important;
+        border: 1px solid #0088FE !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+        
+        .recharts-tooltip-label {
+          color: #2c3e50 !important;
+          font-weight: 600 !important;
+          margin-bottom: 5px !important;
+          font-size: 0.9rem !important;
+        }
+
+        .recharts-tooltip-item {
+          color: #0088FE !important;
+          font-weight: 500 !important;
+          font-size: 0.85rem !important;
+        }
+      }
+    }
+
+    // Stili per le legende
+    .recharts-legend-wrapper {
+      .recharts-default-legend {
+        .recharts-legend-item {
+          margin-right: 15px !important;
+          margin-bottom: 5px !important;
+          
+          .recharts-legend-item-text {
+            color: #2c3e50 !important;
+            font-weight: 500 !important;
+            font-size: 0.9rem !important;
+          }
+        }
+      }
+    }
+
+    // Stili per gli assi
+    .recharts-cartesian-axis {
+      .recharts-cartesian-axis-tick {
+        text {
+          fill: #7f8c8d !important;
+          font-size: 12px !important;
+          font-weight: 500 !important;
+        }
+      }
+    }
+
+    // Stili per la griglia
+    .recharts-cartesian-grid {
+      line {
+        stroke: #f8f9fa !important;
+        stroke-dasharray: 3 3 !important;
+      }
+    }
+
+    // Hover effects per le barre
+    .recharts-bar-rectangle {
+      transition: all 0.3s ease;
+      
+      &:hover {
+        filter: brightness(1.1);
+      }
+    }
+
+    // Hover effects per le linee
+    .recharts-line {
+      .recharts-line-curve {
+        transition: all 0.3s ease;
+      }
+      
+      .recharts-line-dot {
+        transition: all 0.3s ease;
+        
+        &:hover {
+          r: 6;
+          filter: brightness(1.2);
+        }
+      }
+    }
+
+    // Stili per i settori del pie chart
+    .recharts-pie {
+      .recharts-pie-sector {
+        transition: all 0.3s ease;
+        
+        &:hover {
+          filter: brightness(1.1);
+          transform: unquote("scale(1.05)");
+          transform-origin: center;
+        }
+      }
+    }
+  }
+
+  &__no-data {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    color: #7f8c8d;
+    font-size: 1.1rem;
+    font-weight: 500;
+    text-align: center;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 8px;
+    border: 2px dashed #dee2e6;
+
+    p {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      &::before {
+        content: "📊";
+        font-size: 2rem;
+        opacity: 0.5;
+      }
+    }
+  }
+}
+
+// Varianti per diversi tipi di grafici
+.sales-chart {
+  &--line {
+    .sales-chart__title::before {
+      content: "📈";
+    }
+  }
+
+  &--bar {
+    .sales-chart__title::before {
+      content: "📊";
+    }
+  }
+
+  &--pie {
+    .sales-chart__title::before {
+      content: "🥧";
+    }
+  }
+}
+
+// Responsive design per i grafici
+@media (max-width: 768px) {
+  .sales-chart {
+    &__container {
+      .recharts-wrapper {
+        .recharts-surface {
+          overflow: visible;
+        }
+      }
+
+      .recharts-legend-wrapper {
+        .recharts-default-legend {
+          .recharts-legend-item {
+            margin-right: 10px !important;
+            
+            .recharts-legend-item-text {
+              font-size: 0.8rem !important;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .sales-chart {
+    &__container {
+      min-height: 250px;
+
+      .recharts-cartesian-axis {
+        .recharts-cartesian-axis-tick {
+          text {
+            font-size: 10px !important;
+          }
+        }
+      }
+
+      .recharts-legend-wrapper {
+        .recharts-default-legend {
+          .recharts-legend-item {
+            margin-right: 8px !important;
+            margin-bottom: 8px !important;
+            
+            .recharts-legend-item-text {
+              font-size: 0.75rem !important;
+            }
+          }
+        }
+      }
+    }
+
+    &__no-data {
+      height: 250px;
+      font-size: 1rem;
+
+      p::before {
+        font-size: 1.5rem;
+      }
+    }
+  }
+}
+
+// Animazioni
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sales-chart {
+  animation: fadeIn 0.5s ease-out;
+}
+
+// Stili per accessibilità
+@media (prefers-reduced-motion: reduce) {
+  .sales-chart {
+    animation: none;
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+
+    &__container {
+      .recharts-bar-rectangle,
+      .recharts-line-dot,
+      .recharts-pie-sector {
+        transition: none;
+      }
+    }
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .sales-chart {
+    border: 2px solid #000;
+    
+    &__title {
+      color: #000;
+    }
+
+    &__container {
+      .recharts-cartesian-axis {
+        .recharts-cartesian-axis-tick {
+          text {
+            fill: #000 !important;
+          }
+        }
+      }
+
+      .recharts-tooltip-wrapper {
+        .recharts-default-tooltip {
+          border: 2px solid #000 !important;
+        }
+      }
+    }
+
+    &__no-data {
+      border-color: #000;
+      color: #000;
+    }
+  }
+}
+
+// Print styles
+@media print {
+  .sales-chart {
+    box-shadow: none;
+    border: 1px solid #000;
+    break-inside: avoid;
+    
+    &:hover {
+      transform: none;
+    }
+
+    &__container {
+      .recharts-tooltip-wrapper {
+        display: none;
+      }
+    }
+  }
+} 

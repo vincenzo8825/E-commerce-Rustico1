@@ -1,0 +1,1443 @@
+// ============================================================================
+// COMPONENTS - COMPONENTI BASE RIUTILIZZABILI
+// ============================================================================
+
+@use 'design-system' as *;
+
+// ============================================================================
+// BOTTONI PREMIUM CALABRESI 🇮🇹
+// ============================================================================
+
+.btn {
+  @include button-base;
+  
+  &--primary {
+    @include button-primary;
+  }
+  
+  &--secondary {
+    @include button-secondary;
+  }
+  
+  &--calabria {
+    @include button-calabria;
+  }
+  
+  &--glass {
+    @include glass-effect;
+    color: var(--color-text-primary);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    
+    &:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.35);
+      transform: translateY(-2px);
+    }
+  }
+  
+  &--success {
+    background: linear-gradient(135deg, var(--color-success) 0%, #15803d 100%);
+    color: var(--color-text-on-dark);
+    
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, #15803d 0%, var(--color-success) 100%);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+  }
+  
+  &--danger {
+    background: linear-gradient(135deg, var(--color-error) 0%, #b91c1c 100%);
+    color: var(--color-text-on-dark);
+    
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, #b91c1c 0%, var(--color-error) 100%);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+  }
+  
+  &--info {
+    background: linear-gradient(135deg, var(--color-info) 0%, #1d4ed8 100%);
+    color: var(--color-text-on-dark);
+    
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, #1d4ed8 0%, var(--color-info) 100%);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+  }
+  
+  &--warning {
+    background: linear-gradient(135deg, var(--color-warning) 0%, #c2410c 100%);
+    color: var(--color-text-on-dark);
+    
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, #c2410c 0%, var(--color-warning) 100%);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+  }
+  
+  &--small {
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--font-size-sm);
+  }
+  
+  &--large {
+    padding: var(--space-4) var(--space-8);
+    font-size: var(--font-size-lg);
+  }
+  
+  &--loading {
+    position: relative;
+    color: transparent;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 20px;
+      height: 20px;
+      border: 2px solid transparent;
+      border-top: 2px solid currentColor;
+      border-radius: var(--radius-full);
+      animation: spin 1s linear infinite;
+    }
+  }
+}
+
+// ============================================================================
+// CARDS PREMIUM CALABRESI 🏪
+// ============================================================================
+
+.card {
+  @include card;
+  
+  &--premium {
+    @include premium-card;
+  }
+  
+  &--product {
+    @include product-card;
+  }
+  
+  &--glass {
+    @include glass-effect;
+  }
+  
+  &--elevated {
+    box-shadow: var(--shadow-lg);
+  }
+  
+  &--flat {
+    box-shadow: none;
+    border: 1px solid var(--color-border);
+  }
+  
+  &__header {
+    padding: var(--space-6) var(--space-8);
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface-elevated);
+  }
+  
+  &__body {
+    padding: var(--space-8);
+  }
+  
+  &__footer {
+    padding: var(--space-6) var(--space-8);
+    border-top: 1px solid var(--color-border);
+    background: var(--color-surface-elevated);
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-3);
+  }
+  
+  &__title {
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-primary);
+    margin-bottom: var(--space-2);
+  }
+  
+  &__subtitle {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+  }
+}
+
+// ============================================================================
+// FORM ELEMENTS
+// ============================================================================
+
+.form {
+  &__group {
+    margin-bottom: var(--space-6);
+  }
+  
+  &__label {
+    display: block;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-2);
+    font-size: var(--font-size-sm);
+    
+    &--required::after {
+      content: " *";
+      color: var(--color-error);
+    }
+  }
+  
+  &__input,
+  &__textarea,
+  &__select {
+    @include input-base;
+    
+    &--error {
+      border-color: var(--color-error);
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    }
+    
+    &--success {
+      border-color: var(--color-success);
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+    }
+  }
+  
+  &__textarea {
+    min-height: 120px;
+    resize: vertical;
+  }
+  
+  &__help {
+    margin-top: var(--space-2);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+  }
+  
+  &__error {
+    margin-top: var(--space-2);
+    font-size: var(--font-size-xs);
+    color: var(--color-error);
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    
+    &::before {
+      content: "⚠️";
+    }
+  }
+  
+  &__success {
+    margin-top: var(--space-2);
+    font-size: var(--font-size-xs);
+    color: var(--color-success);
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    
+    &::before {
+      content: "✅";
+    }
+  }
+}
+
+// ============================================================================
+// BADGES
+// ============================================================================
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  
+  &--primary {
+    background: var(--color-primary-100);
+    color: var(--color-primary);
+  }
+  
+  &--secondary {
+    background: var(--color-secondary-100);
+    color: var(--color-secondary);
+  }
+  
+  &--success {
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--color-success);
+  }
+  
+  &--warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--color-warning);
+  }
+  
+  &--error {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--color-error);
+  }
+  
+  &--info {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--color-info);
+  }
+}
+
+// ============================================================================
+// ALERTS
+// ============================================================================
+
+.alert {
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-6);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-relaxed);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  
+  &--success {
+    background: linear-gradient(135deg, rgba(187, 247, 208, 0.9) 0%, rgba(187, 247, 208, 0.7) 100%);
+    color: #166534;
+    border: 1px solid #86efac;
+    
+    &::before {
+      content: "✅";
+      font-size: var(--font-size-lg);
+    }
+  }
+  
+  &--warning {
+    background: linear-gradient(135deg, rgba(254, 215, 170, 0.9) 0%, rgba(254, 215, 170, 0.7) 100%);
+    color: #92400e;
+    border: 1px solid #fbbf24;
+    
+    &::before {
+      content: "⚠️";
+      font-size: var(--font-size-lg);
+    }
+  }
+  
+  &--error {
+    background: linear-gradient(135deg, rgba(254, 202, 202, 0.9) 0%, rgba(254, 202, 202, 0.7) 100%);
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+    
+    &::before {
+      content: "❌";
+      font-size: var(--font-size-lg);
+    }
+  }
+  
+  &--info {
+    background: linear-gradient(135deg, rgba(191, 219, 254, 0.9) 0%, rgba(191, 219, 254, 0.7) 100%);
+    color: #1e40af;
+    border: 1px solid #93c5fd;
+    
+    &::before {
+      content: "ℹ️";
+      font-size: var(--font-size-lg);
+    }
+  }
+}
+
+// ============================================================================
+// LOADING SPINNER
+// ============================================================================
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--color-neutral-200);
+  border-top: 4px solid var(--color-primary);
+  border-radius: var(--radius-full);
+  animation: spin 1s linear infinite;
+  
+  &--small {
+    width: 20px;
+    height: 20px;
+    border-width: 2px;
+  }
+  
+  &--large {
+    width: 60px;
+    height: 60px;
+    border-width: 6px;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// ============================================================================
+// COMPONENTI E-COMMERCE PREMIUM CALABRESI 🛒🇮🇹
+// ============================================================================
+
+// Hero Section Calabrese
+.hero-calabria {
+  @include hero-section;
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  
+  &__content {
+    max-width: 800px;
+    padding: var(--space-8);
+    position: relative;
+    z-index: 2;
+  }
+  
+  &__title {
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-6xl);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--space-6);
+    @include text-gradient(var(--color-secondary-light), var(--color-accent-light));
+    
+    @media (max-width: 768px) {
+      font-size: var(--font-size-4xl);
+    }
+  }
+  
+  &__subtitle {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--space-8);
+    opacity: 0.9;
+    line-height: var(--line-height-relaxed);
+  }
+}
+
+// Product Grid Premium
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-8);
+  padding: var(--space-8) 0;
+  
+  @media (max-width: 640px) {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--space-6);
+  }
+}
+
+// Product Card Premium
+.product-card {
+  @include product-card;
+  
+  &__image {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    transition: var(--transition-all);
+  }
+  
+  &__content {
+    padding: var(--space-6);
+  }
+  
+  &__title {
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-primary);
+    margin-bottom: var(--space-2);
+    line-height: var(--line-height-tight);
+  }
+  
+  &__description {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--space-4);
+    line-height: var(--line-height-relaxed);
+  }
+  
+  &__price {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+    
+    &-current {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-secondary);
+    }
+    
+    &-original {
+      font-size: var(--font-size-base);
+      color: var(--color-text-muted);
+      text-decoration: line-through;
+    }
+    
+    &-discount {
+      background: var(--color-accent);
+      color: var(--color-text-on-dark);
+      padding: var(--space-1) var(--space-2);
+      border-radius: var(--radius-base);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-semibold);
+    }
+  }
+  
+  &__actions {
+    display: flex;
+    gap: var(--space-3);
+  }
+  
+  &:hover {
+    .product-card__image {
+      transform: unquote("scale(1.05)");
+    }
+  }
+}
+
+// Category Card
+.category-card {
+  @include premium-card;
+  text-align: center;
+  padding: var(--space-8);
+  transition: var(--transition-all);
+  
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-xl);
+  }
+  
+  &__icon {
+    font-size: var(--font-size-5xl);
+    margin-bottom: var(--space-4);
+    display: block;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+  }
+  
+  &__title {
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-primary);
+    margin-bottom: var(--space-2);
+  }
+  
+  &__count {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+  }
+}
+
+// Feature Card
+.feature-card {
+  @include premium-card;
+  padding: var(--space-8);
+  text-align: center;
+  @include hover-lift;
+  
+  &__icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto var(--space-6);
+    background: var(--gradient-calabria);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-3xl);
+    color: var(--color-text-on-dark);
+    box-shadow: var(--shadow-lg);
+  }
+  
+  &__title {
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-primary);
+    margin-bottom: var(--space-4);
+  }
+  
+  &__description {
+    color: var(--color-text-secondary);
+    line-height: var(--line-height-relaxed);
+  }
+}
+
+// ============================================================================
+// COMPONENTI E-COMMERCE AVANZATI CALABRESI 🛍️🇮🇹
+// ============================================================================
+
+// Newsletter Premium
+.newsletter-premium {
+  @include premium-card;
+  background: var(--gradient-earth);
+  color: var(--color-text-on-dark);
+  text-align: center;
+  padding: var(--space-12);
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, 
+      rgba(212, 148, 30, 0.1) 0%, 
+      transparent 70%);
+    animation: rotate 20s linear infinite;
+  }
+  
+  &__title {
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--space-4);
+    @include text-gradient(var(--color-secondary-light), var(--color-accent-light));
+  }
+  
+  &__subtitle {
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--space-8);
+    opacity: 0.9;
+  }
+  
+  &__form {
+    display: flex;
+    gap: var(--space-3);
+    max-width: 500px;
+    margin: 0 auto;
+    
+    @media (max-width: var(--breakpoint-sm)) {
+      flex-direction: column;
+    }
+  }
+  
+  &__input {
+    flex: 1;
+    padding: var(--space-4);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--radius-xl);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    color: var(--color-text-on-dark);
+    font-size: var(--font-size-base);
+    
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+    
+    &:focus {
+      outline: none;
+      border-color: var(--color-secondary);
+      box-shadow: 0 0 0 3px rgba(212, 148, 30, 0.3);
+    }
+  }
+  
+  &__button {
+    @include button-calabria;
+    padding: var(--space-4) var(--space-8);
+    white-space: nowrap;
+  }
+}
+
+// Testimonial Premium
+.testimonial-premium {
+  @include premium-card;
+  padding: var(--space-8);
+  text-align: center;
+  position: relative;
+  
+  &::before {
+    content: '"';
+    position: absolute;
+    top: var(--space-4);
+    left: var(--space-6);
+    font-family: var(--font-family-display);
+    font-size: 4rem;
+    color: var(--color-primary-light);
+    opacity: 0.3;
+    line-height: 1;
+  }
+  
+  &__content {
+    position: relative;
+    z-index: 2;
+  }
+  
+  &__text {
+    font-family: var(--font-family-primary);
+    font-size: var(--font-size-lg);
+    font-style: italic;
+    line-height: var(--line-height-relaxed);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-6);
+  }
+  
+  &__author {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    
+    &-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: var(--radius-full);
+      border: 3px solid var(--color-primary);
+      object-fit: cover;
+    }
+    
+    &-info {
+      text-align: left;
+    }
+    
+    &-name {
+      font-family: var(--font-family-display);
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-primary);
+      margin-bottom: var(--space-1);
+    }
+    
+    &-role {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-tertiary);
+    }
+  }
+  
+  &__rating {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-1);
+    margin-bottom: var(--space-4);
+    
+    &-star {
+      color: var(--color-secondary);
+      font-size: var(--font-size-lg);
+    }
+  }
+}
+
+// Stats Card Premium
+.stats-card-premium {
+  @include premium-card;
+  padding: var(--space-8);
+  text-align: center;
+  background: linear-gradient(135deg, 
+    var(--color-surface) 0%, 
+    var(--color-neutral-50) 100%);
+  
+  &__icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto var(--space-4);
+    background: var(--gradient-calabria);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-3xl);
+    color: var(--color-text-on-dark);
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: -4px;
+      right: -4px;
+      bottom: -4px;
+      border-radius: var(--radius-full);
+      background: var(--gradient-calabria);
+      opacity: 0.3;
+      z-index: -1;
+      animation: pulse 2s infinite;
+    }
+  }
+  
+  &__number {
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    margin-bottom: var(--space-2);
+    line-height: 1;
+  }
+  
+  &__label {
+    font-family: var(--font-family-primary);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  &__trend {
+    margin-top: var(--space-3);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    
+    &--up {
+      color: var(--color-success);
+      
+      &::before {
+        content: "↗️ ";
+      }
+    }
+    
+    &--down {
+      color: var(--color-error);
+      
+      &::before {
+        content: "↘️ ";
+      }
+    }
+    
+    &--stable {
+      color: var(--color-text-tertiary);
+      
+      &::before {
+        content: "➡️ ";
+      }
+    }
+  }
+}
+
+// Breadcrumb Premium
+.breadcrumb-premium {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-6);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border-light);
+  margin-bottom: var(--space-6);
+  
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-family-primary);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    transition: var(--transition-fast);
+    
+    &:hover {
+      color: var(--color-primary);
+    }
+    
+    &--active {
+      color: var(--color-primary);
+      font-weight: var(--font-weight-bold);
+    }
+    
+    &:not(:last-child)::after {
+      content: "›";
+      margin-left: var(--space-2);
+      color: var(--color-text-tertiary);
+      font-weight: var(--font-weight-normal);
+    }
+  }
+}
+
+// Search Bar Premium
+.search-premium {
+  position: relative;
+  max-width: 600px;
+  margin: 0 auto;
+  
+  &__input {
+    width: 100%;
+    padding: var(--space-4) var(--space-6) var(--space-4) var(--space-16);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-2xl);
+    font-family: var(--font-family-primary);
+    font-size: var(--font-size-lg);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    transition: var(--transition-base);
+    box-shadow: var(--shadow-md);
+    
+    &::placeholder {
+      color: var(--color-text-tertiary);
+      font-style: italic;
+    }
+    
+    &:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 4px rgba(45, 82, 51, 0.1), var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+  }
+  
+  &__icon {
+    position: absolute;
+    left: var(--space-5);
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: var(--font-size-xl);
+    color: var(--color-text-tertiary);
+    pointer-events: none;
+    
+    &::before {
+      content: "🔍";
+    }
+  }
+  
+  &__button {
+    position: absolute;
+    right: var(--space-2);
+    top: 50%;
+    transform: translateY(-50%);
+    @include button-primary;
+    padding: var(--space-3) var(--space-6);
+    border-radius: var(--radius-xl);
+  }
+}
+
+// ============================================================================
+// ANIMAZIONI AVANZATE
+// ============================================================================
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: unquote("scale(1)");
+  }
+  50% {
+    opacity: 0.6;
+    transform: unquote("scale(1.05)");
+  }
+}
+
+// ============================================================================
+// COMPONENTI AVANZATI E-COMMERCE CALABRESE 🛒✨
+// ============================================================================
+
+// Cart Summary Premium
+.cart-summary-premium {
+  @include premium-card;
+  padding: var(--space-8);
+  background: linear-gradient(135deg, 
+    var(--color-surface) 0%, 
+    var(--color-neutral-50) 100%);
+  position: sticky;
+  top: var(--space-6);
+  
+  &__title {
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    margin-bottom: var(--space-6);
+    text-align: center;
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -var(--space-2);
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 2px;
+      background: var(--color-secondary);
+      border-radius: var(--radius-full);
+    }
+    
+    &::before {
+      content: "🛒";
+      margin-right: var(--space-2);
+    }
+  }
+  
+  &__items {
+    margin-bottom: var(--space-6);
+  }
+  
+  &__item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--color-border-light);
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    &-name {
+      font-family: var(--font-family-primary);
+      font-size: var(--font-size-sm);
+      color: var(--color-text-primary);
+      font-weight: var(--font-weight-medium);
+    }
+    
+    &-price {
+      font-family: var(--font-family-display);
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-secondary);
+    }
+  }
+  
+  &__total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-4) 0;
+    border-top: 2px solid var(--color-primary);
+    margin-bottom: var(--space-6);
+    
+    &-label {
+      font-family: var(--font-family-display);
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-primary);
+    }
+    
+    &-amount {
+      font-family: var(--font-family-display);
+      font-size: var(--font-size-2xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-secondary);
+    }
+  }
+  
+  &__checkout {
+    @include button-calabria;
+    width: 100%;
+    padding: var(--space-4);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    
+    &::after {
+      content: " 🚀";
+      margin-left: var(--space-2);
+    }
+  }
+}
+
+// Product Comparison Table
+.comparison-table-premium {
+  @include premium-card;
+  overflow-x: auto;
+  
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-family-primary);
+    
+    th, td {
+      padding: var(--space-4);
+      text-align: left;
+      border-bottom: 1px solid var(--color-border);
+    }
+    
+    th {
+      background: var(--gradient-calabria);
+      color: var(--color-text-on-dark);
+      font-weight: var(--font-weight-bold);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    
+    tr:hover {
+      background: var(--color-neutral-50);
+    }
+    
+    .product-image {
+      width: 60px;
+      height: 60px;
+      border-radius: var(--radius-lg);
+      object-fit: cover;
+    }
+    
+    .price-cell {
+      font-family: var(--font-family-display);
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-secondary);
+    }
+    
+    .rating-cell {
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+      
+      .star {
+        color: var(--color-secondary);
+        font-size: var(--font-size-sm);
+      }
+    }
+  }
+}
+
+// Wishlist Item Premium
+.wishlist-item-premium {
+  @include premium-card;
+  padding: var(--space-6);
+  display: flex;
+  gap: var(--space-6);
+  transition: var(--transition-base);
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+  }
+  
+  &__image {
+    width: 120px;
+    height: 120px;
+    border-radius: var(--radius-xl);
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  
+  &__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  &__title {
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-primary);
+    margin-bottom: var(--space-2);
+    line-height: var(--line-height-tight);
+  }
+  
+  &__description {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+    margin-bottom: var(--space-4);
+  }
+  
+  &__price {
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-secondary);
+    margin-bottom: var(--space-4);
+  }
+  
+  &__actions {
+    display: flex;
+    gap: var(--space-3);
+    
+    .btn {
+      flex: 1;
+    }
+  }
+  
+  &__remove {
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    background: rgba(220, 38, 38, 0.1);
+    color: var(--color-error);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-fast);
+    
+    &:hover {
+      background: var(--color-error);
+      color: var(--color-text-on-dark);
+      transform: unquote("scale(1.1)");
+    }
+    
+    &::before {
+      content: "❌";
+      font-size: var(--font-size-sm);
+    }
+  }
+}
+
+// Order Status Timeline
+.order-timeline-premium {
+  @include premium-card;
+  padding: var(--space-8);
+  
+  &__title {
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    margin-bottom: var(--space-6);
+    text-align: center;
+    
+    &::before {
+      content: "📦";
+      margin-right: var(--space-2);
+    }
+  }
+  
+  &__steps {
+    position: relative;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      left: 20px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--color-border);
+    }
+  }
+  
+  &__step {
+    position: relative;
+    padding-left: var(--space-12);
+    padding-bottom: var(--space-6);
+    
+    &:last-child {
+      padding-bottom: 0;
+    }
+    
+    &::before {
+      content: '';
+      position: absolute;
+      left: 12px;
+      top: 4px;
+      width: 16px;
+      height: 16px;
+      border-radius: var(--radius-full);
+      background: var(--color-border);
+      border: 3px solid var(--color-surface);
+      z-index: 2;
+    }
+    
+    &--completed::before {
+      background: var(--color-success);
+    }
+    
+    &--current::before {
+      background: var(--color-secondary);
+      animation: pulse 2s infinite;
+    }
+    
+    &-title {
+      font-family: var(--font-family-primary);
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+      margin-bottom: var(--space-1);
+    }
+    
+    &-description {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-1);
+    }
+    
+    &-date {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-tertiary);
+      font-weight: var(--font-weight-medium);
+    }
+  }
+}
+
+// Review Card Premium
+.review-card-premium {
+  @include premium-card;
+  padding: var(--space-6);
+  margin-bottom: var(--space-4);
+  
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+  
+  &__avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: var(--radius-full);
+    object-fit: cover;
+    border: 2px solid var(--color-primary);
+  }
+  
+  &__user-info {
+    flex: 1;
+  }
+  
+  &__user-name {
+    font-family: var(--font-family-primary);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-1);
+  }
+  
+  &__date {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+  }
+  
+  &__rating {
+    display: flex;
+    gap: var(--space-1);
+    margin-bottom: var(--space-4);
+    
+    .star {
+      color: var(--color-secondary);
+      font-size: var(--font-size-lg);
+      
+      &--empty {
+        color: var(--color-neutral-300);
+      }
+    }
+  }
+  
+  &__content {
+    font-family: var(--font-family-primary);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-relaxed);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-4);
+  }
+  
+  &__actions {
+    display: flex;
+    gap: var(--space-3);
+    
+    .btn {
+      font-size: var(--font-size-xs);
+      padding: var(--space-2) var(--space-3);
+    }
+  }
+  
+  &--verified {
+    border-left: 4px solid var(--color-success);
+    
+    .review-card-premium__user-name::after {
+      content: " ✅";
+      font-size: var(--font-size-sm);
+    }
+  }
+}
+
+// Promo Banner Premium
+.promo-banner-premium {
+  background: var(--gradient-earth);
+  color: var(--color-text-on-dark);
+  padding: var(--space-8);
+  border-radius: var(--radius-2xl);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: var(--space-8);
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, 
+      rgba(255, 255, 255, 0.1) 0%, 
+      transparent 70%);
+    animation: rotate 30s linear infinite;
+  }
+  
+  &__content {
+    position: relative;
+    z-index: 2;
+  }
+  
+  &__title {
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--space-4);
+    @include text-gradient(var(--color-secondary-light), var(--color-accent-light));
+  }
+  
+  &__subtitle {
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--space-6);
+    opacity: 0.9;
+  }
+  
+  &__cta {
+    @include button-calabria;
+    padding: var(--space-4) var(--space-8);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    text-transform: uppercase;
+    
+    &::after {
+      content: " 🎯";
+      margin-left: var(--space-2);
+    }
+  }
+  
+  &__discount {
+    position: absolute;
+    top: var(--space-4);
+    right: var(--space-4);
+    background: var(--color-accent);
+    color: var(--color-text-on-dark);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-full);
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    animation: pulse 2s infinite;
+    
+    &::before {
+      content: "🔥 ";
+    }
+  }
+} 

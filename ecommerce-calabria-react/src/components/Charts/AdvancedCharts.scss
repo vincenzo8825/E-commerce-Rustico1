@@ -1,0 +1,460 @@
+@use '../../styles/design-system' as *;
+
+// ============================================================================
+// ADVANCED CHARTS PREMIUM CALABRESE 📊✨
+// ============================================================================
+
+.advanced-chart {
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+  transition: var(--transition-base);
+  border: 1px solid var(--color-border);
+
+  @media (max-width: 768px) {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  }
+
+  .chart-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0 0 20px 0;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #ecf0f1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    @media (max-width: 768px) {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+      padding-bottom: 12px;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+    }
+
+    &::before {
+      content: "📊";
+      font-size: 1.3rem;
+    }
+  }
+
+  .chart-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    color: #7f8c8d;
+    font-size: 1rem;
+    font-weight: 500;
+
+    &::before {
+      content: "";
+      width: 30px;
+      height: 30px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #8B4513;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 15px;
+    }
+  }
+
+  .chart-error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    color: #e74c3c;
+    font-size: 1rem;
+    font-weight: 500;
+    text-align: center;
+    padding: 20px;
+
+    &::before {
+      content: "⚠️";
+      font-size: 1.5rem;
+      margin-right: 10px;
+    }
+  }
+
+  // Stili per i tooltip di Recharts
+  .recharts-tooltip-wrapper {
+    .recharts-default-tooltip {
+      background: white !important;
+      border: 1px solid #8B4513 !important;
+      border-radius: 8px !important;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+      
+      .recharts-tooltip-label {
+        color: #2c3e50 !important;
+        font-weight: 600 !important;
+        margin-bottom: 5px !important;
+        font-size: 0.9rem !important;
+      }
+
+      .recharts-tooltip-item {
+        color: #8B4513 !important;
+        font-weight: 500 !important;
+        font-size: 0.85rem !important;
+      }
+    }
+  }
+
+  // Stili per le legende
+  .recharts-legend-wrapper {
+    .recharts-default-legend {
+      .recharts-legend-item {
+        margin-right: 15px !important;
+        margin-bottom: 5px !important;
+        
+        .recharts-legend-item-text {
+          color: #2c3e50 !important;
+          font-weight: 500 !important;
+          font-size: 0.9rem !important;
+        }
+      }
+    }
+  }
+
+  // Stili per gli assi
+  .recharts-cartesian-axis {
+    .recharts-cartesian-axis-tick {
+      text {
+        fill: #7f8c8d !important;
+        font-size: 12px !important;
+        font-weight: 500 !important;
+      }
+    }
+  }
+
+  // Stili per la griglia
+  .recharts-cartesian-grid {
+    line {
+      stroke: #f8f9fa !important;
+      stroke-dasharray: 3 3 !important;
+    }
+  }
+
+  // Hover effects per le barre
+  .recharts-bar-rectangle {
+    transition: all 0.3s ease;
+    
+    &:hover {
+      filter: brightness(1.1);
+    }
+  }
+
+  // Hover effects per le linee
+  .recharts-line {
+    .recharts-line-curve {
+      transition: all 0.3s ease;
+    }
+    
+    .recharts-line-dot {
+      transition: all 0.3s ease;
+      
+      &:hover {
+        r: 6;
+        filter: brightness(1.2);
+      }
+    }
+  }
+
+  // Stili per i settori del pie chart
+  .recharts-pie {
+    .recharts-pie-sector {
+      transition: all 0.3s ease;
+      
+      &:hover {
+        filter: brightness(1.1);
+        transform: scale(1.05);
+        transform-origin: center;
+      }
+    }
+  }
+
+  // Stili per le aree
+  .recharts-area {
+    .recharts-area-area {
+      transition: all 0.3s ease;
+      
+      &:hover {
+        filter: brightness(1.1);
+      }
+    }
+  }
+
+  // Stili per i radial bar
+  .recharts-radial-bar {
+    .recharts-radial-bar-sector {
+      transition: all 0.3s ease;
+      
+      &:hover {
+        filter: brightness(1.1);
+      }
+    }
+  }
+}
+
+// Stili specifici per diversi tipi di grafici
+.advanced-chart {
+  // Users Growth Chart
+  &.users-growth-chart {
+    .chart-title::before {
+      content: "👥";
+    }
+  }
+
+  // Top Products Chart
+  &.top-products-chart {
+    .chart-title::before {
+      content: "🏆";
+    }
+  }
+
+  // Sales vs Orders Chart
+  &.sales-vs-orders-chart {
+    .chart-title::before {
+      content: "📈";
+    }
+  }
+
+  // Category Performance Chart
+  &.category-performance-chart {
+    .chart-title::before {
+      content: "🥧";
+    }
+  }
+
+  // Stock Levels Chart
+  &.stock-levels-chart {
+    .chart-title::before {
+      content: "📦";
+    }
+  }
+
+  // KPI Radial Chart
+  &.kpi-radial-chart {
+    .chart-title::before {
+      content: "🎯";
+    }
+  }
+}
+
+// Container per dashboard con layout grid
+.advanced-charts-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 25px;
+  margin-bottom: 30px;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 15px;
+  }
+
+  &--full-width {
+    grid-template-columns: 1fr;
+  }
+
+  &--two-columns {
+    grid-template-columns: 1fr 1fr;
+
+    @media (max-width: 1024px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &--three-columns {
+    grid-template-columns: repeat(3, 1fr);
+
+    @media (max-width: 1200px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+// Responsive design per i grafici
+@media (max-width: 768px) {
+  .advanced-chart {
+    .recharts-wrapper {
+      .recharts-surface {
+        overflow: visible;
+      }
+    }
+
+    .recharts-legend-wrapper {
+      .recharts-default-legend {
+        .recharts-legend-item {
+          margin-right: 10px !important;
+          
+          .recharts-legend-item-text {
+            font-size: 0.8rem !important;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .advanced-chart {
+    .recharts-cartesian-axis {
+      .recharts-cartesian-axis-tick {
+        text {
+          font-size: 10px !important;
+        }
+      }
+    }
+
+    .recharts-legend-wrapper {
+      .recharts-default-legend {
+        .recharts-legend-item {
+          margin-right: 8px !important;
+          margin-bottom: 8px !important;
+          
+          .recharts-legend-item-text {
+            font-size: 0.75rem !important;
+          }
+        }
+      }
+    }
+
+    .chart-loading,
+    .chart-error {
+      height: 250px;
+      font-size: 0.9rem;
+    }
+  }
+}
+
+// Animazioni
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.advanced-chart {
+  animation: fadeIn 0.5s ease-out;
+}
+
+// Stili per accessibilità
+@media (prefers-reduced-motion: reduce) {
+  .advanced-chart {
+    animation: none;
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+
+    .chart-loading::before {
+      animation: none;
+    }
+
+    .recharts-bar-rectangle,
+    .recharts-line-dot,
+    .recharts-pie-sector,
+    .recharts-area-area,
+    .recharts-radial-bar-sector {
+      transition: none;
+    }
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .advanced-chart {
+    border: 2px solid #000;
+    
+    .chart-title {
+      color: #000;
+      border-bottom-color: #000;
+    }
+
+    .chart-loading::before {
+      border-color: #000;
+      border-top-color: #8B4513;
+    }
+
+    .recharts-cartesian-axis {
+      .recharts-cartesian-axis-tick {
+        text {
+          fill: #000 !important;
+        }
+      }
+    }
+
+    .recharts-tooltip-wrapper {
+      .recharts-default-tooltip {
+        border: 2px solid #000 !important;
+      }
+    }
+  }
+}
+
+// Print styles
+@media print {
+  .advanced-chart {
+    box-shadow: none;
+    border: 1px solid #000;
+    break-inside: avoid;
+    
+    &:hover {
+      transform: none;
+    }
+
+    .recharts-tooltip-wrapper {
+      display: none;
+    }
+  }
+
+  .advanced-charts-container {
+    &--two-columns,
+    &--three-columns {
+      grid-template-columns: 1fr;
+    }
+  }
+} 

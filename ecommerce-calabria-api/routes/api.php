@@ -246,6 +246,10 @@ Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
     Route::patch('/reviews/{id}/reject', [ReviewController::class, 'reject']);
     Route::delete('/reviews/{id}', [ReviewController::class, 'adminDestroy']);
     Route::post('/reviews/{id}/reply', [ReviewController::class, 'adminReply']);
+
+    // Rotte per Newsletter Admin
+    Route::get('/newsletter/statistics', [App\Http\Controllers\API\NewsletterController::class, 'statistics']);
+    Route::get('/newsletter/subscribers', [App\Http\Controllers\API\NewsletterController::class, 'list']);
 });
 
 // Rotta di debug per verificare i modelli e le relazioni
@@ -272,6 +276,13 @@ Route::get('/debug/models', function () {
 // Rotte per Health Check e Monitoraggio Sistema
 Route::get('/health/check', [App\Http\Controllers\API\HealthController::class, 'check']);
 Route::get('/health/stats', [App\Http\Controllers\API\HealthController::class, 'stats']);
+
+// Rotte Newsletter pubbliche
+Route::post('/newsletter/subscribe', [App\Http\Controllers\API\NewsletterController::class, 'subscribe']);
+Route::post('/newsletter/unsubscribe', [App\Http\Controllers\API\NewsletterController::class, 'unsubscribe']);
+Route::get('/newsletter/confirm/{token}', [App\Http\Controllers\API\NewsletterController::class, 'confirmEmail']);
+Route::get('/newsletter/preferences', [App\Http\Controllers\API\NewsletterController::class, 'getPreferences']);
+Route::put('/newsletter/preferences', [App\Http\Controllers\API\NewsletterController::class, 'updatePreferences']);
 
 // Rotte per gestione Cache (solo per admin autenticati)
 Route::middleware(['auth:sanctum'])->group(function () {

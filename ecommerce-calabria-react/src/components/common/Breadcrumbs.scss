@@ -1,0 +1,138 @@
+@use '../../styles/design-system' as *;
+
+.breadcrumbs {
+  background: var(--color-surface);
+  padding: var(--space-3) var(--space-6);
+  border-bottom: 1px solid var(--color-neutral-200);
+  margin-bottom: var(--space-6);
+
+  @media (max-width: 768px) {
+    padding: var(--space-2) var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+
+  &__list {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: var(--font-size-sm);
+
+    @media (max-width: 480px) {
+      font-size: var(--font-size-xs);
+      gap: var(--space-1);
+    }
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+
+    @media (max-width: 480px) {
+      gap: var(--space-1);
+    }
+  }
+
+  &__link {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: var(--transition-fast);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+
+    &:hover {
+      color: var(--color-primary-dark);
+      background: var(--color-primary-light);
+      text-decoration: underline;
+    }
+
+    &:focus {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+  }
+
+  &__separator {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-xs);
+    margin: 0 var(--space-1);
+
+    i {
+      font-size: 0.7em;
+    }
+
+    @media (max-width: 480px) {
+      margin: 0 var(--space-half);
+    }
+  }
+
+  &__current {
+    color: var(--color-text-primary);
+    font-weight: var(--font-weight-medium);
+    padding: var(--space-1) var(--space-2);
+  }
+
+  // Versione compatta per mobile
+  @media (max-width: 480px) {
+    &__list {
+      // Nascondi elementi intermedi su mobile molto piccolo se troppi
+      .breadcrumbs__item:not(:first-child):not(:last-child):not(:nth-last-child(2)) {
+        display: none;
+      }
+
+      // Aggiungi "..." quando nascosti
+      .breadcrumbs__item:first-child:not(:nth-last-child(2))::after {
+        content: "...";
+        color: var(--color-text-secondary);
+        margin: 0 var(--space-1);
+      }
+    }
+  }
+
+  // Tema scuro
+  @media (prefers-color-scheme: dark) {
+    background: var(--color-neutral-800);
+    border-bottom-color: var(--color-neutral-700);
+
+    &__link {
+      color: var(--color-primary-light);
+
+      &:hover {
+        color: var(--color-primary);
+        background: var(--color-neutral-700);
+      }
+    }
+
+    &__current {
+      color: var(--color-text-on-dark);
+    }
+
+    &__separator {
+      color: var(--color-neutral-400);
+    }
+  }
+
+  // Stile minimal
+  &--minimal {
+    background: transparent;
+    border: none;
+    padding: var(--space-2) 0;
+
+    .breadcrumbs__link {
+      padding: var(--space-half);
+    }
+  }
+
+  // Stile con icone
+  &--with-icons {
+    .breadcrumbs__item:first-child .breadcrumbs__link::before {
+      content: "🏠";
+      margin-right: var(--space-1);
+      font-size: var(--font-size-sm);
+    }
+  }
+} 

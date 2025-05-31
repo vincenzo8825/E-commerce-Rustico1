@@ -1,261 +1,159 @@
-import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation, Navigate, useNavigate } from 'react-router-dom';
+import React, { Suspense, lazy } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
+import { CartProvider } from './contexts/CartContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { ToastProvider } from './components/Toast/Toast';
+import { AccessibilityProvider, SkipNavigation } from './components/common/AccessibilityEnhancements';
+import { PerformanceMonitor } from './components/common/SEOEnhancements';
 import Navbar from './components/Navbar/Navbar';
 import Footer from './components/Footer/Footer';
-import { ToastProvider } from './components/Toast/Toast';
-import { CartProvider } from './contexts/CartContext';
-import Home from './pages/Home/Home';
-import Products from './pages/Products/Products';
-import Categories from './pages/Categories/Categories';
-import Cart from './pages/Cart/Cart';
-import Favorites from './pages/User/Favorites';
-import Login from './pages/Auth/Login';
-import Register from './pages/Auth/Register';
-import UserDashboard from './pages/User/Dashboard';
-import AdminDashboard from './pages/Admin/Dashboard';
-import AllReviews from './pages/Reviews/AllReviews';
-import { isAuthenticated } from './utils/auth';
-import api from './utils/api';
-import './App.scss';
-import ProductDetail from './pages/Products/ProductDetail';
-import Checkout from './pages/Checkout/Checkout';
+import { LoadingSpinner } from './components/common/LoadingStates';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
-// Global auth state
-const AuthContext = React.createContext({
-  isLoggedIn: false,
-  isAdmin: false,
-  user: null,
-  emailVerified: false,
-  loading: true,
-  setAuthState: () => {},
-});
+// Lazy load delle pagine per ottimizzare performance
+const Home = lazy(() => import('./pages/Home/Home'));
+const Products = lazy(() => import('./pages/Products/Products'));
+const ProductDetail = lazy(() => import('./pages/Products/ProductDetail'));
+const SearchPage = lazy(() => import('./pages/SearchPage'));
+const Cart = lazy(() => import('./pages/Cart/Cart'));
+const Checkout = lazy(() => import('./pages/Checkout/Checkout'));
+const Login = lazy(() => import('./pages/Auth/Login'));
+const Register = lazy(() => import('./pages/Auth/Register'));
+const ForgotPassword = lazy(() => import('./pages/Auth/ForgotPassword'));
+const ResetPassword = lazy(() => import('./pages/Auth/ResetPassword'));
+const Dashboard = lazy(() => import('./pages/User/Dashboard'));
+const Orders = lazy(() => import('./pages/User/Orders'));
+const OrderDetail = lazy(() => import('./pages/User/OrderDetail'));
+const OrderConfirmation = lazy(() => import('./pages/User/OrderConfirmation'));
+const Favorites = lazy(() => import('./pages/User/Favorites'));
+const CreateTicket = lazy(() => import('./pages/User/CreateTicket'));
+const TicketDetail = lazy(() => import('./pages/User/TicketDetail'));
+const Reviews = lazy(() => import('./pages/Reviews/Reviews'));
+const About = lazy(() => import('./pages/About/About'));
+const Contact = lazy(() => import('./pages/Contact/Contact'));
+const PrivacyPolicy = lazy(() => import('./pages/Legal/PrivacyPolicy'));
+const TermsConditions = lazy(() => import('./pages/Legal/TermsConditions'));
+const CookiePolicy = lazy(() => import('./pages/Legal/CookiePolicy'));
+const RightOfWithdrawal = lazy(() => import('./pages/Legal/RightOfWithdrawal'));
+const ShippingReturns = lazy(() => import('./pages/Legal/ShippingReturns'));
+const Warranties = lazy(() => import('./pages/Legal/Warranties'));
 
-// Hook per usare AuthContext
-export const useAuth = () => React.useContext(AuthContext);
+// Admin Dashboard Layout - questo contiene la sidebar e gestisce tutte le rotte admin
+const AdminDashboard = lazy(() => import('./pages/Admin/Dashboard'));
 
-// Componente wrapper per gestire visibilità di Navbar e Footer
-const AppLayout = ({ children }) => {
-  const location = useLocation();
-  const isAdminRoute = location.pathname.startsWith('/admin');
-  
-  return (
-    <div className="app">
-      {!isAdminRoute && <Navbar />}
-      <main className={`app__content ${isAdminRoute ? 'app__content--admin' : ''}`}>
-        {children}
-      </main>
-      {!isAdminRoute && <Footer />}
-    </div>
-  );
-};
-
-// Componente per proteggere rotte che richiedono autenticazione
-const ProtectedRoute = ({ children }) => {
-  const { isLoggedIn, loading } = useAuth();
-  
-  if (loading) {
-    return <div className="app__loading">Verifica autenticazione...</div>;
-  }
-  
-  if (!isLoggedIn) {
-    // Redirect a login se non autenticato
-    return <Navigate to="/login" replace />;
-  }
-  
-  return children;
-};
-
-// Componente per proteggere rotte admin
-const AdminRoute = ({ children }) => {
-  const { isLoggedIn, isAdmin, loading } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // Verifica se l'utente è autenticato e admin
-    if (!loading) {
-      if (!isLoggedIn) {
-        // Reindirizza al login se non autenticato
-        navigate('/login', { replace: true });
-      } else if (isAdmin !== true) {
-        // Reindirizza alla home se non è admin
-        navigate('/', { 
-          replace: true,
-          state: { message: 'Non hai i permessi necessari per accedere all\'area amministrativa.' }
-        });
-      }
-    }
-  }, [isLoggedIn, isAdmin, loading, navigate]);
-
-  if (loading) {
-    return <div className="app__loading">Verifica permessi in corso...</div>;
-  }
-
-  if (!isLoggedIn || !isAdmin) {
-    return null; // Il reindirizzamento è gestito nell'useEffect
-  }
-
-  return children;
-};
-
-// Componente per utenti con email verificata
-const VerifiedRoute = ({ children }) => {
-  const { isLoggedIn, emailVerified, loading } = useAuth();
-  
-  if (loading) {
-    return <div className="app__loading">Verifica stato email...</div>;
-  }
-  
-  if (!isLoggedIn) {
-    return <Navigate to="/login" replace />;
-  }
-  
-  if (!emailVerified) {
-    return <div className="app__verification-required">
-      <h2>Verifica Email Richiesta</h2>
-      <p>Per accedere a questa sezione devi prima verificare la tua email.</p>
-      <p>Controlla la tua casella di posta e clicca sul link di conferma.</p>
-      <button 
-        className="app__resend-btn"
-        onClick={() => {
-          api.post('/email/verification-notification')
-            .then(() => alert('Email di verifica inviata con successo!'))
-            .catch(() => alert('Errore durante l\'invio dell\'email.'));
-        }}
-      >
-        Invia nuovamente email di verifica
-      </button>
-      <button 
-        className="app__back-btn"
-        onClick={() => window.history.back()}
-      >
-        Torna indietro
-      </button>
-    </div>;
-  }
-  
-  return children;
-};
+// Componente per il fallback loading
+const PageLoader = () => (
+  <div style={{ 
+    display: 'flex', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    minHeight: '60vh' 
+  }}>
+    <LoadingSpinner size="large" message="Caricamento pagina..." />
+  </div>
+);
 
 function App() {
-  const [authState, setAuthState] = useState({
-    isLoggedIn: isAuthenticated(),
-    isAdmin: false,
-    user: null,
-    emailVerified: false,
-    loading: true,
-  });
-
-  useEffect(() => {
-    // Verifica lo stato di autenticazione dell'utente all'avvio
-    const checkAuthStatus = async () => {
-      if (!isAuthenticated()) {
-        setAuthState({
-          isLoggedIn: false,
-          isAdmin: false,
-          user: null,
-          emailVerified: false,
-          loading: false,
-        });
-        return;
-      }
-      
-      try {
-        // Aggiunge log per debug
-        // console.log("Verificando stato autenticazione...");
-        const response = await api.get('/auth/check');
-        // console.log("Risposta check auth:", response.data);
-        
-        // Verifica esplicitamente lo stato admin
-        const isAdminUser = response.data.user && response.data.user.is_admin === true;
-        // console.log("Utente è admin:", isAdminUser);
-        
-        // Aggiorna lo stato con enfasi sull'attributo isAdmin
-        setAuthState({
-          isLoggedIn: true,
-          isAdmin: isAdminUser,
-          user: response.data.user,
-          emailVerified: response.data.user.email_verified,
-          loading: false,
-        });
-        
-        // Salva in localStorage come backup
-        localStorage.setItem('auth_data', JSON.stringify({
-          isAdmin: isAdminUser,
-          emailVerified: response.data.user.email_verified
-        }));
-      } catch (error) {
-        // Se c'è un errore, probabilmente il token non è valido
-        console.error('Errore verifica autenticazione:', error);
-        localStorage.removeItem('token');
-        localStorage.removeItem('auth_data');
-        setAuthState({
-          isLoggedIn: false,
-          isAdmin: false,
-          user: null,
-          emailVerified: false,
-          loading: false,
-        });
-      }
-    };
-    
-    checkAuthStatus();
-  }, []);
-  
-  const authContextValue = {
-    ...authState,
-    setAuthState: (newState) => setAuthState(prev => ({ ...prev, ...newState })),
-  };
-
   return (
-    <AuthContext.Provider value={authContextValue}>
-      <ToastProvider>
-        <CartProvider>
-          <Router>
-            <AppLayout>
-              <Routes>
-                {/* Rotte pubbliche */}
-                <Route path="/" element={<Home />} />
-                <Route path="/products" element={<Products />} />
-                <Route path="/products/:slug" element={<ProductDetail />} />
-                <Route path="/categories" element={<Categories />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/reviews" element={<AllReviews />} />
-                
-                {/* Rotte protette per utenti autenticati */}
-                <Route path="/cart" element={
-                  <ProtectedRoute>
-                    <Cart />
-                  </ProtectedRoute>
-                } />
-                <Route path="/checkout" element={
-                  <VerifiedRoute>
-                    <Checkout />
-                  </VerifiedRoute>
-                } />
-                <Route path="/favorites" element={
-                  <ProtectedRoute>
-                    <Favorites />
-                  </ProtectedRoute>
-                } />
-                <Route path="/dashboard/*" element={
-                  <VerifiedRoute>
-                    <UserDashboard />
-                  </VerifiedRoute>
-                } />
-                
-                {/* Rotte protette per admin */}
-                <Route path="/admin/*" element={
-                  <AdminRoute>
-                    <AdminDashboard />
-                  </AdminRoute>
-                } />
-              </Routes>
-            </AppLayout>
-          </Router>
-        </CartProvider>
-      </ToastProvider>
-    </AuthContext.Provider>
+    <HelmetProvider>
+      <AccessibilityProvider>
+        <AuthProvider>
+          <CartProvider>
+            <ToastProvider>
+              <Router>
+                <ErrorBoundary>
+                  <div className="App">
+                    {/* Skip Navigation per accessibilità */}
+                    <SkipNavigation />
+                    
+                    {/* Performance Monitor per Core Web Vitals */}
+                    <PerformanceMonitor enabled={import.meta.env.PROD} />
+
+                    {/* Header con navigazione principale */}
+                    <header role="banner">
+                      <Navbar />
+                    </header>
+
+                    {/* Contenuto principale */}
+                    <main id="main-content" role="main">
+                      <Suspense fallback={<PageLoader />}>
+                        <Routes>
+                          {/* Rotte pubbliche */}
+                          <Route path="/" element={<Home />} />
+                          <Route path="/products" element={<Products />} />
+                          <Route path="/products/:slug" element={<ProductDetail />} />
+                          <Route path="/search" element={<SearchPage />} />
+                          <Route path="/cart" element={<Cart />} />
+                          <Route path="/checkout" element={<Checkout />} />
+                          <Route path="/reviews" element={<Reviews />} />
+                          <Route path="/about" element={<About />} />
+                          <Route path="/contact" element={<Contact />} />
+
+                          {/* Rotte autenticazione */}
+                          <Route path="/login" element={<Login />} />
+                          <Route path="/register" element={<Register />} />
+                          <Route path="/forgot-password" element={<ForgotPassword />} />
+                          <Route path="/reset-password/:token" element={<ResetPassword />} />
+
+                          {/* Rotte utente */}
+                          <Route path="/dashboard" element={<Dashboard />} />
+                          <Route path="/orders" element={<Orders />} />
+                          <Route path="/orders/:id" element={<OrderDetail />} />
+                          <Route path="/orders/confirmation/:id" element={<OrderConfirmation />} />
+                          <Route path="/favorites" element={<Favorites />} />
+                          <Route path="/support/create" element={<CreateTicket />} />
+                          <Route path="/support/:id" element={<TicketDetail />} />
+
+                          {/* Rotte legali */}
+                          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                          <Route path="/terms-conditions" element={<TermsConditions />} />
+                          <Route path="/cookie-policy" element={<CookiePolicy />} />
+                          <Route path="/right-of-withdrawal" element={<RightOfWithdrawal />} />
+                          <Route path="/shipping-returns" element={<ShippingReturns />} />
+                          <Route path="/warranties" element={<Warranties />} />
+
+                          {/* Rotte Admin */}
+                          <Route path="/admin/*" element={<AdminDashboard />} />
+
+                          {/* 404 Fallback */}
+                          <Route path="*" element={
+                            <div style={{ 
+                              textAlign: 'center', 
+                              padding: '4rem 2rem',
+                              minHeight: '60vh',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              justifyContent: 'center',
+                              alignItems: 'center'
+                            }}>
+                              <h1>404 - Pagina non trovata</h1>
+                              <p>La pagina che stai cercando non esiste.</p>
+                              <a href="/" style={{ 
+                                color: 'var(--calabria-primary)',
+                                textDecoration: 'underline',
+                                marginTop: '1rem'
+                              }}>
+                                Torna alla homepage
+                              </a>
+                            </div>
+                          } />
+                        </Routes>
+                      </Suspense>
+                    </main>
+
+                    {/* Footer */}
+                    <footer id="footer" role="contentinfo">
+                      <Footer />
+                    </footer>
+                  </div>
+                </ErrorBoundary>
+              </Router>
+            </ToastProvider>
+          </CartProvider>
+        </AuthProvider>
+      </AccessibilityProvider>
+    </HelmetProvider>
   );
 }
 

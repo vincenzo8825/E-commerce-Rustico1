@@ -68,13 +68,19 @@ const PaymentForm = ({ orderData, onSuccess, onError }) => {
     style: {
       base: {
         fontSize: '16px',
-        color: '#424770',
+        color: '#2d3748',
+        fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
         '::placeholder': {
-          color: '#aab7c4',
+          color: '#a0aec0',
         },
       },
       invalid: {
-        color: '#9e2146',
+        color: '#e53e3e',
+        iconColor: '#e53e3e',
+      },
+      complete: {
+        color: '#38a169',
+        iconColor: '#38a169',
       },
     },
     hidePostalCode: true, // Usiamo già il CAP nei dati di spedizione
@@ -84,7 +90,27 @@ const PaymentForm = ({ orderData, onSuccess, onError }) => {
     <form onSubmit={handleSubmit} className="payment-form">
       <div className="payment-form__header">
         <h3>Dati Carta di Credito</h3>
-        <p>Inserisci i dati della tua carta per completare il pagamento</p>
+        <p>Inserisci i dati della tua carta per completare l'acquisto in sicurezza</p>
+      </div>
+
+      {/* Metodi di pagamento accettati */}
+      <div className="payment-form__methods">
+        <div className="payment-form__methods-item">
+          <div className="payment-form__methods-item-icon">💳</div>
+          Visa
+        </div>
+        <div className="payment-form__methods-item">
+          <div className="payment-form__methods-item-icon">💳</div>
+          Mastercard
+        </div>
+        <div className="payment-form__methods-item">
+          <div className="payment-form__methods-item-icon">💳</div>
+          American Express
+        </div>
+        <div className="payment-form__methods-item">
+          <div className="payment-form__methods-item-icon">💳</div>
+          Maestro
+        </div>
       </div>
 
       <div className="payment-form__card-element">
@@ -106,11 +132,27 @@ const PaymentForm = ({ orderData, onSuccess, onError }) => {
         disabled={!stripe || isProcessing}
         className={`payment-form__button ${isProcessing ? 'payment-form__button--processing' : ''}`}
       >
-        {isProcessing ? 'Elaborazione in corso...' : `Paga €${parseFloat(orderData.total || 0).toFixed(2)}`}
+        {isProcessing ? 'Elaborazione in corso...' : `Completa il pagamento di €${parseFloat(orderData.total || 0).toFixed(2)}`}
       </button>
 
       <div className="payment-form__security">
-        <p>🔒 Pagamento sicuro gestito da Stripe</p>
+        <p>🔒 Pagamento sicuro gestito da Stripe - I tuoi dati sono protetti con crittografia SSL</p>
+      </div>
+
+      {/* Trust indicators */}
+      <div className="payment-form__trust">
+        <div className="payment-form__trust-item">
+          <span className="payment-form__trust-item-icon">🔒</span>
+          SSL 256-bit
+        </div>
+        <div className="payment-form__trust-item">
+          <span className="payment-form__trust-item-icon">✅</span>
+          PCI Compliant
+        </div>
+        <div className="payment-form__trust-item">
+          <span className="payment-form__trust-item-icon">🛡️</span>
+          Protezione acquisti
+        </div>
       </div>
     </form>
   );
